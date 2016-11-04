@@ -1,0 +1,4 @@
+{% for code in subdomains_order[environ] %}
+  {% set subdomain = subdomains[code] %}
+  <option value="{{ code }}"{% if subdomain['attributes'] is defined %}{{ subdomain['attributes'] }}{% endif %}>{{ subdomain['name'] }}</option>
+{% endfor %}

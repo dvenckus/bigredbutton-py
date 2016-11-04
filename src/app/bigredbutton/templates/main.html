@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block content %}
+    {% if session['logged_in'] %}
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="collapse navbar-collapse" id="navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li><a href="#" class="hello">Hello, {{ session['username'] }}!</a></li>
+            <li><a href="/logout">Logout</a></li></ul>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    {% endif %}
+    <ul id="tabs" class="nav nav-tabs nav-justified" data-tabs="tabs">
+      <li class="active">
+        <a href="#preprod" data-toggle="tab" class="tab tab-preprod">Pre-Prod</a>
+      </li>
+      <li>
+        <a href="#tools" data-toggle="tab" class="tab tab-tools">Tools</a>
+      </li>
+      <li>
+        <a href="#production" data-toggle="tab" class="tab tab-production">Production</a>
+      </li>
+    </ul>
+    <div id="tab-content-preprod" class="tab-content">
+        <!-- tab: pre-prod -->
+        <div class="tab-pane active" id="preprod">
+            <h1>Pre-Production</h1>
+            <p>Manage sites: develop, stage, master</p>
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Send Tasks to Queue</h3>
+              </div>
+              <div class="panel-body">
+                <form id="deploy-preprod" action="" method="POST">
+
+                  <div class="row">
+                    <div class="col-sm-6">
+
+                      <div class="control-group">
+                        <div class="controls">
+                          <select id="subdomains-preprod" name="subdomains-preprod" class="form-control brb-subdomains">
+                            {% set environ = 'pre-prod' %}
+                            {% include 'select-subdomains.incl.jinja' %}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="control-group">
+                        <div class="controls">
+                          <select id="site-preprod" name="site-preprod" class="form-control brb-sites">
+                            {% set environ = 'pre-prod' %}
+                            {% include 'select-sites.incl.jinja' %}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="control-group">
+                        <div class="controls">
+                          <select id="task-preprod" name="task-preprod" class="form-control brb-tasks">
+                            {% set environ = 'pre-prod' %}
+                            {% include 'select-tasks.incl.jinja' %}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="control-group">
+                        <div class="controls pull-left">
+                          <label class="checkbox">
+                            <input id="chk-backup-database-preprod" type="checkbox"
+                                   name="backup-database-preprod" value="0" />
+                            Backup Database Before Push?
+                          </label>
+                        </div>
+                      </div>
+
+                    </div>
+                    <div class="col-sm-6">
+                      <input id="big-green-button" type="submit" name="submit"
+                             accept="" value="Push to Queue" class="big-button gradient-green"/>
+                    </div>
+                  </div>
+
+                </form>
+
+              </div>
+            </div>
+        </div>   <!-- tab: pre-prod -->
+
+        <!-- tab: tools -->
+        <div class="tab-pane" id="tools">
+            <h1>Tools</h1>
+            <p>Big Tools to do great things!</p>
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Tools</h3>
+              </div>
+              <div class="panel-body">
+                <form id="deploy-tools" action="" method="POST">
+
+                  <div class="control-group">
+                    <div class="controls">
+                      <select id="task-tools" name="task-tools" class="form-control">
+                         {#  % set environ = 'stage' % #}
+                         {#  % include 'select-tasks.incl.jinja' % #}
+                      </select>
+                    </div>
+                  </div>
+                  <div class="control-group">
+                    <div class="controls">
+                      <select id="site-tools" name="site-tools" class="form-control">
+                        {# % include 'select-sites.incl.jinja' % #}
+                      </select>
+                    </div>
+                  </div>
+                  <div class="control-group">
+                    <div class="controls">
+                      <select id="stage-server" name="stage-server" class="form-control">
+
+                      </select>
+                    </div>
+                  </div>
+                  <input id="big-blue-button" type="submit" name="submit"
+                         accept="" value="PUSH!" class="big-button gradient-blue"/>
+                </form>
+
+              </div>
+            </div>
+        </div> <!-- tab: tools -->
+        <!-- tab: production  -->
+        <div class="tab-pane" id="production">
+            <h1>Production</h1>
+            <p>Manage sites: www, forum</p>
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Immediate Task Execution on Production</h3>
+              </div>
+              <div class="panel-body">
+                <form id="deploy-production" action="" method="POST">
+
+                  <div class="row">
+                    <div class="col-sm-6">
+
+                      <div class="control-group">
+                        <div class="controls">
+                          <select id="site-prod"
+                                  name="site-prod" class="form-control">
+                            {% set environ = 'production' %}
+                            {% include 'select-sites.incl.jinja' %}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="control-group">
+                        <div class="controls">
+                          <select id="task-prod" name="task-prod" class="form-control">
+                             {% set environ = 'production' %}
+                             {% include 'select-tasks.incl.jinja' %}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="control-group">
+                        <div class="controls pull-left">
+                          <label class="checkbox">
+                            <input id="chk-backup-database-prod" type="checkbox"
+                                   name="backup-database-prod" value="1" checked />
+                            Backup Database Before Push?
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-sm-6">
+
+                      <input id="big-red-button" type="submit" name="submit"
+                             accept="" value="PUSH!" class="big-button gradient-red"/>
+
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+        </div>  <!-- tab: production -->
+
+    </div> <!-- deployment-tab-content -->
+    <pre id="out" style="text-align:left;"></pre>
+    <script type="text/javascript" >
+        var sse_event = new EventSource("/stream");
+        var out = document.getElementById('out');
+
+        sse_event.addEventListener('open', function(e) { console.log('EventSource opened'); }, false);
+        sse_event.addEventListener('error', function(e) { console.log('EventSource closed'); }, false);
+        sse_event.addEventListener('message', function(e) {
+                                                console.log(e.data);
+                                                var fields = e.data.split('|');
+                                                var channel = fields[0];
+                                                var type = fields[1];
+                                                var message = fields[2];
+                                                if (type != 'subscribe') {
+                                                  out.innerHTML =  message + '<br />' + out.innerHTML;
+                                                } else {
+                                                  if (window.subscribed != true) {
+                                                    out.innerHTML =  'subscribed to channel: ' + channel + '<br />' + out.innerHTML;
+                                                    window.subscribed = true;
+                                                  }
+                                                }
+                                              }, false);
+    </script>
+
+{% endblock %}

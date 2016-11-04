@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>THE BIG RED BUTTON</title>
+  <meta name="author" content="D Venckus">
+  <!-- Rev:  2014-03-06 -->
+
+  <meta HTTP-EQUIV="Pragma" content="no-cache">
+  <meta HTTP-EQUIV="Expires" content="-1">
+
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/x-icon">
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+
+  <script type="text/javascript" src="{{ url_for('static', filename='vendor/jquery/jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.min.js') }}"></script>
+
+
+  <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/brb.css') }}" rel="stylesheet">
+</head>
+<body>
+<h2>Send a Message</h2>
+<p>Message: <input id="in" /></p>
+<pre id="out" style="text-align:left;"></pre>
+<script>
+  var sse_event = new EventSource("/stream");
+  var out = document.getElementById('out');
+  sse_event.addEventListener('message', function(e) {
+                                          console.log(e.data);
+                                          var fields = e.data.split('|');
+                                          var channel = fields[0];
+                                          var type = fields[1];
+                                          var message = fields[2];
+                                          if (type != 'subscribe') {
+                                            out.innerHTML =  message + '<br />' + out.innerHTML;
+                                          } else {
+                                            out.innerHTML =  'subscribed to channel: ' + channel + '<br />' + out.innerHTML;
+                                            window.subscribed = true;
+                                          }
+                                        }, false);
+  $('#in').keyup(function(e){
+      if (e.keyCode == 13) {
+          $.post('/post', {'message': $(this).val()});
+          $(this).val('');
+      }
+  });
+</script>
+</body>
+</html>
