@@ -5,6 +5,9 @@ source ./brb_env/bin/activate   ## 'deactivate' to exist env
 
 gunicorn --bind=0.0.0.0:8000 --workers=2 --worker-class gevent run:app
 
+# run debug instance from within virtualenv
+python run.py
+
 
 REQUIREMENTS
 

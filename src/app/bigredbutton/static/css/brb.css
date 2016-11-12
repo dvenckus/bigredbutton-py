@@ -4,6 +4,7 @@
 
 .container { text-align: center; }
 
+form a,
 .nav-tabs li a,
 .controls,
 .big-button,
@@ -38,7 +39,7 @@
 }
 #preprod .big-button {
   height: 140px;
-  font-size: 40px;
+  font-size: 80px;
   /*margin: 25px 0;*/
 }
 
@@ -95,7 +96,38 @@ div.container div.panel-heading { background-color:  #cccccc; }
 
 .invalid-message { color: #ff6262; }
 
-pre { background: none; }
+#sse-out {
+  background: none;
+  text-align: left;
+  height: 75px;
+  overflow-y:scroll;
+}
+#production-output {
+  background: none;
+  text-align: left;
+  height: 400px;
+  overflow-y:scroll;
+}
+#prod-output-panel {
+  display: none;
+}
+
+form a {
+  font-size: 16px;
+  text-decoration: none;
+  color: #777;
+}
+
+form a:hover {
+  font-weight: bold;
+  text-decoration: none;
+  color: #777;
+}
+
+#queue thead tr { font-weight: bold; border-bottom: 1px solid #CCC; }
+#queue a.cancel { color: darkred; }
+#queue a.cancel:hover { color: red; }
+#queue tr.even { background-color: lightyellow; }
 
 .clearBoth { clear: both; }
 

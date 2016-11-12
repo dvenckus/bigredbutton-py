@@ -1,8 +1,8 @@
 #
-# tools.py
+# utils.py
 #
 
-class Tools(object):
+class Utils(object):
 
   @staticmethod
   def formatAttributes(attributes):

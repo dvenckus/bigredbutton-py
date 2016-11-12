@@ -4,13 +4,19 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from passlib.hash import sha256_crypt
 import getopt
-import sys
-from user import *
+from os import sys, path
+
+
+app_path = ''
 
 def main():
-  ''' main '''
+  '''
+  main
+  this is an independent script not integrated with flask app.bigredbutton
+  user management for bigredbutton app
+  '''
 
-  DATABASE_NAME = 'brb.db'
+  DATABASE_NAME = app_path + '/database/brb.db'
 
   admin_user = ''
   admin_pswd = ''
@@ -194,4 +200,10 @@ def usage():
 # call the main function
 #
 if __name__ == "__main__":
+  if __package__ is None:
+    app_path = path.dirname(path.dirname(path.abspath(__file__)))
+    sys.path.append(app_path)
+    from models.meta import Base
+    from models.user import User
+
   main()

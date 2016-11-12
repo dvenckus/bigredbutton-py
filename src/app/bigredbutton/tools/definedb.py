@@ -5,23 +5,26 @@
 #
 # run this create & configure the brb.db database
 #
-
 import datetime
+import getopt
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from user import *
-from os import path
-import sys
-import getopt
+from os import sys, path
 from passlib.hash import sha256_crypt
 
 ########################################################################
 
+app_path = ''
 
 def main():
-  admin_user = ''
-  admin_pswd = ''
-  DATABASE_NAME = 'brb.db'
+  '''
+  main
+  this is an independent script not integrated with flask app
+  sets up the database tables from the models
+  configures the admin user/pass
+  '''
+
+  DATABASE_NAME = app_path + '/database/brb.db'
 
   # add 'echo=True' to turn on logging for create_engine
   engine = create_engine('sqlite:///' + DATABASE_NAME)
@@ -84,4 +87,11 @@ def usage():
 # call the main function
 #
 if __name__ == "__main__":
+  if __package__ is None:
+    app_path = path.dirname(path.dirname(path.abspath(__file__)))
+    sys.path.append(app_path)
+    from models.meta import Base
+    from models.user import User
+    from models.taskitem import TaskItem
+
   main()

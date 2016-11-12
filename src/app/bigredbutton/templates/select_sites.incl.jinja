@@ -1,4 +1,4 @@
-{% for code in sites_order[environ] %}
-  {% set site = sites[code] %}
+{% for code in sites_order[environ] -%}
+  {% set site = sites[code] -%}
   <option value="{{ code }}"{% if site['attributes'] is defined %}{{ site['attributes'] }}{% endif %}>{{ site['name'] }}</option>
-{% endfor %}
+{% endfor -%}

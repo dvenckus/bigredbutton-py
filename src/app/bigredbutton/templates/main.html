@@ -14,8 +14,8 @@
         </div>
       </div>
     </nav>
-
     {% endif %}
+
     <ul id="tabs" class="nav nav-tabs nav-justified" data-tabs="tabs">
       <li class="active">
         <a href="#preprod" data-toggle="tab" class="tab tab-preprod">Pre-Prod</a>
@@ -46,25 +46,25 @@
                         <div class="controls">
                           <select id="subdomains-preprod" name="subdomains-preprod" class="form-control brb-subdomains">
                             {% set environ = 'pre-prod' %}
-                            {% include 'select-subdomains.incl.jinja' %}
+                            {% include 'select_subdomains.incl.jinja' %}
                           </select>
                         </div>
                       </div>
 
                       <div class="control-group">
                         <div class="controls">
-                          <select id="site-preprod" name="site-preprod" class="form-control brb-sites">
+                          <select id="sites-preprod" name="sites-preprod" class="form-control brb-sites">
                             {% set environ = 'pre-prod' %}
-                            {% include 'select-sites.incl.jinja' %}
+                            {% include 'select_sites.incl.jinja' %}
                           </select>
                         </div>
                       </div>
 
                       <div class="control-group">
                         <div class="controls">
-                          <select id="task-preprod" name="task-preprod" class="form-control brb-tasks">
+                          <select id="tasks-preprod" name="tasks-preprod" class="form-control brb-tasks">
                             {% set environ = 'pre-prod' %}
-                            {% include 'select-tasks.incl.jinja' %}
+                            {% include 'select_tasks.incl.jinja' %}
                           </select>
                         </div>
                       </div>
@@ -73,23 +73,27 @@
                         <div class="controls pull-left">
                           <label class="checkbox">
                             <input id="chk-backup-database-preprod" type="checkbox"
-                                   name="backup-database-preprod" value="0" />
+                                   name="backup-database-preprod" />
                             Backup Database Before Push?
                           </label>
                         </div>
                       </div>
 
                     </div>
+
                     <div class="col-sm-6">
-                      <input id="big-green-button" type="submit" name="submit"
-                             accept="" value="Push to Queue" class="big-button gradient-green"/>
+                      <input id="btn-queue-preprod" type="button" name="button"
+                             accept="" value="Queue" class="big-button gradient-green"/>
+                      <br />
+                      <a href="#" id="clearFormPreProd">Clear Form</a>
                     </div>
+
                   </div>
 
                 </form>
-
               </div>
             </div>
+
         </div>   <!-- tab: pre-prod -->
 
         <!-- tab: tools -->
@@ -107,14 +111,14 @@
                     <div class="controls">
                       <select id="task-tools" name="task-tools" class="form-control">
                          {#  % set environ = 'stage' % #}
-                         {#  % include 'select-tasks.incl.jinja' % #}
+                         {#  % include 'select_tasks.incl.jinja' % #}
                       </select>
                     </div>
                   </div>
                   <div class="control-group">
                     <div class="controls">
                       <select id="site-tools" name="site-tools" class="form-control">
-                        {# % include 'select-sites.incl.jinja' % #}
+                        {# % include 'select_sites.incl.jinja' % #}
                       </select>
                     </div>
                   </div>
@@ -125,7 +129,7 @@
                       </select>
                     </div>
                   </div>
-                  <input id="big-blue-button" type="submit" name="submit"
+                  <input id="big-blue-button" type="button" name="button"
                          accept="" value="PUSH!" class="big-button gradient-blue"/>
                 </form>
 
@@ -138,7 +142,7 @@
             <p>Manage sites: www, forum</p>
             <div class="panel panel-default">
               <div class="panel-heading">
-                <h3 class="panel-title">Immediate Task Execution on Production</h3>
+                <h3 class="panel-title">Immediate TaskItem Execution on Production</h3>
               </div>
               <div class="panel-body">
                 <form id="deploy-production" action="" method="POST">
@@ -148,19 +152,18 @@
 
                       <div class="control-group">
                         <div class="controls">
-                          <select id="site-prod"
-                                  name="site-prod" class="form-control">
+                          <select id="sites-prod" name="sites-prod" class="form-control">
                             {% set environ = 'production' %}
-                            {% include 'select-sites.incl.jinja' %}
+                            {% include 'select_sites.incl.jinja' %}
                           </select>
                         </div>
                       </div>
 
                       <div class="control-group">
                         <div class="controls">
-                          <select id="task-prod" name="task-prod" class="form-control">
+                          <select id="tasks-prod" name="tasks-prod" class="form-control">
                              {% set environ = 'production' %}
-                             {% include 'select-tasks.incl.jinja' %}
+                             {% include 'select_tasks.incl.jinja' %}
                           </select>
                         </div>
                       </div>
@@ -178,39 +181,41 @@
 
                     <div class="col-sm-6">
 
-                      <input id="big-red-button" type="submit" name="submit"
+                      <input id="btn-push-prod" type="button" name="button"
                              accept="" value="PUSH!" class="big-button gradient-red"/>
-
+                      <br />
+                      <a href="#" id="clearFormProd">Clear Form</a>
                     </div>
                   </div>
                 </form>
               </div>
             </div>
         </div>  <!-- tab: production -->
-
     </div> <!-- deployment-tab-content -->
-    <pre id="out" style="text-align:left;"></pre>
-    <script type="text/javascript" >
-        var sse_event = new EventSource("/stream");
-        var out = document.getElementById('out');
 
-        sse_event.addEventListener('open', function(e) { console.log('EventSource opened'); }, false);
-        sse_event.addEventListener('error', function(e) { console.log('EventSource closed'); }, false);
-        sse_event.addEventListener('message', function(e) {
-                                                console.log(e.data);
-                                                var fields = e.data.split('|');
-                                                var channel = fields[0];
-                                                var type = fields[1];
-                                                var message = fields[2];
-                                                if (type != 'subscribe') {
-                                                  out.innerHTML =  message + '<br />' + out.innerHTML;
-                                                } else {
-                                                  if (window.subscribed != true) {
-                                                    out.innerHTML =  'subscribed to channel: ' + channel + '<br />' + out.innerHTML;
-                                                    window.subscribed = true;
-                                                  }
-                                                }
-                                              }, false);
-    </script>
+    <pre id="sse-out"> </pre>
 
+    <div id="queue-panel" class="panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title">TaskItem Queue</h3></div>
+      <div class="panel-body">
+        <table id="queue" class="table">
+          <thead>
+            <tr><td>User</td><td>Requested</td><td>Subdomain</td><td>Site</td><td>Task</td><td>DB Backup?</td><td>Cancel</td></tr>
+          </thead>
+          <tbody>
+            {% include 'queue.incl.jinja' %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="prod-output-panel" class="panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title">Output</h3></div>
+      <div class="panel-body">
+        <pre id="production-output"> </pre>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="{{ url_for('static', filename='js/sse.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/brb.js') }}"></script>
 {% endblock %}

@@ -1,10 +1,8 @@
 #
 # Class User
 #
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Date, Integer, String, ForeignKey
-
-Base = declarative_base()
+from sqlalchemy import Column, Integer, String
+from models.meta import Base
 
 ########################################################################
 class User(Base):

@@ -11,11 +11,11 @@ class SitesList(object):
     '0': { 'name': mdash + " Select Site " + mdash },
     'all': { 'name': "ALL" },
     mdash: { 'name': mdash, 'attributes': 'role="separator" class="divider"' },
-    'ah': { 'name': "Arthritis-health" },
-    'oh': { 'name': "Osteoporosis-health" },
-    'sh': { 'name': "Spine-health" },
-    'sp': { 'name': "Sports-health" },
-    'frm': { 'name': 'Forums' }
+    'ah': { 'name': "Arthritis-health", 'attributes': 'class="site"' },
+    'oh': { 'name': "Osteoporosis-health", 'attributes': 'class="site"' },
+    'sh': { 'name': "Spine-health", 'attributes': 'class="site"' },
+    'sp': { 'name': "Sports-health", 'attributes': 'class="site"' },
+    'frm': { 'name': 'Forums', 'attributes': 'class="site"' }
   }
 
   list_order = {
