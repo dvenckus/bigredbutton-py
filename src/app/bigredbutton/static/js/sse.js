@@ -12,9 +12,12 @@
                                           var message = fields[2];
                                           if (type != 'subscribe') {
                                             out.html(message + '<br />' + out.html());
+                                            if (message.indexOf("Task Ended") !== -1) {
+                                              window.getQueue();
+                                            }
                                           } else {
                                             if (window.subscribed != true) {
-                                              out.html('subscribed to channel: ' + channel + '<br />' + out.html());
+                                              out.html(channel + ' enabled<br />' + out.html());
                                               window.subscribed = true;
                                             }
                                           }

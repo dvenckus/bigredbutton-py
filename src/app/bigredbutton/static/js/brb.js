@@ -24,17 +24,33 @@ $(document).ready(function() {
     $('#chk-backup-database-preprod').prop('checked', false);
   };
 
-  function updateQueue(data) {
-    // updates the queue display with the current items
-    console.log('updateQueue: ' + data.content)
-    $("#queue tbody").html(data.content);
-    clearFormPreProd();
-  };
-
-
   $('#clearFormPreProd').click(function() {
     clearFormPreProd();
   });
+
+  function updateQueue(data) {
+    // updates the queue display with the current items
+    if (data.response == true) {
+      //console.log('updateQueue: ' + data.content)
+      $("#queue tbody").html(data.content);
+      clearFormPreProd();
+    }
+    window.queueBusy = false
+  };
+
+  window.getQueue = function() {
+    if (window.queueBusy == true) { return; }
+    window.queueBusy = true
+
+    $.ajax({
+      type: "GET",
+      url: "/queue",
+      //contentType: 'application/json',
+      data: '',
+      dataType: 'json',
+      success: updateQueue
+    });
+  };
 
 
   $('#btn-queue-preprod').click(function() {
@@ -79,12 +95,14 @@ $(document).ready(function() {
       post_data.push(item);
     }
 
+    window.queueBusy = true
+
     $.ajax({
       type: "POST",
       url: "/queue/add",
       contentType: 'application/json',
       data: JSON.stringify(post_data),
-      dataType: 'html',
+      dataType: 'json',
       success: updateQueue
     });
 
@@ -93,6 +111,8 @@ $(document).ready(function() {
 
   $('#queue').on('click', 'tr a.cancel', function() {
     if (confirm('Cancel task?')) {
+      window.queueBusy = true
+
       $.ajax({
         type: "GET",
         url: $(this).attr('href'),

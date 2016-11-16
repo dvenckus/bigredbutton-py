@@ -8,7 +8,10 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # Define the database - we are working with
 # SQLite for this example
+# see flask-sqlalchemy settings explained here:  http://flask-sqlalchemy.pocoo.org/2.1/config/
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASE_DIR, 'app', 'bigredbutton', 'database', 'brb.db')
+# this adds a lot of overhead -- set to True if you need to for debugging, but don't leave it on
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 #DATABASE_CONNECT_OPTIONS = {}
 
 # Application threads. A common general assumption is

@@ -1,9 +1,0 @@
-INFO:root:
------ Big Red Button [19:39:54] (dvenckus) www oh push backup -----
-
-INFO:werkzeug:127.0.0.1 - - [11/Nov/2016 19:39:54] "POST /push HTTP/1.0" 500 -
-INFO:werkzeug: * Detected change in '/mnt/hgfs/veritashealth/bigredbutton-py/src/app/bigredbutton/tools/salttask.py', reloading
-INFO:root:
------ Big Red Button [19:41:11] (dvenckus) www oh push backup -----
-
-INFO:werkzeug:127.0.0.1 - - [11/Nov/2016 19:41:11] "POST /push HTTP/1.0" 500 -

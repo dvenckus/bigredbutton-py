@@ -9,6 +9,7 @@ from models.meta import Base
 from models.user import User
 from queue import Queue
 from push import Push
+import json
 
 import datetime
 from passlib.hash import sha256_crypt
@@ -63,21 +64,23 @@ def logout():
 # QUEUE handlers
 @app.route('/queue')
 def queue_get():
-  return render_template('queue.incl.jinja', queue=Queue.get())
+  content = render_template('queue.incl.jinja', queue=Queue.get())
+  return json.dumps({'response': True, 'content': content }), 200, {'ContentType':'application/json'}
 
 
 @app.route('/queue/add', methods = ['POST'])
 def queue_add():
   # Get the parsed contents of the form data
-  jsonData = request.json
+  jsonData = request.get_json()
   content = ''
   retn = False
 
   if Queue.add(session['username'], jsonData):
     content = render_template('queue.incl.jinja', queue=Queue.get())
     retn = True
+    #print "content: " + content
 
-  return json.dumps({'success': retn, 'content': content }), 200, {'ContentType':'application/json'}
+  return json.dumps({'response': retn, 'content': content }), 200, {'ContentType':'application/json'}
 
 
 @app.route('/queue/cancel/<id>')
@@ -89,7 +92,7 @@ def queue_cancel(id):
     content = render_template('queue.incl.jinja', queue=Queue.get())
     retn = True
 
-  return json.dumps({'success': retn, 'content': content}), 200, {'ContentType':'application/json'}
+  return json.dumps({'response': retn, 'content': content}), 200, {'ContentType':'application/json'}
 
 
 # PUSH handlers
@@ -97,14 +100,14 @@ def queue_cancel(id):
 def push():
   retn = False
   # Get the parsed contents of the form content
-  jsonData = request.json
+  jsonData = request.get_json()
   content = ''
   retn = False
 
   content = Push.do(session['username'], jsonData)
   if content != False: retn = True
 
-  return json.dumps({'success': retn, 'content': content }), 200, {'ContentType':'application/json'}
+  return json.dumps({'response': retn, 'content': content }), 200, {'ContentType':'application/json'}
 
 
 # SSE (server sent message) handlers

@@ -4,7 +4,8 @@
 from app.bigredbutton import app, db
 from models.taskitem import TaskItem
 import subprocess
-from os import sys, path
+#from os import sys, path, devnull
+import os
 
 class Queue(object):
 
@@ -33,10 +34,23 @@ class Queue(object):
 
     if doCommit:
       db.session.commit()
-      # start the queue_manager
-      qm_path = path.abspath(path.dirname(__file__))
-      pid = subprocess.Popen( qm_path + "/tools/queue_manager.py", shell=True).pid
-      return True
+      try:
+        # start the queue_manager
+        qm_path = os.path.abspath(os.path.dirname(__file__))
+        # run as a background process
+        devnull = open(os.devnull, 'wb') # use this in python < 3.3; python >= 3.3 has subprocess.DEVNULL
+        subprocess.Popen(['nohup', qm_path + "/tools/queue_manager.py"], stdout=devnull, stderr=devnull)
+        #subprocess.Popen( qm_path + "/tools/queue_manager.py &", shell=True)
+        return True
+      except socket.error, e:
+        # this is a socket error -- ignore
+        # we don't care if the socket with queue_manager.py breaks, it's a standalone daemon process
+        ignoreThis = 1
+      except IOError, e:
+        # this is an IO EPIPE error -- ignore
+        # we don't care if the socket with queue_manager.py breaks, it's a standalone daemon process
+        ignoreThis = 2
+
 
     return False
 

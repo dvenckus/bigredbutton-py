@@ -4,8 +4,9 @@
 # called by queue_manager
 
 import datetime
-from passlib.hash import sha256_crypt
-from gevent import monkey; monkey.patch_all()
+import time
+#from passlib.hash import sha256_crypt
+#from gevent import monkey; monkey.patch_all()
 import redis
 from os import path, sys
 import subprocess
@@ -25,12 +26,17 @@ class SaltTask(object):
 
   red = redis.StrictRedis()
   channel = 'alerts'
-  doSiteSync = '/var/www/scripts/do_site_sync.py'
-  doSiteDeploy = '/var/www/scripts/do_site_deploy.py'
-  doCacheClear = '/var/www/scripts/do_cache_clear.py'
-  doVarnish = '/var/www/scripts/do_varnish_clear.py'
-  doRollback = '/var/www/scripts/do_rollback.py'
 
+  logname = 'log/bigredbutton.%s.log' % (datetime.date.today().strftime('%Y%m%d'))
+
+  doSiteSync = '/var/www/scripts/brb_site_sync.py'
+  doSiteDeploy = '/var/www/scripts/brb_site_deploy.py'
+  doCacheClear = '/var/www/scripts/brb_site_cache_clear.py'
+  doVarnish = '/var/www/scripts/brb_varnish_clear.py'
+  doRollback = '/var/www/scripts/brb_site_rollback.py'
+
+  #Email Settings
+  emailEnabled = False
   emailFrom = 'bigredbutton@veritashealth.com'
   emailTo = 'dev@veritashealth.com'
 
@@ -40,8 +46,10 @@ class SaltTask(object):
     ''' runs the tasks requested through BRB '''
 
     if mode == 'task':
+      # TaskItem model is linked to its DB table
       from models.taskitem import TaskItem
     elif mode == 'push':
+      # PushItem model does not have a DB relationship
       from models.pushitem import PushItem
     else:
       return False
@@ -49,19 +57,31 @@ class SaltTask(object):
 
     backup = 'backup' if taskitem.dbbackup == True else ''
     taskDesc = '(%s) %s %s %s %s' % (taskitem.username, taskitem.subdomain, taskitem.site, taskitem.task, backup)
+    errormsg = ''
 
     ### run the task
+    try:
+      SaltTask.pushMessage('Task Beginning ' + taskDesc)
+      SaltTask.logStart(taskDesc)
 
-    SaltTask.pushMessage('Beginning Task ' + taskDesc)
-    SaltTask.logStart(taskDesc)
+      output, errormsg = SaltTask.do(taskitem)
 
-    output = SaltTask.do(taskitem)
+      logging.info(output)
+      if len(errormsg):
+        SaltTask.pushMessage('An Error occurred ' + errormsg)
 
-    logging.info(output)
-    SaltTask.sendEmail(taskDesc, output)
 
-    SaltTask.pushMessage('Completed Task ' + taskDesc)
-    SaltTask.logEnd(taskDesc)
+      SaltTask.pushMessage('Task Ended in %s %s' % ('ERROR' if len(errormsg) else 'SUCCESS', taskDesc))
+      SaltTask.logEnd(taskDesc)
+      SaltTask.sendEmail(taskDesc, output, errormsg)
+    except socket.error, e:
+      # this is a socket error -- ignore
+      ignoreThis = 1
+    except IOError, e:
+      # this is an IO EPIPE error -- ignore
+      ignoreThis = 2
+    except Exception, e:
+      ignoreThis = 3
 
     return output
 
@@ -80,19 +100,30 @@ class SaltTask(object):
   def logStart(msg):
     ''' marks the beginning of the task in the log '''
     ### setup logging
-    today = datetime.date.today().strftime('%Y%m%d')
     now = datetime.datetime.now().replace(microsecond=0).time()
-    logname = 'bigredbutton.%s.log' % (today)
-    logging.basicConfig(filename=logname,level=logging.INFO)
+    logging.basicConfig(filename=SaltTask.logname,level=logging.INFO)
 
-    logging.info("\n----- Big Red Button [%s] %s -----\n" % (now.isoformat(), msg))
+    logging.info("\n\n\n\n----- BEGIN Big Red Button [%s] %s -----\n" % (now.isoformat(), msg))
 
   @staticmethod
-  def sendEmail(taskDesc, taskOutput):
+  def logEnd(msg):
+    ''' marks the beginning of the task in the log '''
+    ### setup logging
+    now = datetime.datetime.now().replace(microsecond=0).time()
+    logging.info("\n\n----- END Big Red Button [%s] %s -----\n" % (now.isoformat(), msg))
+
+
+  @staticmethod
+  def sendEmail(taskDesc, taskOutput, errormsg):
     ''' sends an email to dev team '''
+
+    if SaltTask.emailEnabled == False:
+      # email off, don't send
+      return
+
     # Create a text/plain message
     msg = MIMEText(taskOutput)
-    msg['Subject'] = 'BigRedButton Task Completed: ' + taskDesc
+    msg['Subject'] = 'BigRedButton Task Completed%s: %s' % (' (ERRORS)' if len(errormsg) else '', taskDesc)
     msg['From'] = SaltTask.emailFrom
     msg['To'] = SaltTask.emailTo
 
@@ -110,6 +141,9 @@ class SaltTask(object):
     # get the official taskslist so we know what to do for the selected task
     tasksList = TasksList.get()
     saltcmd = ''
+    saltscript = ''
+    output = ''
+    errormsg = ''
 
     try:
       tasksList[taskitem.task]
@@ -117,29 +151,44 @@ class SaltTask(object):
       return "Error:  task not defined"
 
     if 'sync' == tasksList[taskitem.task]['do']:
-      saltcmd = "%s tgt=%s site=%s mode=all %s" % (SaltTask.doSiteSync, taskitem.subdomain, taskitem.site, 'backup' if taskitem.dbbackup == True else '')
+      saltscript = SaltTask.doSiteSync
+      saltcmd = "%s tgt=%s site=%s mode=all %s" % (saltscript, taskitem.subdomain, taskitem.site, 'backup' if taskitem.dbbackup == True else '')
 
     elif 'deploy' == tasksList[taskitem.task]['do']:
-      saltcmd = "%s tgt=%s site=%s %s" % (SaltTask.doSiteDeploy, taskitem.subdomain, taskitem.site, 'backup' if taskitem.dbbackup == True else '')
+      saltscript = SaltTask.doSiteDeploy
+      saltcmd = "%s tgt=%s site=%s %s" % (saltscript, taskitem.subdomain, taskitem.site, 'backup' if taskitem.dbbackup == True else '')
 
     elif 'cache' == tasksList[taskitem.task]['do']:
-      saltcmd = "%s tgt=%s site=%s" % (SaltTask.doCacheClear, taskitem.subdomain, taskitem.site)
+      saltscript = SaltTask.doCacheClear
+      saltcmd = "%s tgt=%s site=%s" % (saltscript, taskitem.subdomain, taskitem.site)
 
     elif 'varnish' == tasksList[taskitem.task]['do']:
-      saltcmd = "%s tgt=%s site=%s" % (SaltTask.doVarnishClear, taskitem.subdomain, taskitem.site)
+      saltscript = SaltTask.doVarnishClear
+      saltcmd = "%s tgt=%s site=%s" % (saltscript, taskitem.subdomain, taskitem.site)
 
     elif 'rb' == tasksList[taskitem.task]['do']:
-      saltcmd = "%s tgt=%s site=%s" % (SaltTask.doRollback, taskitem.subdomain, taskitem.site)
+      saltscript = SaltTask.doRollback
+      saltcmd = "%s tgt=%s site=%s" % (saltscript, taskitem.subdomain, taskitem.site)
 
     elif 'unrb' == tasksList[taskitem.task]['do']:
-      saltcmd = "%s tgt=%s site=%s undo" % (SaltTask.doRollback, taskitem.subdomain, taskitem.site)
+      saltscript = SaltTask.doRollback
+      saltcmd = "%s tgt=%s site=%s undo" % (saltscript, taskitem.subdomain, taskitem.site)
+
+    if not path.isfile(saltscript):
+      time.sleep(20)
+      output = errormsg = "Error: salt script, %s, not found" % (saltscript)
+      return (output, errormsg)
 
     if saltcmd != '':
-      print saltcmd
-      p = subprocess.Popen([saltcmd], stdout=subprocess.PIPE)
-      output, error = p.communicate()
-      output += "\n" + error
-    else:
-      output = "Task not found (%s)" % tasksList[taskitem.task]
+      try:
+        p = subprocess.Popen([saltcmd], stdout=subprocess.PIPE)
+        output, errormsg = p.communicate()
+        output += saltcmd + "\n" + errormsg
+      except Exception,e:
+        output = saltcmd + "\nError: ", str(e)
+        errormsg = str(e)
 
-    return output
+    else:
+      output = errormsg = "Task not found (%s)" % tasksList[taskitem.task]
+
+    return (output, errormsg)
