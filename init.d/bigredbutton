@@ -49,7 +49,7 @@ case "$1" in
         killproc -p $PIDFILE $DAEMON
         log_end_msg $?
     ;;
-  force-reload|restart)
+  reload|restart)
     $0 stop
     $0 start
     ;;
