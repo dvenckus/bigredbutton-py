@@ -20,9 +20,10 @@ ACTIVATE=/var/www/html/bigredbutton-py/src/brb_env/bin/activate
 #APPMODULE=yourproject.wsgi:application
 APPMODULE=run:app
 DAEMON=gunicorn
-BIND=127.0.0.1:8000
+BIND=0.0.0.0:8000
 PIDFILE=/var/run/gunicorn.pid
-LOGFILE=/var/log/$DAEMON.log
+LOGDIR=/var/log/$APPNAME
+LOGFILE=$LOGDIR/$DAEMON.log
 WORKERS=2
 WORKER_CLASS="gevent"
 
@@ -34,6 +35,10 @@ WORKER_CLASS="gevent"
 if [ -e "/etc/default/$APPNAME" ]
 then
     . /etc/default/$APPNAME
+fi
+
+if [ ! -d "$LOGDIR" ]; then
+  mkdir -p $LOGDIR
 fi
 
 
