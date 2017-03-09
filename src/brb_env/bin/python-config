@@ -1,4 +1,4 @@
-#!/mnt/hgfs/veritashealth/bigredbutton-py/src/brb_env/bin/python
+#!/usr/bin/env python3.5
 
 import sys
 import getopt

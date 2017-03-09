@@ -1,27 +1,28 @@
 #! /bin/bash
 ### BEGIN INIT INFO
-# Provides:          yourapp
-# Required-Start:    nginx
+# Provides:          bigredbutton
+# Required-Start:
 # Required-Stop:
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: The main django process
-# Description:       The gunicorn process that receives HTTP requests
-#                    from nginx
+# Short-Description:
+# Description:
 #
 ### END INIT INFO
 #
 # Author:       mle <geobi@makina-corpus.net>
 #
 APPNAME=bigredbutton
+APP_PATH=/var/www/html/bigredbutton-py/src
 USER=lynx
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
-ACTIVATE=/var/www/html/bigredbutton-py/src/brb_env/bin/activate
+ACTIVATE=bigredbutton_activate
 #APPMODULE=yourproject.wsgi:application
-APPMODULE=run:app
+APPMODULE=python:app
 DAEMON=gunicorn
+DAEMON_PATH=/var/www/html/bigredbutton-py/src/brb_env/bin
 BIND=0.0.0.0:8000
-PIDFILE=/var/run/gunicorn.pid
+PIDFILE=/var/run/$APPNAME.pid
 LOGDIR=/var/log/$APPNAME
 LOGFILE=$LOGDIR/$DAEMON.log
 WORKERS=2
@@ -30,6 +31,8 @@ WORKER_CLASS="gevent"
 # Source function library.
 . /etc/rc.d/init.d/functions
 #. /lib/lsb/init-functions
+
+. /etc/profile.d/bigredbutton.sh
 
 
 if [ -e "/etc/default/$APPNAME" ]
@@ -44,13 +47,14 @@ fi
 
 case "$1" in
   start)
-        echo "Starting deferred execution scheduler" "$APPNAME"
-        source $ACTIVATE
+        echo "Starting python application:  $APPNAME"
+        $ACTIVATE
+        echo "$DAEMON --daemon --bind=$BIND --pid=$PIDFILE --workers=$WORKERS --worker-class=$WORKER_CLASS --user=$USER --log-file=$LOGFILE $APPMODULE"
         $DAEMON --daemon --bind=$BIND --pid=$PIDFILE --workers=$WORKERS --worker-class=$WORKER_CLASS --user=$USER --log-file=$LOGFILE $APPMODULE
         echo $?
     ;;
   stop)
-        echo "Stopping deferred execution scheduler" "APPNAME"
+        echo "Stopping python application: $APPNAME"
         killproc -p $PIDFILE $DAEMON
         echo $?
     ;;
