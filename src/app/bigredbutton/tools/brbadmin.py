@@ -33,8 +33,8 @@ def main():
 
   try:
     opts, args = getopt.getopt(sys.argv[1:], "", ["u=", "p=", "--add", "--update", "--delete", "--list", "id=", "username=", "password=", "realname="])
-  except getopt.GetoptError:
-    print 'Error:  missing arguments'
+  except getopt.GetoptError as e:
+    print('Error:  missing arguments')
     usage()
     sys.exit('exiting')
 
@@ -68,7 +68,7 @@ def main():
 
   # check for admin credentials
   if admin_user == '' or admin_pswd == '':
-    print "Missing admin credentials [u], [p]\n"
+    print("Missing admin credentials [u], [p]\n")
     usage()
     sys.exit('exiting')
 
@@ -83,16 +83,16 @@ def main():
     # verify admin
     admin = session.query(User).filter_by(id=1).first()
     if admin is None:
-      print "Error:  Unable to find admin account"
+      print("Error:  Unable to find admin account")
       sys.exit('exiting')
 
     #password_enc = sha256_crypt.encrypt(admin_pswd)
     if not sha256_crypt.verify(admin_pswd, str(admin.password)):
-      print "Admin password invalid"
+      print("Admin password invalid")
       sys.exit('exiting')
 
-  except Exception,e:
-    print "Error: ", e
+  except Exception as e:
+    print("Error: ", e)
     sys.exit('invalid login')
 
 
@@ -102,22 +102,22 @@ def main():
     if ACTION_LIST == action:
       users = session.query(User).all()
 
-      print "\n"
-      print "%s | %s | %s" % ( 'Id'.rjust(4), 'Realname'.ljust(25), 'Username'.ljust(25) )
-      print "%s-|-%s-|-%s" % ('-' * 4, '-' * 25, '-' * 25)
+      print("\n")
+      print("%s | %s | %s" % ( 'Id'.rjust(4), 'Realname'.ljust(25), 'Username'.ljust(25) ))
+      print("%s-|-%s-|-%s" % ('-' * 4, '-' * 25, '-' * 25))
       if len(users):
         for user in users:
-          print "%s | %s | %s" % (str(user.id).rjust(4), user.realname.ljust(25), user.username.ljust(25))
+          print("%s | %s | %s" % (str(user.id).rjust(4), user.realname.ljust(25), user.username.ljust(25)))
       else:
-        print "None"
+        print("None")
 
-      print "\n\n"
+      print("\n\n")
 
     elif ACTION_ADD == action:
       # check if the user already exists
       user = session.query(User).filter_by(username=username).first()
       if user:
-        print "User %s already exits" % username
+        print("User %s already exits" % username)
         sys.exit('exiting')
 
       # create the new user
@@ -125,7 +125,7 @@ def main():
       user = User(username, password_enc, realname)
       session.add(user)
       session.commit()
-      print "User (%s) added" % username
+      print("User (%s) added" % username)
 
     elif ACTION_UPDATE == action:
       user = None
@@ -135,7 +135,7 @@ def main():
         user = session.query(User).filter_by(username=username).first()
 
       if not user:
-        print "Unable to update.  User %s not found." % username
+        print("Unable to update.  User %s not found." % username)
         sys.exit('exiting')
 
       if uid > 0 and username != user.username:
@@ -148,7 +148,7 @@ def main():
         user.realname = realname
 
       session.commit()
-      print "User (%s) updated" % username
+      print"User (%s) updated" % username
 
     elif ACTION_DELETE == action:
       if uid > 0:
@@ -157,13 +157,13 @@ def main():
         delete = session.query(User).filter_by(username=username).delete()
 
       session.commit()
-      print "User (%s) deleted" % username
+      print("User (%s) deleted" % username)
 
 
 
 
-  except Exception,e:
-    print "Error: ", e
+  except Exception as e:
+    print("Error: ", e)
     sys.exit('exiting')
 
 
@@ -174,7 +174,7 @@ def main():
 
   #session.commit()
 
-  print "Done!\n"
+  print("Done!\n")
 
 
 
@@ -186,14 +186,14 @@ def main():
 #
 def usage():
   ''' Usage Statment '''
-  print "List Users:"
-  print "brbadmin.py u=[admin-username] p=[admin-pswd] --list\n"
-  print "Add User:"
-  print "brbadmin.py u=[admin-username] p=[admin-pswd] --add username=[username] password=[password] realname=[real name]\n"
-  print "Update User:"
-  print "brbadmin.py u=[admin-username] p=[admin-pswd] --update username=[username] password=[password] realname=[real name]\n"
-  print "Delete User:"
-  print "brbadmin.py u=[admin-username] p=[admin-pswd] --delete username=[username]\n"
+  print("List Users:")
+  print("brbadmin.py u=[admin-username] p=[admin-pswd] --list\n")
+  print("Add User:")
+  print("brbadmin.py u=[admin-username] p=[admin-pswd] --add username=[username] password=[password] realname=[real name]\n")
+  print("Update User:")
+  print("brbadmin.py u=[admin-username] p=[admin-pswd] --update username=[username] password=[password] realname=[real name]\n")
+  print("Delete User:")
+  print("brbadmin.py u=[admin-username] p=[admin-pswd] --delete username=[username]\n")
 
 
 #

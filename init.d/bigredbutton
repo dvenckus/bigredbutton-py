@@ -39,25 +39,25 @@ fi
 
 case "$1" in
   start)
-        log_daemon_msg "Starting deferred execution scheduler" "$APPNAME"
+        echo "Starting deferred execution scheduler" "$APPNAME"
         source $ACTIVATE
         $DAEMON --daemon --bind=$BIND --pid=$PIDFILE --workers=$WORKERS --worker-class=$WORKER_CLASS --user=$USER --log-file=$LOGFILE $APPMODULE
-        log_end_msg $?
+        echo $?
     ;;
   stop)
-        log_daemon_msg "Stopping deferred execution scheduler" "APPNAME"
+        echo "Stopping deferred execution scheduler" "APPNAME"
         killproc -p $PIDFILE $DAEMON
-        log_end_msg $?
+        echo $?
     ;;
   reload|restart)
     $0 stop
     $0 start
     ;;
   status)
-    status_of_proc -p $PIDFILE $DAEMON && exit 0 || exit $?
+    status $APPNAME && exit 0 || exit $?
     ;;
   *)
-    echo "Usage: /etc/init.d/$APPNAME {start|stop|restart|force-reload|status}"
+    echo "Usage: /etc/init.d/$APPNAME {start|stop|restart|reload|status}"
     exit 1
     ;;
 esac

@@ -7,7 +7,7 @@
   sse_event.addEventListener('message', function(e) {
                                           console.log(e.data);
                                           var fields = e.data.split('|');
-                                          var channel = fields[0];
+                                          var channel = String(fields[0]);
                                           var type = fields[1];
                                           var message = fields[2];
                                           if (type != 'subscribe') {

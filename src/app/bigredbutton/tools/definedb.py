@@ -39,8 +39,8 @@ def main():
 
   try:
     opts, args = getopt.getopt(sys.argv[1:], "", ["u=", "p="])
-  except getopt.GetoptError:
-    print 'Error:  missing arguments'
+  except getopt.GetoptError as e:
+    print('Error:  missing arguments')
     usage()
     sys.exit('missing arguments')
 
@@ -55,7 +55,7 @@ def main():
 
   # add admin account
   if admin_user == '' or admin_pswd == '':
-    print 'Error:  missing arguments'
+    print('Error:  missing arguments')
     usage()
     sys.exit('missing admin username and password')
 
@@ -65,23 +65,23 @@ def main():
     # create the admin user
     admin = User(admin_user, password_enc, "Admin")
     session.add(admin)
-    print "Admin user (%s) created" % admin_user
+    print("Admin user (%s) created" % admin_user)
   else:
     # update the admin user
     admin.username = admin_user
     admin.password = password_enc
-    print "Admin user (%s) updated" % admin_user
+    print("Admin user (%s) updated" % admin_user)
 
   session.commit()
 
-  print "Done!\n"
+  print("Done!\n")
 
 
 
 def usage():
   ''' Usage Statment '''
   # temporarily:  u=spinehealth p=brbpepperoni
-  print "createdb.py u=[admin-username] p=[admin-pswd]"
+  print("createdb.py u=[admin-username] p=[admin-pswd]")
 
 
 # call the main function

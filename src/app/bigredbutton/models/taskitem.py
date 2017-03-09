@@ -2,7 +2,7 @@
 # Class TaskItem
 #
 
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, Sequence
 from models.meta import Base
 import calendar
 import time
@@ -13,7 +13,7 @@ class TaskItem(Base):
     """"""
     __tablename__ = "tasks"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, Sequence('task_id_seq'), primary_key=True)
     timestamp = Column(Integer, default=0)
     username = Column(String(25), default='')
     subdomain = Column(String(25), default='')

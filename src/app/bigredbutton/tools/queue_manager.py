@@ -19,7 +19,7 @@ def main():
 
   # check if the pid file already exists
   if path.isfile(PIDFILE):
-    print "The queue_manager is already running.  My work is done here."
+    print("The queue_manager is already running.  My work is done here.")
     sys.exit()
 
   # create pidfile (as lock file -- we only want 1 queue_manager running at a time)
@@ -50,14 +50,14 @@ def main():
 
 
 
-  except Exception,e:
-    print "Error: ", e
+  except Exception as e:
+    print("Error: ", e)
     #unlink(PIDFILE)
     sys.exit('Exiting...\n')
 
   finally:
     unlink(PIDFILE)
-    print "Done!\n"
+    print("Done!\n")
 
 
   # ----- end - main() -----
@@ -68,7 +68,7 @@ def main():
 #
 def usage():
   ''' Usage Statment '''
-  print "queue_manager.py\n"
+  print("queue_manager.py\n")
 
 
 #

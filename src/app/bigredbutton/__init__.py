@@ -1,5 +1,7 @@
 from flask import Flask, render_template
-from flask_sqlalchemy import SQLAlchemy
+#from flask_sqlalchemy import sqlalchemy
+from sqlalchemy import *
+from sqlalchemy.orm import sessionmaker
 from os import sys, path
 
 app = Flask(__name__)
@@ -16,13 +18,18 @@ app.secret_key = app.config['SECRET_KEY']
 # make sure he bigredbutton model is in the python path
 sys.path.append(path.abspath(path.dirname(__file__)))
 
-#print 'BASE_DIR: ' + app.config['BASE_DIR']
-#print 'SQLALCHEMY_DATABASE_URI: ' + app.config['SQLALCHEMY_DATABASE_URI']
+#print('BASE_DIR: ' + app.config['BASE_DIR'])
+#print('SQLALCHEMY_DATABASE_URI: ' + app.config['SQLALCHEMY_DATABASE_URI'])
 
 # connect database
-db = SQLAlchemy(app)
+#db = SQLAlchemy(app)
+#db.create_all()
+engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'], echo=True)
+metadata = MetaData()
+metadata.create_all(engine)
+Session = sessionmaker(bind=engine)
+dbsession = Session()
 
-db.create_all()
 
-__all__ = ['views', 'SitesList', 'TasksList', 'SubdomainsList', 'Queue', 'Utils']
+__all__ = ['views', 'SitesList', 'TasksList', 'SubdomainsList', 'BrbQueue', 'Utils']
 from app.bigredbutton import views, utils

@@ -74,13 +74,13 @@ class SaltTask(object):
       SaltTask.pushMessage('Task Ended in %s %s' % ('ERROR' if len(errormsg) else 'SUCCESS', taskDesc))
       SaltTask.logEnd(taskDesc)
       SaltTask.sendEmail(taskDesc, output, errormsg)
-    except socket.error, e:
+    except socket.error as e:
       # this is a socket error -- ignore
       ignoreThis = 1
-    except IOError, e:
+    except IOError as e:
       # this is an IO EPIPE error -- ignore
       ignoreThis = 2
-    except Exception, e:
+    except Exception as e:
       ignoreThis = 3
 
     return output
@@ -147,7 +147,7 @@ class SaltTask(object):
 
     try:
       tasksList[taskitem.task]
-    except NameError:
+    except NameError as e:
       return "Error:  task not defined"
 
     if 'sync' == tasksList[taskitem.task]['do']:
@@ -184,7 +184,7 @@ class SaltTask(object):
         p = subprocess.Popen([saltcmd], stdout=subprocess.PIPE)
         output, errormsg = p.communicate()
         output += saltcmd + "\n" + errormsg
-      except Exception,e:
+      except Exception as e:
         output = saltcmd + "\nError: ", str(e)
         errormsg = str(e)
 
