@@ -14,7 +14,7 @@ def main():
   '''
 
   DATABASE_NAME = app_path + '/database/brb.db'
-  PIDFILE = '/tmp/brb_queue_manager.pid'
+  PIDFILE = '/var/run/brb_queue_manager.pid'
 
 
   # check if the pid file already exists

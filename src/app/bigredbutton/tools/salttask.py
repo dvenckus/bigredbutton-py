@@ -27,7 +27,7 @@ class SaltTask(object):
   red = redis.StrictRedis()
   channel = 'alerts'
 
-  logname = 'log/bigredbutton.%s.log' % (datetime.date.today().strftime('%Y%m%d'))
+  logname = '/var/log/bigredbutton/bigredbutton.%s.log' % (datetime.date.today().strftime('%Y%m%d'))
 
   doSiteSync = '/var/www/scripts/brb_site_sync.py'
   doSiteDeploy = '/var/www/scripts/brb_site_deploy.py'

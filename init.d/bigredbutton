@@ -1,16 +1,10 @@
 #! /bin/bash
 ### BEGIN INIT INFO
 # Provides:          bigredbutton
-# Required-Start:
 # Required-Stop:
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description:
-# Description:
-#
-### END INIT INFO
-#
-# Author:       mle <geobi@makina-corpus.net>
+# Description:       service for running bigredbutton-py
 #
 APPNAME=bigredbutton
 APP_PATH=/var/www/html/bigredbutton-py/src
@@ -18,7 +12,7 @@ USER=lynx
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
 ACTIVATE=bigredbutton_activate
 #APPMODULE=yourproject.wsgi:application
-APPMODULE=python:app
+APPMODULE=run:app
 DAEMON=gunicorn
 DAEMON_PATH=/var/www/html/bigredbutton-py/src/brb_env/bin
 BIND=0.0.0.0:8000
@@ -49,8 +43,9 @@ case "$1" in
   start)
         echo "Starting python application:  $APPNAME"
         $ACTIVATE
-        echo "$DAEMON --daemon --bind=$BIND --pid=$PIDFILE --workers=$WORKERS --worker-class=$WORKER_CLASS --user=$USER --log-file=$LOGFILE $APPMODULE"
-        $DAEMON --daemon --bind=$BIND --pid=$PIDFILE --workers=$WORKERS --worker-class=$WORKER_CLASS --user=$USER --log-file=$LOGFILE $APPMODULE
+        cd $APP_PATH
+        echo "$DAEMON --daemon --bind=$BIND --pid=$PIDFILE --name=$APPNAME --workers=$WORKERS --worker-class=$WORKER_CLASS --user=$USER --log-file=$LOGFILE $APPMODULE"
+        $DAEMON --daemon --bind=$BIND --pid=$PIDFILE --name=$APPNAME --workers=$WORKERS --worker-class=$WORKER_CLASS --user=$USER --log-file=$LOGFILE $APPMODULE
         echo $?
     ;;
   stop)

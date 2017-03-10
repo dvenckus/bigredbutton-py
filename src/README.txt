@@ -1,3 +1,10 @@
+If installed as a server....
+
+run:  service bigredbutton [start|stop|status|reload]
+
+
+Run manually:
+
 How to run this with gunicorn...
 
 cd /mnt/hgfs/veritashealth/big-red-button-py
