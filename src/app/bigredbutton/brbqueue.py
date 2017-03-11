@@ -14,7 +14,7 @@ class BrbQueue(object):
     '''  '''
     tasks = None
 
-    if id > 0:
+    if int(id) > 0:
       tasks = dbsession.query(TaskItem).filter_by(id=id, status=status).first()
     else:
       tasks = dbsession.query(TaskItem).filter_by(status=status).all()
@@ -38,14 +38,14 @@ class BrbQueue(object):
         # start the queue_manager
         qm_path = os.path.abspath(os.path.dirname(__file__))
         # run as a background process
-        devnull = open(subprocess.DEVNULL, 'wb') # use os.devnull in python < 3.3; python >= 3.3 has subprocess.DEVNULL
-        subprocess.Popen(['nohup', qm_path + "/tools/queue_manager.py"], stdout=devnull, stderr=devnull)
+        #output = open('/var/log/bigredbutton/bigredbutton.log', 'a')
+        devnull = open(os.devnull, 'wb')
+        subprocess.Popen(['nohup', qm_path + "/tools/queue_manager.py"],
+                         stdout=devnull,
+                         stderr=devnull,
+                         preexec_fn=os.setpgrp)
         #subprocess.Popen( qm_path + "/tools/queue_manager.py &", shell=True)
         return True
-      except socket.error as e:
-        # this is a socket error -- ignore
-        # we don't care if the socket with queue_manager.py breaks, it's a standalone daemon process
-        ignoreThis = 1
       except IOError as e:
         # this is an IO EPIPE error -- ignore
         # we don't care if the socket with queue_manager.py breaks, it's a standalone daemon process

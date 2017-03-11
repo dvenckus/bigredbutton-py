@@ -10,20 +10,20 @@ class SubdomainsList(object):
 
   list = {
     '0': { 'name': mdash + " Select Subdomain " + mdash },
-    'eve': { 'name': "Eve" },
+    'eve2': { 'name': "Eve" },
     'frye': { 'name': "Frye" },
     'gumby': { 'name': "Gumby" },
     'hobbes': { 'name': "Hobbes" },
     'itchy': { 'name': "Itchy" },
-    'stage': { 'name': "Stage" },
-    'master': { 'name': "Master" },
-    'www': { 'name': "Production" },
+    'stage2': { 'name': "Stage" },
+    'master2': { 'name': "Master" },
+    'www2': { 'name': "Production" },
   }
 
 
   list_order = {
-    'pre-prod': ['0', 'eve', 'frye', 'gumby', 'hobbes', 'itchy', 'stage', 'master'],
-    'production': ['www']
+    'pre-prod': ['0', 'eve2', 'frye', 'gumby', 'hobbes', 'itchy', 'stage2', 'master2'],
+    'production': ['www2']
   }
 
   @staticmethod

@@ -34,6 +34,7 @@ class SaltTask(object):
   doCacheClear = '/var/www/scripts/brb_site_cache_clear.py'
   doVarnish = '/var/www/scripts/brb_varnish_clear.py'
   doRollback = '/var/www/scripts/brb_site_rollback.py'
+  doBulkLoad = '/var/www/scripts/brb_bulk_load.py'
 
   #Email Settings
   emailEnabled = False
@@ -74,9 +75,6 @@ class SaltTask(object):
       SaltTask.pushMessage('Task Ended in %s %s' % ('ERROR' if len(errormsg) else 'SUCCESS', taskDesc))
       SaltTask.logEnd(taskDesc)
       SaltTask.sendEmail(taskDesc, output, errormsg)
-    except socket.error as e:
-      # this is a socket error -- ignore
-      ignoreThis = 1
     except IOError as e:
       # this is an IO EPIPE error -- ignore
       ignoreThis = 2
@@ -93,7 +91,7 @@ class SaltTask(object):
 
     ### publish message to alert channel
     now = datetime.datetime.now().replace(microsecond=0).time()
-    SaltTask.red.publish(SaltTask.channel, u'[%s] %s' % (now.isoformat(), msg))
+    SaltTask.red.publish(SaltTask.channel.decode('utf-8'), u'[%s] %s' % (now.isoformat(), msg))
 
 
   @staticmethod
@@ -151,8 +149,13 @@ class SaltTask(object):
       return "Error:  task not defined"
 
     if 'sync' == tasksList[taskitem.task]['do']:
-      saltscript = SaltTask.doSiteSync
-      saltcmd = "%s tgt=%s site=%s mode=all %s" % (saltscript, taskitem.subdomain, taskitem.site, 'backup' if taskitem.dbbackup == True else '')
+      if taskitem.site == 'frm':
+        saltscript = SaltTask.doBulkLoad
+        saltcmd = "%s tgt=%s mode=sync %s" % (saltscript, taskitem.subdomain + '-forum','backup' if taskitem.dbbackup == True else '')
+
+      else:
+        saltscript = SaltTask.doSiteSync
+        saltcmd = "%s tgt=%s site=%s mode=all %s" % (saltscript, taskitem.subdomain, taskitem.site, 'backup' if taskitem.dbbackup == True else '')
 
     elif 'deploy' == tasksList[taskitem.task]['do']:
       saltscript = SaltTask.doSiteDeploy

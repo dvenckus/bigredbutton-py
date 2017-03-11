@@ -28,6 +28,7 @@ $(document).ready(function() {
     clearFormPreProd();
   });
 
+
   function updateQueue(data) {
     // updates the queue display with the current items
     if (data.response == true) {
@@ -37,6 +38,7 @@ $(document).ready(function() {
     }
     window.queueBusy = false
   };
+
 
   window.getQueue = function() {
     if (window.queueBusy == true) { return; }
@@ -116,7 +118,8 @@ $(document).ready(function() {
       $.ajax({
         type: "GET",
         url: $(this).attr('href'),
-        dataType: 'html',
+        contentType: 'application/json',
+        dataType: 'json',
         success: updateQueue
       });
     }
@@ -132,9 +135,11 @@ $(document).ready(function() {
     $('#chk-backup-database-prod').prop('checked', false);
   };
 
+
   $('#clearFormProd').click(function() {
     clearFormProd();
   });
+
 
   $('#btn-push-prod').click(function() {
     if (window.pushBusy == true) { return False; }
@@ -159,7 +164,6 @@ $(document).ready(function() {
                   'task':      task,
                   'dbbackup':  dbbackup
                };
-
 
     $.ajax({
       type: "POST",

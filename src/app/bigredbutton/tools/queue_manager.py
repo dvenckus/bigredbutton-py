@@ -24,7 +24,9 @@ def main():
 
   # create pidfile (as lock file -- we only want 1 queue_manager running at a time)
   pid = str(getpid())
-  file(PIDFILE, 'w').write(pid)
+  #file(PIDFILE, 'w').write(pid)
+  with open(PIDFILE,'w+') as f:
+      f.write(pid + '\n')
 
   # manage the queue
   try:

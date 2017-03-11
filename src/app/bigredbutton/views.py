@@ -95,7 +95,7 @@ def queue_cancel(id):
     content = render_template('queue.incl.jinja', queue=BrbQueue.get())
     retn = True
 
-  return json.dumps({'response': retn, 'content': content}), 200, {'ContentType':'application/json'}
+  return json.dumps({'response': retn, 'content': content}), 200, {'ContentType':'application/json' }
 
 
 # PUSH handlers
@@ -119,11 +119,13 @@ def event_stream():
     pubsub.subscribe(channel)
     for message in pubsub.listen():
         print(message)
-        yield "data: %s|%s|%s\n\n" % (message['channel'].decode('utf-8'), message['type'], str(message['data']))
+        yield "data: %s|%s|%s\n\n" % (message['channel'].decode('utf-8'), message['type'], message['data'])
 
 @app.route('/stream')
 def stream():
-    return Response(event_stream(), mimetype="text/event-stream")
+    resp = Response(event_stream(), mimetype="text/event-stream")
+    resp.headers['X-Accel-Buffering'] = 'no'
+    return resp
 
 #### debug for alerts ####
 
@@ -137,15 +139,18 @@ def post():
     message = request.form['message']
     now = datetime.datetime.now().replace(microsecond=0).time()
     red.publish(channel, u'[%s] BigRedButton says: %s' % (now.isoformat(), message))
-    return Response(status=202)
+    resp = Response(status=202)
+    resp.headers['X-Accel-Buffering'] = 'no'
+    return resp
 
 ############################
 
 @app.after_request
-def add_header(response):
+def add_header(resp):
     #block caching of files for now
-    response.cache_control.max_age = 0
-    return response
+    resp.cache_control.max_age = 0
+    resp.headers['X-Accel-Buffering'] = 'no'
+    return resp
 
 # this is a jinja2 custom filter for formatting dates
 @app.template_filter('timestamp')
