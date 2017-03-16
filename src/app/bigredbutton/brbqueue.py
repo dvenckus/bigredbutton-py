@@ -3,9 +3,10 @@
 #
 from app.bigredbutton import app, engine, dbsession
 from models.taskitem import TaskItem
-import subprocess
-#from os import sys, path, devnull
+from subprocess import Popen
 import os
+#import sys
+
 
 class BrbQueue(object):
 
@@ -36,21 +37,22 @@ class BrbQueue(object):
       dbsession.commit()
       try:
         # start the queue_manager
-        qm_path = os.path.abspath(os.path.dirname(__file__))
+        qm_path = os.path.dirname(__file__)
         # run as a background process
-        #output = open('/var/log/bigredbutton/bigredbutton.log', 'a')
-        devnull = open(os.devnull, 'wb')
-        subprocess.Popen(['nohup', qm_path + "/tools/queue_manager.py"],
-                         stdout=devnull,
-                         stderr=devnull,
-                         preexec_fn=os.setpgrp)
-        #subprocess.Popen( qm_path + "/tools/queue_manager.py &", shell=True)
+        brb_log = open('/var/log/bigredbutton/brb-py.log', 'a', 4)
+        error_log = open('/var/log/bigredbutton/brb-py.error.log', 'a', 4)
+        #devnull = open(os.devnull, 'w')
+        virt_env = name = os.environ.get('VIRTUAL_ENV')
+        qm_path = os.path.dirname(virt_env) + '/app/bigredbutton/tools'
+        queue_manager =  qm_path + '/queue_manager.py'
+        python_bin = virt_env + '/bin/python'
+
+        Popen(['nohup', python_bin, queue_manager, '&'], stdout=brb_log, stderr=error_log)
         return True
       except IOError as e:
         # this is an IO EPIPE error -- ignore
         # we don't care if the socket with queue_manager.py breaks, it's a standalone daemon process
         ignoreThis = 2
-
 
     return False
 

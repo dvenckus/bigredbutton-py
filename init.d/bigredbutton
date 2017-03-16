@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 ### BEGIN INIT INFO
 # Provides:          bigredbutton
 # Required-Stop:
@@ -16,8 +16,9 @@ APPMODULE=run:app
 DAEMON=gunicorn
 DAEMON_PATH=/var/www/html/bigredbutton-py/src/brb_env/bin
 #BIND=0.0.0.0:8000
-BIND=unix:/var/run/$APPNAME.sock
-PIDFILE=/var/run/$APPNAME.pid
+VAR_RUN_DIR=/var/run/$APPNAME
+BIND=unix:$VAR_RUN_DIR/$APPNAME.sock
+PIDFILE=$VAR_RUN_DIR/$APPNAME.pid
 LOGDIR=/var/log/$APPNAME
 LOGFILE=$LOGDIR/$DAEMON.log
 WORKERS=2
@@ -39,20 +40,31 @@ if [ ! -d "$LOGDIR" ]; then
   mkdir -p $LOGDIR
 fi
 
+if [ ! -d "$VAR_RUN_DIR" ]; then
+  mkdir -p $VAR_RUN_DIR
+  chmod 775 $VAR_RUN_DIR
+  chown lynx:fuzzy $VAR_RUN_DIR
+fi
+
 
 case "$1" in
   start)
-        echo "Starting python application:  $APPNAME"
         $ACTIVATE
         cd $APP_PATH
         echo "$DAEMON --daemon --bind=$BIND --pid=$PIDFILE --name=$APPNAME --workers=$WORKERS --worker-class=$WORKER_CLASS --user=$USER --log-file=$LOGFILE $APPMODULE"
         $DAEMON --daemon --bind=$BIND --pid=$PIDFILE --name=$APPNAME --workers=$WORKERS --worker-class=$WORKER_CLASS --user=$USER --log-file=$LOGFILE $APPMODULE
-        echo $?
+        RETVAL=$?
+        if [ $RETVAL -eq 0 ]; then
+          success "Starting $APPNAME"
+        else
+          failure "Starting $APPNAME"
+        fi
+        echo "Starting $APPNAME"
     ;;
   stop)
-        echo "Stopping python application: $APPNAME"
         killproc -p $PIDFILE $DAEMON
-        echo $?
+        RETVAL=$?
+        echo "Stopping $APPNAME"
     ;;
   reload|restart)
     $0 stop

@@ -40,9 +40,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-
-#VIRTUAL_ENV="/mnt/hgfs/veritashealth/bigredbutton-py/src/brb_env"
-VIRTUAL_ENV="$PWD"
+VIRTUAL_ENV=$(dirname $(dirname "${BASH_SOURCE[0]}"))
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
