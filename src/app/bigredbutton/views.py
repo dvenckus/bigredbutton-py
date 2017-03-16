@@ -1,7 +1,7 @@
 from flask import current_app
 from flask import Flask, flash, redirect, render_template, Response, request, session, abort, jsonify
 
-from app.bigredbutton import app, engine, dbsession
+from app.bigredbutton import app, db
 #from sqlalchemy.sql import select
 #from sqlalchemy.orm import sessionmaker
 
@@ -20,7 +20,7 @@ from gevent import monkey; monkey.patch_all()
 import redis
 
 # connect to redis server for message stream handling
-red = redis.StrictRedis()
+_redis = redis.StrictRedis()
 channel = 'alerts'
 
 
@@ -36,14 +36,15 @@ def main_page():
                                          tasks_order=TasksList.order(),
                                          subdomains=SubdomainsList.get(),
                                          subdomains_order=SubdomainsList.order(),
-                                         queue=BrbQueue.get() )
+                                         queue=BrbQueue.get(),
+                                         sse_history=get_sse_history())
 
 # LOGIN / LOGOUT
 @app.route('/login', methods=['POST'])
 def login_page():
     #print("login key: " + str(app.secret_key))
     if request.form['password'] != '' and request.form['username'] != '':
-      user = dbsession.query(User).filter_by(username=request.form['username']).first()
+      user = db.session.query(User).filter_by(username=request.form['username']).first()
       if user.password and sha256_crypt.verify(request.form['password'], str(user.password)):
         session['username'] = request.form['username']
         session['logged_in'] = True
@@ -115,7 +116,7 @@ def push():
 
 # SSE (server sent message) handlers
 def event_stream():
-    pubsub = red.pubsub()
+    pubsub = _redis.pubsub()
     pubsub.subscribe(channel)
     for message in pubsub.listen():
         print(message)
@@ -126,6 +127,20 @@ def stream():
     resp = Response(event_stream(), mimetype="text/event-stream")
     resp.headers['X-Accel-Buffering'] = 'no'
     return resp
+
+
+def get_sse_history():
+  sse_history = []
+  keys = _redis.keys('BRB*')
+  for key in keys:
+    val = _redis.get(key)
+    val = val.decode('utf-8')
+    sse_history.append(val)
+
+  sse_history.sort()
+
+  return sse_history
+
 
 #### debug for alerts ####
 
@@ -138,7 +153,7 @@ def send():
 def post():
     message = request.form['message']
     now = datetime.datetime.now().replace(microsecond=0).time()
-    red.publish(channel, u'[%s] BigRedButton says: %s' % (now.isoformat(), message))
+    _redis.publish(channel, u'[%s] BigRedButton says: %s' % (now.isoformat(), message))
     resp = Response(status=202)
     resp.headers['X-Accel-Buffering'] = 'no'
     return resp

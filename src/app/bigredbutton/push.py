@@ -1,9 +1,9 @@
 #
 # push.py
 #
-from app.bigredbutton import app, engine, metadata
+from app.bigredbutton import app, db
 from tools.salttask import SaltTask
-from models.pushitem import PushItem
+from app.bigredbutton.models.pushitem import PushItem
 import subprocess
 from os import sys, path
 

@@ -1,9 +1,10 @@
 #
 # brbqueue.py
 #
-from app.bigredbutton import app, engine, dbsession
+from app.bigredbutton import app, db
 from models.taskitem import TaskItem
 from subprocess import Popen
+from sqlalchemy import exc
 import os
 #import sys
 
@@ -14,11 +15,13 @@ class BrbQueue(object):
   def get(id=0, status=0):
     '''  '''
     tasks = None
-
-    if int(id) > 0:
-      tasks = dbsession.query(TaskItem).filter_by(id=id, status=status).first()
-    else:
-      tasks = dbsession.query(TaskItem).filter_by(status=status).all()
+    try:
+      if int(id) > 0:
+        tasks = db.session.query(TaskItem).filter_by(id=id, status=status).first()
+      else:
+        tasks = db.session.query(TaskItem).filter_by(status=status).all()
+    except exc.SQLAlchemyError as e:
+      print("Error: " + str(e) + "\n")
 
     return tasks
 
@@ -26,16 +29,18 @@ class BrbQueue(object):
   @staticmethod
   def add(username, data):
     ''' add groups of tasks to queue '''
+
     print('queue_add (data): ', str(data))
     doCommit = False
-    for item in data:
-      task = TaskItem(username, item['subdomain'], item['site'], item['task'], item['dbbackup'])
-      dbsession.add(task)
-      doCommit = True
 
-    if doCommit:
-      dbsession.commit()
-      try:
+    try:
+      for item in data:
+        task = TaskItem(username, item['subdomain'], item['site'], item['task'], item['dbbackup'])
+        db.session.add(task)
+        doCommit = True
+
+      if doCommit:
+        db.session.commit()
         # start the queue_manager
         qm_path = os.path.dirname(__file__)
         # run as a background process
@@ -49,10 +54,13 @@ class BrbQueue(object):
 
         Popen(['nohup', python_bin, queue_manager, '&'], stdout=brb_log, stderr=error_log)
         return True
-      except IOError as e:
-        # this is an IO EPIPE error -- ignore
-        # we don't care if the socket with queue_manager.py breaks, it's a standalone daemon process
-        ignoreThis = 2
+
+    except IOError as e:
+      # this is an IO EPIPE error -- ignore
+      # we don't care if the socket with queue_manager.py breaks, it's a standalone daemon process
+      print("Error: " + str(e) + "\n")
+    except exc.SQLAlchemyError as e:
+      print("Error: " + str(e) + "\n")
 
     return False
 
@@ -60,11 +68,14 @@ class BrbQueue(object):
 
   @staticmethod
   def cancel(id):
-    ''' delete task from f '''
-    task = BrbQueue.get(id)
-    if task:
-      dbsession.delete(task)
-      dbsession.commit()
-      return True
+    ''' delete task '''
+    try:
+      task = BrbQueue.get(id)
+      if task:
+        db.session.delete(task)
+        db.session.commit()
+        return True
+    except exc.SQLAlchemyError as e:
+      print("Error: " + str(e) + "\n")
 
     return False

@@ -193,7 +193,9 @@
         </div>  <!-- tab: production -->
     </div> <!-- deployment-tab-content -->
 
-    <pre id="sse-out"> </pre>
+    <pre id="sse-out">
+{% include 'sse.incl.jinja' %}
+    </pre>
 
     <div id="queue-panel" class="panel panel-default">
       <div class="panel-heading"><h3 class="panel-title">TaskItem Queue</h3></div>

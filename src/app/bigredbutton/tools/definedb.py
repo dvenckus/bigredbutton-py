@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #
 # tabledef.py
 #
@@ -35,6 +35,9 @@ def main():
   Session = sessionmaker(bind=engine)
   session = Session()
   session.commit()
+
+  admin_user = ''
+  admin_pswd = ''
 
   try:
     opts, args = getopt.getopt(sys.argv[1:], "", ["u=", "p="])

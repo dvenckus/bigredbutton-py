@@ -4,6 +4,7 @@
 # called by queue_manager
 from os import path, sys, linesep
 import datetime
+import pytz
 import time
 import redis
 import subprocess
@@ -18,8 +19,10 @@ from tasks import TasksList
 
 class SaltTask(object):
 
-  redis_ch = redis.StrictRedis()
+  _redis = redis.StrictRedis()
   channel = 'alerts'
+
+  tz = pytz.timezone("America/Chicago")
 
   logfile = None
   logname = '/var/log/bigredbutton/brb_tasks.log'   # .format(datetime.date.today().strftime('%Y%m%d'))
@@ -99,8 +102,15 @@ class SaltTask(object):
     if msg == '': return
     ### publish message to alert channel
     #SaltTask.log("SaltTask::pushMessage()\n")
-    now = datetime.datetime.now().replace(microsecond=0).time()
-    SaltTask.redis_ch.publish(SaltTask.channel, "[{0}] {1}".format(now.isoformat(), msg))
+    dt = datetime.datetime.now(SaltTask.tz)
+    now = dt.strftime('%Y-%m-%d %H:%M:%S')
+    ts = int(dt.strftime("%s"))
+    pub_msg = "[{0}] {1}".format(now, msg)
+    SaltTask._redis.publish(SaltTask.channel, pub_msg)
+    # set redis history expiration after 1 hour
+    key = 'BRB_{}'.format(ts)
+    SaltTask._redis.set(key, pub_msg)
+    SaltTask._redis.expire(key, 3600)
 
 
   @staticmethod
@@ -111,23 +121,22 @@ class SaltTask(object):
     '''
     ### setup logging
     #print("[SaltTask] SaltTask::logStart()\n")
-    now = datetime.datetime.now().replace(microsecond=0).time()
+    now = datetime.datetime.now(SaltTask.tz).strftime('%Y-%m-%d %H:%M:%S')
     #print("[SaltTask] Open Log: " + SaltTask.logname + "\n")
     SaltTask.logfile = open(SaltTask.logname, 'a', 4)
     SaltTask.logfile.write("\n\n--------- BEGIN Task [{}] ---------\n".format(now))
     SaltTask.logfile.write('Task:  ' + msg + "\n")
-    SaltTask.logfile.write("-----------------------------------------\n")
+    SaltTask.logfile.write("---------------------------------------------------\n")
 
 
   @staticmethod
   def logEnd(msg):
     ''' marks the beginning of the task in the log '''
     ### setup logging
-    now = datetime.datetime.now().replace(microsecond=0).time()
-
+    now = datetime.datetime.now(SaltTask.tz).strftime('%Y-%m-%d %H:%M:%S')
     SaltTask.logfile.write("--------- END Task [{}]---------\n".format(now))
     SaltTask.logfile.write('Task:  ' + msg + "\n")
-    SaltTask.logfile.write("-----------------------------------------\n")
+    SaltTask.logfile.write("---------------------------------------------------\n")
 
 
 

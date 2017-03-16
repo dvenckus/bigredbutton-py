@@ -1,9 +1,10 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 from os import sys, path, unlink, getpid
 import datetime
+import pytz
 
 app_path = ''
 
@@ -17,6 +18,7 @@ def main():
   DATABASE_NAME = app_path + '/database/brb.db'
   QM_PIDFILE = '/var/run/bigredbutton/brb_queue_manager.pid'
   QM_LOGFILE = '/var/log/bigredbutton/brb_queue_manager.log'
+  tz = pytz.timezone('America/Chicago')
 
 
   # check if the pid file already exists
@@ -33,7 +35,7 @@ def main():
   # manage the queue
   try:
     qm_log = open('/var/log/bigredbutton/brb_queue_manager.log', 'a', 4)
-    now = datetime.datetime.now().replace(microsecond=0).time()
+    now = datetime.datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S')
     qm_log.write("[BRB Queue Manager] BEGIN [{}]\n".format(now))
     qm_log.write('[BRB Queue Manager] sys.path: ' + str(sys.path) + "\n")
 
@@ -78,7 +80,7 @@ def main():
       unlink(QM_PIDFILE)
     except Exception as e:
       ignoreIt = True
-    now = datetime.datetime.now().replace(microsecond=0).time()
+    now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     qm_log.write("[BRB Queue Manager] END [{}]\n".format(now))
 
 

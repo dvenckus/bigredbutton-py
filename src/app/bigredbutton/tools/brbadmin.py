@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -55,7 +55,7 @@ def main():
       if action == '': action = ACTION_LIST
     elif "id=" in a:
       tmp = a.split('=')
-      uid = tmp[1]
+      uid = int(tmp[1])
     elif "username=" in a:
       tmp = a.split('=')
       username = tmp[1]
@@ -148,7 +148,7 @@ def main():
         user.realname = realname
 
       session.commit()
-      print"User (%s) updated" % username
+      print("User ({}) updated".format(username))
 
     elif ACTION_DELETE == action:
       if uid > 0:

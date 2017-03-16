@@ -4,8 +4,9 @@
 
 from sqlalchemy import Column, Integer, String, Boolean, Sequence
 from models.meta import Base
-import calendar
-import time
+from models.unixtimestamp import UnixTimestamp
+#import calendar
+#import time
 
 
 ########################################################################
@@ -14,7 +15,7 @@ class TaskItem(Base):
     __tablename__ = "tasks"
 
     id = Column(Integer, Sequence('task_id_seq'), primary_key=True)
-    timestamp = Column(Integer, default=0)
+    timestamp = Column(UnixTimestamp)
     username = Column(String(25), default='')
     subdomain = Column(String(25), default='')
     site = Column(String(10), default='')
@@ -26,7 +27,6 @@ class TaskItem(Base):
     def __init__(self, username, subdomain, site, task, dbbackup, status=0):
         """"""
         # timestamp in unixtime
-        self.timestamp = calendar.timegm(time.gmtime())
         self.username = username
         self.subdomain = subdomain
         self.site = site
@@ -35,7 +35,7 @@ class TaskItem(Base):
         self.status = status
 
     def __repr__(self):
-        return "<TaskItem(id='%d', subdomain='%s', site='%s', task='%s', backup='%r', username='%s', timestamp='%d', status='%d')>" % (
+        return "<TaskItem(id='%d', subdomain='%s', site='%s', task='%s', backup='%r', username='%s', timestamp='%s', status='%d')>" % (
                      self.id, self.subdomain, self.site, self.task, self.dbbackup, self.username, self.timestamp, self.status)
 
     def toDict(self):

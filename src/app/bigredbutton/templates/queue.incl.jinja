@@ -1,11 +1,11 @@
-{% if queue is defined and queue|length > 0 -%}
+{% if queue is defined and queue != None and queue|length > 0 -%}
   {# use bootstrap glyphs -#}
   {% set cancel_glyph = '<span class="glyphicon glyphicon-remove" aria-hidden="false"></span>' -%}
   {% set bkup_glyph = '<span class="glyphicon glyphicon-ok" aria-hidden="false"></span>' -%}
   {% for taskitem in queue -%}
     <tr class="{{ 'even' if loop.index is divisibleby(2) else 'odd' }}">
       <td>{{ taskitem.username }}</td>
-      <td>{{ taskitem.timestamp | timestamp }}
+      <td>{{ taskitem.timestamp }}
       <td>{{ taskitem.subdomain }}</td>
       <td>{{ taskitem.site }}</td>
       <td>{{ taskitem.task }}</td>

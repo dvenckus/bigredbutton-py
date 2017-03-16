@@ -1,0 +1,5 @@
+{% if sse_history is defined and sse_history|length > 0 -%}
+{% for item in sse_history|reverse -%}
+{{ item }}
+{% endfor -%}
+{% endif -%}
