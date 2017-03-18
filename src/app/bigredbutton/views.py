@@ -13,8 +13,8 @@ from models.user import User
 from brbqueue import BrbQueue
 from push import Push
 import json
-
-import datetime
+from datetime import datetime, timedelta
+import pytz
 from passlib.hash import sha256_crypt
 from gevent import monkey; monkey.patch_all()
 import redis
@@ -22,6 +22,7 @@ import redis
 # connect to redis server for message stream handling
 _redis = redis.StrictRedis()
 channel = 'alerts'
+tz = pytz.timezone('America/Chicago')
 
 
 # BIG RED BUTTON - main page
@@ -49,6 +50,7 @@ def login_page():
         session['username'] = request.form['username']
         session['logged_in'] = True
         session['attempts'] = 0
+        session.permanent = True
       else:
         if 'attempts' not in session : session['attempts'] = 0
         session['attempts'] += 1
@@ -79,6 +81,9 @@ def queue_add():
   content = ''
   retn = False
 
+  if not (session or session['username']):
+    return redirect("/")
+
   if BrbQueue.add(session['username'], jsonData):
     content = render_template('queue.incl.jinja', queue=BrbQueue.get())
     retn = True
@@ -91,6 +96,9 @@ def queue_add():
 def queue_cancel(id):
   content = ''
   retn = False
+
+  if not session:
+    return redirect("/")
 
   if BrbQueue.cancel(id):
     content = render_template('queue.incl.jinja', queue=BrbQueue.get())
@@ -107,6 +115,9 @@ def push():
   jsonData = request.get_json()
   content = ''
   retn = False
+
+  if not (session or session['username']):
+    return redirect("/")
 
   content = Push.do(session['username'], jsonData)
   if content != False: retn = True
@@ -152,13 +163,18 @@ def send():
 @app.route('/post', methods=['POST'])
 def post():
     message = request.form['message']
-    now = datetime.datetime.now().replace(microsecond=0).time()
+    now = datetime.now().replace(microsecond=0).time()
     _redis.publish(channel, u'[%s] BigRedButton says: %s' % (now.isoformat(), message))
     resp = Response(status=202)
     resp.headers['X-Accel-Buffering'] = 'no'
     return resp
 
 ############################
+
+# handle session expiration
+@app.before_request
+def set_session_timeout():
+    app.permanent_session_lifetime = timedelta(hours=1)
 
 @app.after_request
 def add_header(resp):
@@ -170,4 +186,4 @@ def add_header(resp):
 # this is a jinja2 custom filter for formatting dates
 @app.template_filter('timestamp')
 def format_timestamp(d):
-    return datetime.datetime.fromtimestamp(int(d)).strftime('%Y-%m-%d %H:%M:%S')
+    return datetime.fromtimestamp(int(d), tz).strftime('%Y-%m-%d %H:%M:%S')
