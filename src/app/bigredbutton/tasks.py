@@ -15,14 +15,16 @@ class TasksList(object):
     'sync': { 'name': "Sync (database + files)", 'do': 'sync' },
     'cache': { 'name': "Cache Clear", 'do': 'cache'},
     'varnish': { 'name': "Varnish Clear", 'do': 'varnish' },
-    mdash: { 'name': mdash, 'attributes': 'role="separator" class="divider"', 'do': '' },
-    'rb': { 'name': 'Rollback', 'do': 'rb'},
-    'unrb': { 'name': 'Undo Rollback', 'do': 'unrb' }
+    #mdash: { 'name': mdash, 'attributes': 'role="separator" class="divider"', 'do': '' },
+    #'rb': { 'name': 'Rollback', 'do': 'rb'},
+    #'unrb': { 'name': 'Undo Rollback', 'do': 'unrb' }
   }
 
   list_order = {
-    'pre-prod': ['0', 'push', 'sync', 'cache', mdash, 'rb', 'unrb'],
-    'production': ['0', 'push', 'cache', 'varnish', mdash, 'rb', 'unrb']
+    'pre-prod': ['0', 'push', 'sync', 'cache'], 
+    #, mdash, 'rb', 'unrb'],
+    'production': ['0', 'push', 'cache', 'varnish']
+    #, mdash, 'rb', 'unrb']
   }
 
   @staticmethod
