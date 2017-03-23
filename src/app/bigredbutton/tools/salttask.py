@@ -30,7 +30,7 @@ class SaltTask(object):
   doSiteSync = '/var/www/scripts/brb_site_sync.py'
   doSiteDeploy = '/var/www/scripts/brb_site_deploy.py'
   doCacheClear = '/var/www/scripts/brb_site_cache_clear.py'
-  doVarnish = '/var/www/scripts/brb_varnish_clear.py'
+  doVarnishClear = '/var/www/scripts/brb_varnish_clear.py'
   doRollback = '/var/www/scripts/brb_site_rollback.py'
   doBulkLoad = '/var/www/scripts/brb_bulk_load.py'
 

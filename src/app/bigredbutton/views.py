@@ -18,6 +18,7 @@ import pytz
 from passlib.hash import sha256_crypt
 from gevent import monkey; monkey.patch_all()
 import redis
+import re
 
 # connect to redis server for message stream handling
 _redis = redis.StrictRedis()
@@ -71,6 +72,8 @@ def logout():
 @app.route('/queue')
 def queue_get():
   content = render_template('queue.incl.jinja', queue=BrbQueue.get())
+  if not isinstance(content, str):
+    content = content.decode('utf-8')
   return json.dumps({'response': True, 'content': content }), 200, {'ContentType':'application/json'}
 
 
@@ -86,6 +89,8 @@ def queue_add():
 
   if BrbQueue.add(session['username'], jsonData):
     content = render_template('queue.incl.jinja', queue=BrbQueue.get())
+    if not isinstance(content, str):
+      content = content.decode('utf-8')
     retn = True
     #print("content: " + content)
 
@@ -103,8 +108,10 @@ def queue_cancel(id):
   if BrbQueue.cancel(id):
     content = render_template('queue.incl.jinja', queue=BrbQueue.get())
     retn = True
+    if not isinstance(content, str):
+      content = content.decode('utf-8')
 
-  return json.dumps({'response': retn, 'content': content}), 200, {'ContentType':'application/json' }
+  return json.dumps({ 'response': retn, 'content': content }), 200, {'ContentType':'application/json' }
 
 
 # PUSH handlers
@@ -120,7 +127,10 @@ def push():
     return redirect("/")
 
   content = Push.do(session['username'], jsonData)
-  if content != False: retn = True
+  if content != False:
+    retn = True
+    if not isinstance(content, str):
+      content = content.decode('utf-8')
 
   return json.dumps({'response': retn, 'content': content }), 200, {'ContentType':'application/json'}
 
@@ -131,7 +141,7 @@ def event_stream():
     pubsub.subscribe(channel)
     for message in pubsub.listen():
         print(message)
-        yield "data: %s|%s|%s\n\n" % (message['channel'].decode('utf-8'), message['type'], message['data'])
+        yield "data: %s|%s|%s\n\n" % (message['channel'].decode('utf-8'), message['type'], str(message['data']))
 
 @app.route('/stream')
 def stream():

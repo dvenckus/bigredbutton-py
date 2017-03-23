@@ -2,8 +2,9 @@
 # Class PushItem
 #
 
-import calendar
-import time
+from time import time
+from datetime import datetime
+import pytz
 
 
 ########################################################################
@@ -22,7 +23,7 @@ class PushItem(object):
     def __init__(self, username, subdomain, site, task, dbbackup, status=0):
         """"""
         # timestamp in unixtime
-        self.timestamp = calendar.timegm(time.gmtime())
+        self.timestamp = int(time())
         self.username = username
         self.subdomain = subdomain
         self.site = site
@@ -31,8 +32,10 @@ class PushItem(object):
         self.status = status
 
     def __repr__(self):
-        return "<PushItem(id='%d', subdomain='%s', site='%s', task='%s', backup='%r', username='%s', timestamp='%d', status='%d')>" % (
-                     self.id, self.subdomain, self.site, self.task, self.dbbackup, self.username, self.timestamp, self.status)
+        tz = pytz.timezone('America/Chicago')
+        ts = datetime.fromtimestamp(self.timestamp, tz).strftime('%Y-%m-%d %H:%M:%S')
+        return "<PushItem(id='%d', subdomain='%s', site='%s', task='%s', backup='%r', username='%s', timestamp='%s', status='%d')>" % (
+                     self.id, self.subdomain, self.site, self.task, self.dbbackup, self.username, ts, self.status)
 
     def toDict(self):
       dict_ = {}

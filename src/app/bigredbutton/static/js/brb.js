@@ -170,7 +170,7 @@ $(document).ready(function() {
       url: "push",
       contentType: 'application/json',
       data: JSON.stringify(item),
-      dataType: 'html',
+      dataType: 'json',
       success: function(data) {
         console.log('push: ' + data.content)
         $("#production-output").html(data.content);
