@@ -190,10 +190,10 @@ class SaltTask(object):
 
     if 'sync' == tasksList[taskitem.task]['do']:
 
-      if taskitem.site == 'frm' or taskitem.site == 'vf':
+      if taskitem.site == 'vf':
         saltcmd = [
           SaltTask.doBulkLoad,
-          'tgt=' + taskitem.subdomain + '-forum',
+          'tgt=' + taskitem.subdomain,
           'mode=sync',
           backup
         ]
@@ -250,14 +250,15 @@ class SaltTask(object):
 
     if saltcmd:
       # prepend 'sudo' to the saltcmd
-      saltcmd[:0] = ['sudo']
-      saltcmd_str = ', '.join(saltcmd)
+      saltcmd_str = ''
 
       try:
+        saltcmd[:0] = ['sudo']
+        saltcmd_str = ', '.join(saltcmd)
         SaltTask.log("saltcmd: " + saltcmd_str)
         output = subprocess.check_output(saltcmd)
       except subprocess.CalledProcessError as e:
-        errormsg = saltcmd_str  + "\nError: " + e.output
+        errormsg = saltcmd_str  + "\nError: " + str(e)
       except Exception as e:
         output = saltcmd_str + "\nError: ", str(e)
         errormsg = str(e)

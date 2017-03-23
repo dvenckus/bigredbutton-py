@@ -3,6 +3,7 @@
 #
 from app.bigredbutton import app, db
 from models.taskitem import TaskItem
+from app.bigredbutton.subdomains import SubdomainsList
 from subprocess import Popen
 from sqlalchemy import exc
 import os
@@ -35,7 +36,9 @@ class BrbQueue(object):
 
     try:
       for item in data:
-        task = TaskItem(username, item['subdomain'], item['site'], item['task'], item['dbbackup'])
+        # convert subdomain to forum subdomain if appropriate
+        sd = SubdomainsList.getSubdomain(item['site'], item['subdomain'], 'pre-prod')
+        task = TaskItem(username, sd, item['site'], item['task'], item['dbbackup'])
         db.session.add(task)
         doCommit = True
 

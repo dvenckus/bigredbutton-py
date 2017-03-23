@@ -7,9 +7,6 @@ class SitesList(object):
 
   mdash = HTMLParser().unescape("&mdash;")
 
-  www = 'www2'
-  forum_sitecode = 'vf'
-  forum = 'www2-forum'
 
   list = {
     '0': { 'name': mdash + " Select Site " + mdash },
@@ -41,8 +38,3 @@ class SitesList(object):
     returns order of sites keys
     '''
     return SitesList.list_order
-
-  @staticmethod
-  def getProductionSubdomain(sitecode=''):
-    if sitecode == '': return ''
-    return SitesList.forum if sitecode == SitesList.forum_sitecode else SitesList.www
