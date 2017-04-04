@@ -1,11 +1,13 @@
 #!/bin/bash
-### BEGIN INIT INFO
-# Provides:          bigredbutton
-# Required-Stop:
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
+#
+# /etc/init.d/bigredbutton
+# chkconfig: 2345 99 05
+#
+# processname: bigredbutton
+# pidfile: /var/run/bigredbutton.pid
 # Description:       service for running bigredbutton-py
 #
+
 APPNAME=bigredbutton
 APP_PATH=/var/www/html/bigredbutton-py/src
 USER=lynx
@@ -62,7 +64,8 @@ case "$1" in
         echo "Starting $APPNAME"
     ;;
   stop)
-        killproc -p $PIDFILE $DAEMON
+        #killproc -p $PIDFILE $DAEMON
+        pkill -TERM -F $PIDFILE
         RETVAL=$?
         echo "Stopping $APPNAME"
     ;;
@@ -71,7 +74,13 @@ case "$1" in
     $0 start
     ;;
   status)
-    status $APPNAME && exit 0 || exit $?
+    #status $APPNAME && exit 0 || exit $?
+    if [ -e $PIDFILE ]; then
+      echo "$APPNAME is running"
+    else
+      echo "$APPNAME is NOT running"
+      exit 1
+    fi
     ;;
   *)
     echo "Usage: /etc/init.d/$APPNAME {start|stop|restart|reload|status}"
