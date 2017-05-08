@@ -69,10 +69,10 @@ case "$1" in
         RETVAL=$?
         echo "Stopping $APPNAME"
     ;;
-  reload|restart)
-    $0 stop
-    $0 start
-    ;;
+  #restart|reload)
+  #      /sbin/service $APPNAME stop
+  #      /sbin/service $APPNAME start
+  #  ;;
   status)
     #status $APPNAME && exit 0 || exit $?
     if [ -e $PIDFILE ]; then
@@ -83,7 +83,7 @@ case "$1" in
     fi
     ;;
   *)
-    echo "Usage: /etc/init.d/$APPNAME {start|stop|restart|reload|status}"
+    echo "Usage: /etc/init.d/$APPNAME {start|stop|status}"
     exit 1
     ;;
 esac

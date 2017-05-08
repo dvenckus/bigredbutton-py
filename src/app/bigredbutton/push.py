@@ -15,6 +15,6 @@ class Push(object):
     ''' PRODUCTION tasks -- do a BRB task immediately '''
     print('push (data): ', str(data))
     # there should only be 1 record
-    subdomain = SubdomainsList.getSubdomain(data['site'], 'prod')
+    subdomain = SubdomainsList.getSubdomain(data['site'], '', 'prod')
     pushitem = PushItem(username, subdomain, data['site'], data['task'], data['dbbackup'])
     return SaltTask.run(pushitem, 'push')

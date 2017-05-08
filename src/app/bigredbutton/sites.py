@@ -14,6 +14,7 @@ class SitesList(object):
     mdash: { 'name': mdash, 'attributes': 'role="separator" class="divider"' },
     'ah': { 'name': "Arthritis-health", 'attributes': 'class="site"' },
     'oh': { 'name': "Osteoporosis-health", 'attributes': 'class="site"' },
+    'ph': { 'name': "Pain-health", 'attributes': 'class="site"' },
     'sh': { 'name': "Spine-health", 'attributes': 'class="site"' },
     'sp': { 'name': "Sports-health", 'attributes': 'class="site"' },
     'vh': { 'name': "Veritas Health", 'attributes': 'class=""'},
@@ -21,8 +22,8 @@ class SitesList(object):
   }
 
   list_order = {
-     'pre-prod': ['0', 'all', mdash, 'ah', 'oh', 'sp', 'sh', 'vh', 'vf'],
-     'production': ['0', 'ah', 'oh', 'sp', 'sh', 'vh', 'vf']
+     'pre-prod': ['0', 'all', mdash, 'ah', 'oh', 'ph', 'sh', 'sp', 'vh', 'vf'],
+     'production': ['0', 'ah', 'oh', 'ph', 'sh', 'sp', 'vh', 'vf']
   }
 
   @staticmethod

@@ -8,9 +8,9 @@ class SubdomainsList(object):
 
   mdash = HTMLParser().unescape("&mdash;")
 
-  www = 'www2'
+  www = 'www'
   forum_sitecode = 'vf'
-  forum = 'www2-forum'
+  forum = 'forum'
 
   list = {
     '0': { 'name': mdash + " Select Subdomain " + mdash },
@@ -21,13 +21,13 @@ class SubdomainsList(object):
     'itchy': { 'name': "Itchy" },
     'stage': { 'name': "Stage" },
     'master': { 'name': "Master" },
-    'www2': { 'name': "Production" },
+    'www': { 'name': "Production" },
   }
 
 
   list_order = {
     'pre-prod': ['0', 'eve', 'frye', 'gumby', 'hobbes', 'itchy', 'stage', 'master'],
-    'production': ['www2']
+    'production': ['www']
   }
 
   @staticmethod
