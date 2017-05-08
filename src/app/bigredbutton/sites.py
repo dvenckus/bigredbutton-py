@@ -10,7 +10,7 @@ class SitesList(object):
 
   list = {
     '0': { 'name': mdash + " Select Site " + mdash },
-    'all': { 'name': "ALL [ah, oh, sh, sp, vf]" },
+    'all': { 'name': "ALL [ah, oh, ph, sh, sp, vf, vh]" },
     mdash: { 'name': mdash, 'attributes': 'role="separator" class="divider"' },
     'ah': { 'name': "Arthritis-health", 'attributes': 'class="site"' },
     'oh': { 'name': "Osteoporosis-health", 'attributes': 'class="site"' },
