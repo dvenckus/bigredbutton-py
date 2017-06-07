@@ -45,20 +45,25 @@ def main_page():
 @app.route('/login', methods=['POST'])
 def login_page():
     #print("login key: " + str(app.secret_key))
-    if request.form['password'] != '' and request.form['username'] != '':
-      user = db.session.query(User).filter_by(username=request.form['username']).first()
-      if user.password and sha256_crypt.verify(request.form['password'], str(user.password)):
-        session['username'] = request.form['username']
-        session['logged_in'] = True
-        session['attempts'] = 0
-        session.permanent = True
+    try:
+      if request.form['password'] != '' and request.form['username'] != '':
+        user = db.session.query(User).filter_by(username=request.form['username']).first()
+        if user.password and sha256_crypt.verify(request.form['password'], str(user.password)):
+          session['username'] = request.form['username']
+          session['logged_in'] = True
+          session['attempts'] = 0
+          session.permanent = True
+        else:
+          if 'attempts' not in session : session['attempts'] = 0
+          session['attempts'] += 1
       else:
         if 'attempts' not in session : session['attempts'] = 0
         session['attempts'] += 1
-    else:
+      return redirect("/")
+    except AttributeError:
       if 'attempts' not in session : session['attempts'] = 0
       session['attempts'] += 1
-    return redirect("/")
+      return redirect("/")
 
 
 @app.route("/logout")
