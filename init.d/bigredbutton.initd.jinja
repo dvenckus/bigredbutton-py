@@ -10,7 +10,8 @@
 
 APPNAME=bigredbutton
 APP_PATH=/var/www/html/bigredbutton-py/src
-USER=lynx
+USER={{ user }}
+GROUP={{ group }}
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
 ACTIVATE=bigredbutton_activate
 #APPMODULE=yourproject.wsgi:application
@@ -45,7 +46,7 @@ fi
 if [ ! -d "$VAR_RUN_DIR" ]; then
   mkdir -p $VAR_RUN_DIR
   chmod 775 $VAR_RUN_DIR
-  chown lynx:fuzzy $VAR_RUN_DIR
+  chown ${USER}:${GROUP} $VAR_RUN_DIR
 fi
 
 
@@ -65,14 +66,22 @@ case "$1" in
     ;;
   stop)
         #killproc -p $PIDFILE $DAEMON
-        pkill -TERM -F $PIDFILE
+        #pkill -TERM -F $PIDFILE
+        #kill $(pgrep -f $APPNAME)
+        pgrep -f $DAEMON | xargs kill -s SIGTERM
+        #rm -fr $PIDFILE
         RETVAL=$?
+        if [ $RETVAL -eq 0 ]; then
+          success "Stopping $APPNAME"
+        else
+          failure "Stopping $APPNAME"
+        fi
         echo "Stopping $APPNAME"
     ;;
-  #restart|reload)
-  #      /sbin/service $APPNAME stop
-  #      /sbin/service $APPNAME start
-  #  ;;
+  restart|reload)
+        /sbin/service $APPNAME stop
+        /sbin/service $APPNAME start
+    ;;
   status)
     #status $APPNAME && exit 0 || exit $?
     if [ -e $PIDFILE ]; then
@@ -83,7 +92,7 @@ case "$1" in
     fi
     ;;
   *)
-    echo "Usage: /etc/init.d/$APPNAME {start|stop|status}"
+    echo "Usage: /etc/init.d/$APPNAME {start|stop|status|restart|reload}"
     exit 1
     ;;
 esac
