@@ -7,7 +7,6 @@ class SitesList(object):
 
   mdash = HTMLParser().unescape("&mdash;")
 
-
   list = {
     '0': { 'name': mdash + " Select Site " + mdash },
     'all': { 'name': "ALL [ah, ph, sh, sp, vf, vh]" },
