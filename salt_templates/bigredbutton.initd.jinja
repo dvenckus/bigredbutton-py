@@ -3,7 +3,7 @@
 # /etc/init.d/bigredbutton
 # chkconfig: 2345 99 05
 # processname: bigredbutton
-# pidfile: /var/run/bigredbutton.pid
+# pidfile: /var/run/bigredbutton/bigredbutton.pid
 # description:  Python application service for bigredbutton
 #
 ### BEGIN INIT INFO
@@ -16,7 +16,7 @@
 ### END INIT INFO
 
 APPNAME=bigredbutton
-APP_PATH=/var/www/html/bigredbutton-py/src
+APP_PATH={{ app_path }}
 USER={{ user }}
 GROUP={{ group }}
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
@@ -24,7 +24,7 @@ ACTIVATE=bigredbutton_activate
 #APPMODULE=yourproject.wsgi:application
 APPMODULE=run:app
 DAEMON=gunicorn
-DAEMON_PATH=/var/www/html/bigredbutton-py/src/brb_env/bin
+DAEMON_PATH=$APP_PATH/brb_env/bin
 #BIND=0.0.0.0:8000
 VAR_RUN_DIR=/var/run/$APPNAME
 BIND=unix:$VAR_RUN_DIR/$APPNAME.sock

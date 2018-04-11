@@ -1,0 +1,7 @@
+export VIRTUAL_ENV={{ virtualenv }}
+
+bigredbutton_activate() {
+    source {{ virtualenv }}/bin/activate #"$@"
+}
+export -f bigredbutton_activate
+
