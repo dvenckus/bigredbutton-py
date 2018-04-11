@@ -16,7 +16,7 @@ def main():
   user management for bigredbutton app
   '''
 
-  DATABASE_NAME = app_path + '/database/brb.db'
+  DATABASE_NAME = '/usr/local/sqlite/brb_data/brb.db'
 
   admin_user = ''
   admin_pswd = ''

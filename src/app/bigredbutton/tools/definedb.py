@@ -23,9 +23,9 @@ def main():
   configures the admin user/pass
   '''
 
-  DATABASE_NAME = app_path + '/database/brb.db'
+  DATABASE_NAME = '/usr/local/sqlite/brb_data/brb.db'
 
-  # add 'echo=True' to turn on logging for create_engine
+  # add 'echo=True' to turn on logging for create_enginebrb
   engine = create_engine('sqlite:///' + DATABASE_NAME)
 
   # create tables
