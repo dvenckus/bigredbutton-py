@@ -21,7 +21,9 @@ import redis
 import re
 
 # connect to redis server for message stream handling
-_redis = redis.StrictRedis()
+# unix_socket_path='/var/run/redis/redis.sock'
+# remove the unix_socket_path parameter to default to 127.0.0.1:6379
+_redis = redis.StrictRedis(unix_socket_path='/var/run/redis/redis.sock')
 channel = 'alerts'
 tz = pytz.timezone('America/Chicago')
 
