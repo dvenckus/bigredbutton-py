@@ -1,5 +1,5 @@
 .DS_Store
 *.pyc
 
-/.editorconfig
-/deployment-config.json
+.editorconfig
+.vscode/
