@@ -8,7 +8,7 @@ Run manually:
 How to run this with gunicorn...
 
 cd /mnt/hgfs/veritashealth/big-red-button-py
-source ./brb_env/bin/activate   ## 'deactivate' to exist env
+source ./bigredbutton/bin/activate   ## 'deactivate' to exist env
 
 gunicorn --bind=0.0.0.0:8000 --workers=2 --worker-class gevent run:app
 
@@ -23,8 +23,8 @@ REQUIREMENTS
 redis server must be installed
  $> yum install redis
 
-python redis lib must be installed in brb_env virtual env ( should already be included )
- (brb_env) $> pip install redis
+python redis lib must be installed in bigredbutton virtual env ( should already be included )
+ (bigredbutton) $> pip install redis
 
  - sqlite
 

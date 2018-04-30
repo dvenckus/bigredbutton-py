@@ -13,22 +13,23 @@ class SubdomainsList(object):
   forum = 'forum'
 
   list = {
-    '0': { 'name': mdash + " Select Subdomain " + mdash },
-    'eve': { 'name': "Eve" },
-    'frye': { 'name': "Frye" },
-    'gumby': { 'name': "Gumby" },
-    'hobbes': { 'name': "Hobbes" },
-    'itchy': { 'name': "Itchy" },
-    'stage': { 'name': "Stage" },
-    'master': { 'name': "Master" },
-    'www': { 'name': "Production" },
+    'list': {
+      '0': { 'name': mdash + " Select Subdomain " + mdash },
+      'eve': { 'name': "Eve" },
+      'frye': { 'name': "Frye" },
+      'gumby': { 'name': "Gumby" },
+      'hobbes': { 'name': "Hobbes" },
+      'itchy': { 'name': "Itchy" },
+      'stage': { 'name': "Stage" },
+      'master': { 'name': "Master" },
+      'www': { 'name': "Production" }
+    },
+    'list_order': {
+      'pre-prod': ['0', 'eve', 'frye', 'gumby', 'hobbes', 'itchy', 'stage', 'master'],
+      'production': ['www']
+    }
   }
 
-
-  list_order = {
-    'pre-prod': ['0', 'eve', 'frye', 'gumby', 'hobbes', 'itchy', 'stage', 'master'],
-    'production': ['www']
-  }
 
   @staticmethod
   def get():
@@ -37,12 +38,6 @@ class SubdomainsList(object):
     '''
     return SubdomainsList.list
 
-  @staticmethod
-  def order():
-    '''
-    returns order of list keys
-    '''
-    return SubdomainsList.list_order
 
 
   @staticmethod
@@ -52,7 +47,7 @@ class SubdomainsList(object):
     if env == 'prod':
       return SubdomainsList.forum if sitecode == SubdomainsList.forum_sitecode else SubdomainsList.www
 
-    sd = SubdomainsList.list.get(selected, '')
+    sd = SubdomainsList.list.get('list').get(selected, '')
     if sd != '':
       return selected + '-forum' if sitecode == SubdomainsList.forum_sitecode else selected
 

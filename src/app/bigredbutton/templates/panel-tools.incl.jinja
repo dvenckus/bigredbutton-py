@@ -1,0 +1,68 @@
+          <h1>Tools</h1>
+          <p>Big Tools to do great things!</p>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Tools</h3>
+            </div>
+            <div class="panel-body">
+
+              <div class="accordion tools-accordian" id="accordion">
+
+                {% if 'merge repositories' in session.get('permissions', []) %}
+                <div class="card">
+                  <div class="card-header" id="headingMerge">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseMerge" aria-expanded="true" aria-controls="collapseMerge">
+                        Merge Repositories
+                      </button>
+                    </h5>
+                  </div>
+                  <div id="collapseMerge" class="collapse show" aria-labelledby="headingMerge" data-parent="#accordion">
+                    <div class="card-body">
+                      {% include 'form_merge.incl.jinja' %}
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+
+                {% if 'version update' in session.get('permissions', []) %}
+                <div class="card">
+                  <div class="card-header" id="headingVersion">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseVersion" aria-expanded="false" aria-controls="collapseVersion">
+                        Version Update
+                      </button>
+                    </h5>
+                  </div>
+                  <div id="collapseVersion" class="collapse" aria-labelledby="headingVersion" data-parent="#accordion">
+                    <div class="card-body">
+                      {% include 'form_version.incl.jinja' %}
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+
+                {% if 'user management' in session.get('permissions', []) %}
+                <div class="card">
+                  <div class="card-header" id="headingThree">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        User Management
+                      </button>
+                    </h5>
+                  </div>
+                  <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+                    <div class="card-body">
+                      User Management
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+
+              </div> <!-- accordion -->
+
+              <!-- input id="big-blue-button" type="button" name="button"
+                      accept="" value="PUSH!" class="big-button gradient-blue"/ -->
+
+            </div><!-- panel-body -->
+          </div><!-- panel -->

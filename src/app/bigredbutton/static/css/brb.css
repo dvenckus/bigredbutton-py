@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /*
  *   Created on : Mar 5, 2014, 9:31:16 PM
  */
@@ -32,6 +33,21 @@ form a,
   font-weight:bold;
   cursor: pointer;
 }
+.medium-button {
+  margin: 6px 0;
+  padding: 6px;
+  text-align: center;
+  vertical-align: middle;
+  -webkit-border-radius: 12px;
+  -moz-border-radius: 12px;
+  border-radius: 12px;
+  font-family:arial, helvetica, sans-serif;
+  text-decoration:none;
+  display:inline-block;
+  /* text-shadow: -1px -1px 0 rgba(0,0,0,0.3); */
+  font-weight:bold;
+  cursor: pointer;
+}
 
 #production .big-button {
   height: 140px;
@@ -40,8 +56,17 @@ form a,
 #preprod .big-button {
   height: 140px;
   font-size: 80px;
-  /*margin: 25px 0;*/
 }
+#tools .medium-button {
+  height: 50px;
+  min-width: 125px;
+  font-size: 22px;
+}
+#tools .testmode {
+  margin: 12px 0 12px 0;
+}
+
+.actions .clearFormLink { padding: 6px 24px; }
 
 .control-group .checkbox { margin-left: 20px; }
 
@@ -55,15 +80,15 @@ form a,
 .control-group .controls p { font-size: 14px; }
 
 
-div#production h1 { color: darkred; }
-div#tools h1 { color: #193b61; }
-div#preprod h1 { color: darkgreen; }
+#tab-content { margin-top: 1.5em; }
+#tabs a.tab.active { font-weight:bold; }
 
-#tabs li.active a { font-weight:bold; }
+.tab-pane h1 { font-weight: bold; }
+.nav-tabs .nav-link.active { color: none; }
+a.tab-preprod, #tab-preprod.active, #preprod h1  { color: darkgreen !important; }
+a.tab-tools, a.nav-link.tab-tools.active, #tools h1 { color: #23538a !important; }
+a.tab-production, a.nav-link.tab-production.active, #production h1 { color: darkred !important; }
 
-a.tab-production, #tabs li.active a.tab-production { color: darkred; }
-a.tab-tools, #tabs li.active a.tab-tools { color: #193b61; }
-a.tab-preprod, #tabs li.active a.tab-preprod  { color: darkgreen; }
 ul.nav-tabs a.tab { font-size: 20px; }
 
 div.container div.panel-heading { background-color:  #cccccc; }
@@ -98,6 +123,7 @@ div.container div.panel-heading { background-color:  #cccccc; }
 
 #sse-out {
   background: none;
+  border: 1px solid #CCC;
   text-align: left;
   height: 75px;
   overflow-y:scroll;
@@ -110,7 +136,12 @@ div.container div.panel-heading { background-color:  #cccccc; }
 }
 #prod-output-panel {
   display: none;
+  border: 1px solid #CCC;
 }
+
+#accordion { margin-bottom: 1em; }
+#accordion .btn-link[aria-expanded="true"], #accordion .btn-link:hover { font-weight: bold; text-decoration: none; }
+
 
 form a {
   font-size: 16px;

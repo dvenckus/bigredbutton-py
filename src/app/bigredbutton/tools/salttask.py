@@ -12,20 +12,20 @@ import smtplib
 from email.mime.text import MIMEText
 from models.meta import Base
 from tasks import TasksList
-
+import config
 
 
 # connect to redis server for message stream handling
 
 class SaltTask(object):
 
-  _redis = redis.StrictRedis()
-  channel = 'alerts'
-
-  tz = pytz.timezone("America/Chicago")
+  _redis = redis.StrictRedis(config.REDIS_SOCKET_PATH)
+  channel = config.EVENT_STREAM_CHANNEL
+  tz = pytz.timezone(config.TIMEZONE)
 
   logfile = None
-  logname = '/var/log/bigredbutton/brb_tasks.log'   # .format(datetime.date.today().strftime('%Y%m%d'))
+  logname = config.TASK_LOGFILE
+  # .format(datetime.date.today().strftime('%Y%m%d'))
 
   doSiteSync = '/var/www/scripts/brb_site_sync.py'
   doSiteDeploy = '/var/www/scripts/brb_site_deploy.py'
@@ -36,8 +36,8 @@ class SaltTask(object):
 
   #Email Settings
   emailEnabled = False
-  emailFrom = 'bigredbutton@veritashealth.com'
-  emailTo = 'dev@veritashealth.com'
+  emailFrom = config.EMAIL_FROM
+  emailTo = config.EMAIL_TO
 
 
   @staticmethod

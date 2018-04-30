@@ -1,19 +1,33 @@
+$(document).one('ready', function(){
+  $('#tabs a#tab-preprod').tab('show');
+  $('#queue-panel').show();
+  $('#prod-output-panel').hide();
+});
+
 $(document).ready(function() {
 
   clearFormPreProd();
 
   // Tab actions ------------------------------------------
-  $('.tab-preprod').click(function() {
+  $('#tabs a').click(function() {
+    $(this).tab('show');
+  });
+
+  $('a.tab-preprod').click(function(e) {
     $('#queue-panel').show();
     $('#prod-output-panel').hide();
+    return false;
   });
-  $('.tab-tools').click(function() {
-    $('#queue-panel').hide();
-    $('#prod-output-panel').hide();
-  });
-  $('.tab-production').click(function() {
+  $('a.tab-tools').click(function(e) {
     $('#queue-panel').hide();
     $('#prod-output-panel').show();
+    return false;
+  });
+  $('a.tab-production').click(function(e) {
+    //e.preventDefault()
+    $('#queue-panel').hide();
+    $('#prod-output-panel').show();
+    return false;
   });
 
   // pre-production ----------------------------------------
@@ -138,11 +152,13 @@ $(document).ready(function() {
 
   $('#clearFormProd').click(function() {
     clearFormProd();
+    return false;
   });
 
 
-  $('#btn-push-prod').click(function() {
-    if (window.pushBusy == true) { return False; }
+  $('#btn-push-prod').click(function(e) {
+    e.preventDefault();
+    if (window.pushBusy == true) { return false; }
     var site = $('#sites-prod').val();
     var task = $('#tasks-prod').val();
     var dbbackup = $('#chk-backup-database-prod').prop('checked') ? 1 : 0;
@@ -178,8 +194,6 @@ $(document).ready(function() {
         window.pushBusy = false;
       }
     });
-
     return false;
   });
-
 });

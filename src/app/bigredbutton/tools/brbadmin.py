@@ -7,7 +7,6 @@ import getopt
 from os import sys, path
 
 
-app_path = ''
 
 def main():
   '''
@@ -16,7 +15,7 @@ def main():
   user management for bigredbutton app
   '''
 
-  DATABASE_NAME = '/usr/local/sqlite/brb_data/brb.db'
+  DATABASE_NAME = config.SQLALCHEMY_DATABASE_URI
 
   admin_user = ''
   admin_pswd = ''
@@ -73,7 +72,7 @@ def main():
     sys.exit('exiting')
 
   # add 'echo=True' to turn on logging for create_engine
-  engine = create_engine('sqlite:///' + DATABASE_NAME)
+  engine = create_engine(DATABASE_NAME)
 
   # create a Session
   Session = sessionmaker(bind=engine)
@@ -81,7 +80,7 @@ def main():
 
   try:
     # verify admin
-    admin = session.query(User).filter_by(id=1).first()
+    admin = session.query(User).filter_by(username=admin_user).first()
     if admin is None:
       print("Error:  Unable to find admin account")
       sys.exit('exiting')
@@ -202,8 +201,14 @@ def usage():
 if __name__ == "__main__":
   if __package__ is None:
     app_path = path.dirname(path.dirname(path.abspath(__file__)))
+    src_dir = path.dirname(path.dirname(app_path))
     sys.path.append(app_path)
+    sys.path.append(src_dir)
+
     from models.meta import Base
+    from models.role import Role
+    from models.permission import Permission
     from models.user import User
+    import config
 
   main()

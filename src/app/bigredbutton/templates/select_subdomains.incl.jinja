@@ -1,4 +1,4 @@
-{% for code in subdomains_order[environ] -%}
-  {% set subdomain = subdomains[code] -%}
-  <option value="{{ code }}"{% if subdomain['attributes'] is defined %}{{ subdomain['attributes'] }}{% endif %}>{{ subdomain['name'] }}</option>
+{% for key in subdomains['list_order'][environ] -%}
+  {% set subdomain = subdomains['list'][key] -%}
+  <option value="{{ key }}"{% if subdomain['attributes'] is defined %}{{ subdomain['attributes'] }}{% endif %}>{{ subdomain['name'] }}</option>
 {% endfor -%}

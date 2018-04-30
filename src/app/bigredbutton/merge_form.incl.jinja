@@ -1,0 +1,30 @@
+<form action="/merge" method="POST">
+  <div class="control-group col-sm-4 float-left">
+    <select id="merge-repo" name="merge-repo" class="form-control brb-merge brb-merge-repo">
+      {% for key in repositories['list_order'] -%}
+      {% set repo = repositories['list'][key] -%}
+      <option value="{{ key }}"{% if repo['attributes'] is defined %}{{ repo['attributes'] }}{% endif %}>{{ repo['name'] }}</option>
+      {% endfor -%}                  
+    </select>
+  </div>
+  <div class="control-group col-sm-4 float-left">
+    <select id="merge-branch" name="merge-branch" class="form-control brb-merge brb-merge-branch">
+      {% for key in branches['list_order'] -%}
+      {% set branch = branches['list'][key] -%}
+      <option value="{{ key }}"{% if branch['attributes'] is defined %}{{ branch['attributes'] }}{% endif %}>{{ branch['name'] }}</option>
+      {% endfor -%}                  
+    </select>
+  </div>
+  <div class="col-sm-1 float-left">
+    <input id="btn-merge" type="button" name="button"
+           accept="" value="Merge" class="button-primary gradient-blue"/>
+  </div>
+  <div class="col-sm-1 float-left">
+    <a href="#" id="clearFormPreProd">Clear</a>
+  </div>
+  <br class="float-none" />
+
+</form>
+
+
+

@@ -1,0 +1,63 @@
+          <h1>Pre-Production</h1>
+          <p>Manage sites: develop, stage, master</p>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Send Tasks to Queue</h3>
+            </div>
+            <div class="panel-body">
+              <form id="deploy-preprod" action="" method="POST">
+
+                <div class="row">
+                  <div class="col-sm-6">
+
+                    <div class="control-group">
+                      <div class="controls">
+                        <select id="subdomains-preprod" name="subdomains-preprod" class="form-control brb-subdomains">
+                          {% set environ = 'pre-prod' %}
+                          {% include 'select_subdomains.incl.jinja' %}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="control-group">
+                      <div class="controls">
+                        <select id="sites-preprod" name="sites-preprod" class="form-control brb-sites">
+                          {% set environ = 'pre-prod' %}
+                          {% include 'select_sites.incl.jinja' %}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="control-group">
+                      <div class="controls">
+                        <select id="tasks-preprod" name="tasks-preprod" class="form-control brb-tasks">
+                          {% set environ = 'pre-prod' %}
+                          {% include 'select_tasks.incl.jinja' %}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="control-group">
+                      <div class="controls pull-left">
+                        <label class="checkbox">
+                          <input id="chk-backup-database-preprod" type="checkbox"
+                                  name="backup-database-preprod" />
+                          Backup Database Before Push?
+                        </label>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <div class="col-sm-6">
+                    <input id="btn-queue-preprod" type="button" name="button"
+                            accept="" value="Queue" class="big-button gradient-green"/>
+                    <br />
+                    <a href="#" id="clearFormPreProd">Clear Form</a>
+                  </div>
+
+                </div>
+
+              </form>
+            </div>
+          </div>

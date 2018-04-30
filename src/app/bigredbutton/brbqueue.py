@@ -45,15 +45,16 @@ class BrbQueue(object):
       if doCommit:
         db.session.commit()
         # start the queue_manager
-        qm_path = os.path.dirname(__file__)
         # run as a background process
-        brb_log = open('/var/log/bigredbutton/brb-py.log', 'a', 4)
-        error_log = open('/var/log/bigredbutton/brb-py.error.log', 'a', 4)
+        log_file = app.config['LOG_FILE']
+        error_log_file = app.config['ERROR_LOG_FILE']
+        brb_log = open(log_file, 'a', 4)
+        error_log = open(error_log_file, 'a', 4)
         #devnull = open(os.devnull, 'w')
-        virt_env = name = os.environ.get('VIRTUAL_ENV')
-        qm_path = os.path.dirname(virt_env) + '/app/bigredbutton/tools'
+        brb_virt_env = app.config['BRB_ENV']
+        qm_path = os.path.dirname(__file__) + '/tools'
         queue_manager =  qm_path + '/queue_manager.py'
-        python_bin = virt_env + '/bin/python'
+        python_bin = brb_virt_env + '/bin/python'
 
         Popen(['nohup', python_bin, queue_manager, '&'], stdout=brb_log, stderr=error_log)
         return True
