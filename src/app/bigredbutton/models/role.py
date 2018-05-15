@@ -1,7 +1,8 @@
 #
 # Class Role
 #
-from sqlalchemy import Column, Integer, String, Sequence
+from sqlalchemy import Column, Integer, String, Sequence, ForeignKey
+from sqlalchemy.orm import relationship, backref
 from models.meta import Base
 
 ########################################################################
@@ -12,6 +13,8 @@ class Role(Base):
     id = Column(Integer, Sequence('role_id_seq'), primary_key=True)
     name = Column(String(25), unique=True)
 
+
+
     #----------------------------------------------------------------------
     def __init__(self, id=None, name=''):
         """"""
@@ -20,4 +23,10 @@ class Role(Base):
         self.name = name
 
     def __repr__(self):
-        return "<Role(id='%d', name='%s')>" % (self.id, self.name)
+        return "<Role(id='{}', name='{}')>".format(self.id, self.name)
+
+    def toDict(self):
+      dict_ = {}
+      for key in self.__mapper__.c.keys():
+          dict_[key] = getattr(self, key)
+      return dict_

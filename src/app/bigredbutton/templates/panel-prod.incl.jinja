@@ -1,12 +1,11 @@
           <h1>Production</h1>
-          <p>Manage sites: www, forum</p>
-          <div class="panel panel-default">
+          <div id="prod-panel" class="panel panel-default">
             <div class="panel-heading">
-              <h3 class="panel-title">Immediate Task Execution on Production</h3>
+              <h5 class="panel-title">IMMEDIATE TASK EXECUTION</h5>
             </div>
             <div class="panel-body">
+              {% if constants['PERMISSION_PRODUCTION'] in session.get('permissions', []) %}
               <form id="deploy-production" action="" method="POST">
-
                 <div class="row">
                   <div class="col-sm-6">
 
@@ -41,12 +40,13 @@
 
                   <div class="col-sm-6">
 
-                    <input id="btn-push-prod" type="button" name="button"
+                    <input id="btnPushProd" type="button" name="button"
                             accept="" value="PUSH!" class="big-button gradient-red"/>
                     <br />
                     <a href="#" id="clearFormProd">Clear Form</a>
                   </div>
                 </div>
               </form>
+              {% endif %}
             </div>
           </div>

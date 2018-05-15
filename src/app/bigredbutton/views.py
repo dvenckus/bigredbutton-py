@@ -1,9 +1,6 @@
 from flask import Flask, current_app, flash, redirect, render_template, Response, request, session, abort, jsonify, url_for
 from app.bigredbutton import app, db
-from models.meta import Base
-from models.user import User
-from models.permission import Permission
-from passlib.hash import sha256_crypt
+from users import Users
 
 from sites import SitesList
 from subdomains import SubdomainsList
@@ -12,6 +9,12 @@ from brbqueue import BrbQueue
 from push import Push
 from repositories import Repositories
 from branches import Branches
+
+from models.meta import Base
+from models.user import User
+from models.permission import Permission
+from models.role import Role
+from models.rolepermission import RolePermission
 
 import json
 from datetime import datetime, timedelta
@@ -22,6 +25,9 @@ import redis
 import re
 import sys
 import os
+
+import logging
+
 
 
 # connect to redis server for message stream handling
@@ -36,14 +42,37 @@ _redis = redis.StrictRedis(unix_socket_path=app.config['REDIS_SOCKET_PATH'])
 # BIG RED BUTTON - main page & login page
 @app.route('/')
 def main_page():
+
   if session.get('logged_in', None): 
+    users = None
+    roles = None
+    permissions = None
+    rolesPermissions = None
+
+    if Users.checkPermission(session.get('user', None), 'PERM_USER_MANAGEMENT', session['permissions']):
+      users = Users.getUsers()
+      roles = Users.getRoles()
+      permissions = Users.getPermissions()
+      rolesPermissions = Users.getRolesPermissions()
+      #rolesPermissions = Users.getRolePermissions(session['user'].role_id)
+
+    #app.logger.info('users: {}'.format(str(users)))
+    #app.logger.info('roles: {}'.format(str(roles)))
+    #app.logger.info('permissions: {}'.format(str(permissions)))
+    #app.logger.info('rolesPermissions: {}'.format(str(rolesPermissions)))
+
     return render_template('main.html',  sites=SitesList.get(),
-                                         tasks=TasksList.get(),
-                                         subdomains=SubdomainsList.get(),
-                                         repositories=Repositories.get(),
-                                         branches=Branches.get(),
-                                         queue=BrbQueue.get(),
-                                         sse_history=get_sse_history())
+                                        tasks=TasksList.get(),
+                                        subdomains=SubdomainsList.get(),
+                                        repositories=Repositories.get(),
+                                        branches=Branches.get(),
+                                        users=users,
+                                        roles=roles,
+                                        permissions=permissions,
+                                        roles_permissions=rolesPermissions,
+                                        queue=BrbQueue.get(),
+                                        sse_history=get_sse_history(),
+                                        constants=app.config)
 
   return render_template('login.html')
 
@@ -58,31 +87,35 @@ def login_page():
         session['logged_in'] = False
         session['permissions'] = []
 
-      if request.form['username'] != '' and request.form['password'] != '':
-        # retrieve the user record
-        user = db.session.query(User).filter_by(username=request.form['username']).first()
+      input_username = request.form['username']
+      input_password = request.form['password']
 
-        if user.password and sha256_crypt.verify(request.form['password'], str(user.password)):
-          permissions = db.session.query(Permission).filter_by(role_id=user.role_id).order_by(Permission.id.asc())
+      userSession = Users.isValid(input_username, input_password)
       
-          permission_list = []
-          for p in permissions:
-            permission_list.append(p.permission)
+      if userSession and userSession['valid']:
+        app.logger.info("user session is valid")
+        session['user'] = userSession['user'].toDict()
+        session['user']['role'] = userSession['user'].role.toDict()
+        session['permissions'] = userSession['permissions']
+        session['logged_in'] = True
+        session['attempts'] = 0
+        session['permanent'] = True
+        #app.logger.info("User: {}".format(str(session['user'])))
 
-          if app.config['PERM_AUTHENTICATED'] in permission_list:
-            # valid user and correct permission
-            session['username'] = user.username
-            session['permissions'] = permission_list
-            session['logged_in'] = True
-            session['attempts'] = 0
-            session['permanent'] = True
-            #session.modified = True
       else:
+        app.logger.info("user session is not valid")
         session['attempts'] += 1
+
+      #app.logger.info('input_username: {}'.format(input_username))
+      #app.logger.info('input_password: {}'.format(input_password))
 
       return redirect("/")
       #render_template('test.html')
     except AttributeError:
+      app.logger.error("Login Invalid")
+      return redirect("/")
+    except Exception as e:
+      app.logger.error('Error: {}'.format(str(e)))
       return redirect("/")
 
 
@@ -114,8 +147,10 @@ def queue_add():
 
   if not session.get('logged_in', False): return redirect("/")
 
-  if checkPermission('pre-production', session['permissions']):
-    if BrbQueue.add(session['username'], jsonData):
+  app.logger.info("Queue Add: {}".format(jsonData))
+
+  if Users.checkPermission(session.get('user', None), 'PERMISSION_PRE_PRODUCTION', session['permissions']):
+    if BrbQueue.add(session['user']['username'], jsonData):
       content = render_template('queue.incl.jinja', queue=BrbQueue.get())
       if not isinstance(content, str):
         content = content.decode('utf-8')
@@ -135,7 +170,7 @@ def queue_cancel(id):
 
   if not session.get('logged_in', False): return redirect("/")
 
-  if checkPermission('pre-production', session['permissions']):
+  if Users.checkPermission(session.get('user', None), 'PERMISSION_PRE_PRODUCTION', session['permissions']):
     if BrbQueue.cancel(id):
       content = render_template('queue.incl.jinja', queue=BrbQueue.get())
       retn = True
@@ -160,8 +195,8 @@ def push():
 
   if not session.get('logged_in', False): return redirect("/")
 
-  if checkPermission('production', session['permissions']):
-    content = Push.do(session['username'], jsonData)
+  if Users.checkPermission(session.get('user', None), 'PERMISSION_PRODUCTION', session['permissions']):
+    content = Push.do(session['user']['username'], jsonData)
     if content != False:
       retn = True
       if not isinstance(content, str):
@@ -172,6 +207,154 @@ def push():
 
   return json.dumps({'response': retn, 'content': content }), HttpCode, {'ContentType':'application/json'}
 
+
+# ------------------ TOOLS handlers ----------------------------------
+
+# Merge
+
+@app.route('/merge', methods = ['POST'])
+def merge():
+  retn = False
+  # Get the parsed contents of the form content
+  jsonData = request.get_json()
+  content = ''
+  retn = False
+  HttpCode = 200
+
+  if not session.get('logged_in', False): return redirect("/")
+
+  app.logger.info("Merge: {}".format(jsonData))
+
+  if Users.checkPermission(session.get('user', None), 'PERMISSION_MERGE', session['permissions']):
+    content = Push.do(session['user']['username'], jsonData)
+    if content != False:
+      retn = True
+      if not isinstance(content, str):
+        content = content.decode('utf-8')
+        
+  else:
+    content = 'Not Authorized'
+    HttpCode = 444
+
+  return json.dumps({'response': retn, 'content': content }), HttpCode, {'ContentType':'application/json'}
+
+
+
+
+
+# Users
+
+@app.route('/user', methods = ['POST'])
+def user_save():
+  retn = False
+  # Get the parsed contents of the form content
+  jsonData = request.get_json()
+  content = ''
+  retn = False
+  HttpCode = 200
+
+  if not session.get('logged_in', False): return redirect("/")
+
+  app.logger.info("User Save: {}".format(jsonData))
+
+  if Users.checkPermission(session.get('user', None), 'PERMISSION_USER_MANAGEMENT', session['permissions']):
+    if Users.userSave(session['user']['id'], jsonData):
+      content = render_template('users_current.incl.jinja', users=Users.getUsers())
+      retn = True  
+      if not isinstance(content, str):
+        content = content.decode('utf-8')
+
+  elif int(session['user']['id']) == int(jsonData['user_id']):
+    # non-admin user updating own account, this is ok
+    if Users.userSave(session['user']['id'], jsonData):
+      retn = True
+      content = "Account updated!"
+
+  else:
+    content = 'Not Authorized'
+    HttpCode = 444
+
+  return json.dumps({'response': retn, 'content': content }), HttpCode, {'ContentType':'application/json'}
+
+
+@app.route('/user/delete/<id>')
+def user_delete(id):
+  content = ''
+  retn = False
+  HttpCode = 200
+
+  if not session.get('logged_in', False): return redirect("/")
+
+  if Users.checkPermission(session.get('user', None), 'PERMISSION_USER_MANAGEMENT', session['permissions']):
+    if Users.userDelete(id):
+      content = render_template('users_current.incl.jinja', users=Users.getUsers())
+      retn = True
+      if not isinstance(content, str):
+        content = content.decode('utf-8')
+        
+  else:
+    content = 'Not Authorized'
+    HttpCode = 444
+
+  return json.dumps({ 'response': retn, 'content': content }), HttpCode, {'ContentType':'application/json' }
+
+
+# Roles
+
+@app.route('/role', methods = ['POST'])
+def role_save():
+  retn = False
+  # Get the parsed contents of the form content
+  jsonData = request.get_json()
+  content = ''
+  retn = False
+  HttpCode = 200
+
+  if not session.get('logged_in', False): return redirect("/")
+
+  app.logger.info("Role Save: {}".format(jsonData))
+
+  if Users.checkPermission(session.get('user', None), 'PERMISSION_USER_MANAGEMENT', session['permissions']):
+    app.logger.info("Has Permission: True")
+    if Users.roleSave(jsonData):
+      app.logger.info("Role Save:  True")
+      content = render_template('roles_current.incl.jinja', roles=Users.getRoles(),
+                                                            roles_permissions=Users.getRolesPermissions())
+      retn = True  
+      if not isinstance(content, str):
+        content = content.decode('utf-8')
+
+  else:
+    content = 'Not Authorized'
+    HttpCode = 444
+
+  return json.dumps({'response': retn, 'content': content }), HttpCode, {'ContentType':'application/json'}
+
+
+@app.route('/role/delete/<id>')
+def role_delete(id):
+  content = ''
+  retn = False
+  HttpCode = 200
+
+  if not session.get('logged_in', False): return redirect("/")
+
+  if Users.checkPermission(session.get('user', None), 'PERMISSION_USER_MANAGEMENT', session['permissions']):
+    if Users.roleDelete(id):
+      content = render_template('roles_current.incl.jinja', roles=Users.getRoles(),
+                                                            roles_permissions=Users.getRolesPermissions())
+      retn = True
+      if not isinstance(content, str):
+        content = content.decode('utf-8')
+        
+  else:
+    content = 'Not Authorized'
+    HttpCode = 444
+
+  return json.dumps({ 'response': retn, 'content': content }), HttpCode, {'ContentType':'application/json' }
+
+
+# ------------------ redis Alert channel handlers --------------------
 
 # SSE (server sent message) handlers
 def event_stream():
@@ -187,7 +370,6 @@ def stream():
     resp = Response(event_stream(), mimetype="text/event-stream")
     resp.headers['X-Accel-Buffering'] = 'no'
     return resp
-
 
 def get_sse_history():
   sse_history = []
@@ -254,16 +436,5 @@ def add_header(r):
 def format_timestamp(d):
     tz = pytz.timezone(app.config['TIMEZONE'])
     return datetime.fromtimestamp(int(d), tz).strftime('%Y-%m-%d %H:%M:%S')
-
-
-###
-# Utilities
-###
-
-def checkPermission(permission='', permissions=[]):
-  ''' checks the permission and returns True|False accordingly '''
-  if permission == '' or permissions == []: return False
-  return (permission in permissions)
-
 
 

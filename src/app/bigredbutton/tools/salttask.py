@@ -12,76 +12,93 @@ import smtplib
 from email.mime.text import MIMEText
 from models.meta import Base
 from tasks import TasksList
-import config
+import constants
 
 
 # connect to redis server for message stream handling
 
 class SaltTask(object):
 
-  _redis = redis.StrictRedis(config.REDIS_SOCKET_PATH)
-  channel = config.EVENT_STREAM_CHANNEL
-  tz = pytz.timezone(config.TIMEZONE)
+  _redis = redis.StrictRedis(unix_socket_path=constants.REDIS_SOCKET_PATH)
+  channel = constants.EVENT_STREAM_CHANNEL
+  tz = pytz.timezone(constants.TIMEZONE)
+  scripts_dir = constants.SCRIPTS_DIR + '/'
 
   logfile = None
-  logname = config.TASK_LOGFILE
+  logname = constants.TASK_LOGFILE
   # .format(datetime.date.today().strftime('%Y%m%d'))
 
-  doSiteSync = '/var/www/scripts/brb_site_sync.py'
-  doSiteDeploy = '/var/www/scripts/brb_site_deploy.py'
-  doCacheClear = '/var/www/scripts/brb_site_cache_clear.py'
-  doVarnishClear = '/var/www/scripts/brb_varnish_clear.py'
-  doRollback = '/var/www/scripts/brb_site_rollback.py'
-  doBulkLoad = '/var/www/scripts/brb_bulk_load.py'
+  doSiteSync = scripts_dir + 'brb_site_sync.py'
+  doSiteDeploy = scripts_dir + 'brb_site_deploy.py'
+  doCacheClear = scripts_dir + 'brb_site_cache_clear.py'
+  doVarnishClear = scripts_dir + 'brb_varnish_clear.py'
+  doRollback = scripts_dir + 'brb_site_rollback.py'
+  doBulkLoad = scripts_dir + 'brb_bulk_load.py'
+  doMerge = scripts_dir + 'brb_merge.py'
+  doVersionUpdate = scripts_dir + 'brb_version_update.py'
 
   #Email Settings
-  emailEnabled = False
-  emailFrom = config.EMAIL_FROM
-  emailTo = config.EMAIL_TO
+  emailEnabled = constants.EMAIL_ENABLED
+  emailFrom = constants.EMAIL_FROM
+  emailTo = constants.EMAIL_TO
 
 
-  @staticmethod
-  def run(taskitem, mode='task'):
-    ''' runs the tasks requested through BRB '''
+  taskItem = None
+  taskOptions = None
+  taskDesc = ''
+  taskMode = ''
 
 
-    output = ''
+  def __init__(self, taskItem, mode='task'):
+    ''' init a TaskItem '''
 
-    if mode == 'task':
+    self.taskMode = mode
+
+    if self.taskMode == 'task':
       # TaskItem model is linked to its DB table
       from models.taskitem import TaskItem
-    elif mode == 'push':
+    elif self.taskMode == 'push':
       # PushItem model does not have a DB relationship
       from models.pushitem import PushItem
-    else:
-      return False
+
+    self.taskItem = taskItem
+    self.taskOptions = taskItem.parseOptions()
+    self.taskDesc = "({}) {} {} {} {}".format(
+                  taskItem.username, 
+                  taskOptions['subdomain'], 
+                  taskOptions['site'], 
+                  taskItem.task, 
+                  taskOptions['backup_param'])
+    self.taskOptions['backup_param'] = 'backup' if self.taskOptions.get('dbbackup', False) == True else ''
 
 
-    backup = 'backup' if taskitem.dbbackup == True else ''
-    taskDesc = "({}) {} {} {} {}".format(taskitem.username, taskitem.subdomain, taskitem.site, taskitem.task, backup)
+
+  def run(self):
+    ''' runs the tasks requested through BRB '''
+    # local vars
+    output = ''
     errormsg = ''
 
     ### run the task
     try:
-      SaltTask.logStart(taskDesc)
-      SaltTask.pushMessage('BEGIN TASK ' + taskDesc)
+      self.logStart(taskDesc)
+      self.pushMessage('BEGIN TASK ' + taskDesc)
 
+      self.log("SaltTask::do")
+      self.log(self.taskItem)
+      self.log(self.taskOptions)
+      output, errormsg = self.do()
 
-      SaltTask.log("SaltTask::do")
-      SaltTask.log(taskitem)
-      output, errormsg = SaltTask.do(taskitem, backup)
-
-      SaltTask.log(output)
+      self.log(output)
 
       if len(errormsg):
-        SaltTask.log('An Error occurred')
-        SaltTask.log(errormsg)
-        SaltTask.pushMessage('An Error occurred ' + str(errormsg))
+        self.log('An Error occurred')
+        self.log(errormsg)
+        self.pushMessage('An Error occurred ' + str(errormsg))
 
-
-      SaltTask.pushMessage("END TASK with {} {}".format('ERROR' if len(errormsg) else 'SUCCESS', taskDesc))
-      SaltTask.logEnd(taskDesc)
-      SaltTask.sendEmail(taskDesc, output, errormsg)
+      self.pushMessage("END TASK with {} {}".format('ERROR' if len(errormsg) else 'SUCCESS', self.taskDesc))
+      self.logEnd(self.taskDesc)
+      self.sendEmail(output, errormsg)
 
     except IOError as e:
       # this is an IO EPIPE error -- ignore
@@ -89,15 +106,12 @@ class SaltTask(object):
       print("[SaltTask] IOError: " + str(e) + "\n")
       SaltTask.log("[SaltTask] IOError: " + str(e))
     except Exception as e:
-      #ignoreThis = 3
       print("[SaltTask] Exception: " + str(e) + "\n")
       SaltTask.log("[SaltTask] Exception: " + str(e))
+      return output
 
-    return output
 
-
-  @staticmethod
-  def pushMessage(msg):
+  def pushMessage(self, msg):
     ''' push message to channel '''
     if msg == '': return
     ### publish message to alert channel
@@ -106,144 +120,161 @@ class SaltTask(object):
     now = dt.strftime('%Y-%m-%d %H:%M:%S')
     ts = int(dt.strftime("%s"))
     pub_msg = "[{0}] {1}".format(now, msg)
-    SaltTask._redis.publish(SaltTask.channel, pub_msg)
+    self._redis.publish(SaltTask.channel, pub_msg)
     # set redis history expiration after 1 hour
     key = 'BRB_{}'.format(ts)
-    SaltTask._redis.set(key, pub_msg)
-    SaltTask._redis.expire(key, 3600)
+    self._redis.set(key, pub_msg)
+    self._redis.expire(key, 3600)
 
 
-  @staticmethod
-  def logStart(msg):
+  @staticmethod  
+  def logStart(self, msg):
     '''
     marks the beginning of the task in the log
     using plain file log instead of python logging lib due to multiline formatting restrictions
     '''
     ### setup logging
     #print("[SaltTask] SaltTask::logStart()\n")
-    now = datetime.datetime.now(SaltTask.tz).strftime('%Y-%m-%d %H:%M:%S')
+    now = datetime.datetime.now(self.tz).strftime('%Y-%m-%d %H:%M:%S')
     #print("[SaltTask] Open Log: " + SaltTask.logname + "\n")
-    SaltTask.logfile = open(SaltTask.logname, 'a', 4)
-    SaltTask.logfile.write("\n\n--------- BEGIN Task [{}] ---------\n".format(now))
-    SaltTask.logfile.write('Task:  ' + msg + "\n")
-    SaltTask.logfile.write("---------------------------------------------------\n")
+    self.logfile = open(SaltTask.logname, 'a', 4)
+    self.logfile.write("\n\n--------- BEGIN Task [{}] ---------\n".format(now))
+    self.logfile.write('Task:  ' + msg + "\n")
+    self.logfile.write("---------------------------------------------------\n")
 
 
-  @staticmethod
-  def logEnd(msg):
+  def logEnd(self, msg):
     ''' marks the beginning of the task in the log '''
     ### setup logging
-    now = datetime.datetime.now(SaltTask.tz).strftime('%Y-%m-%d %H:%M:%S')
-    SaltTask.logfile.write("--------- END Task [{}]---------\n".format(now))
-    SaltTask.logfile.write('Task:  ' + msg + "\n")
-    SaltTask.logfile.write("---------------------------------------------------\n")
+    now = datetime.datetime.now(self.tz).strftime('%Y-%m-%d %H:%M:%S')
+    self.logfile.write("--------- END Task [{}]---------\n".format(now))
+    self.logfile.write('Task:  ' + msg + "\n")
+    self.logfile.write("---------------------------------------------------\n")
 
 
 
 
-  @staticmethod
-  def log(msg):
+  def log(self, msg):
     ''' log a message '''
     #print('[SaltTask] ' + str(msg) + "\n")
-    SaltTask.logfile.write(str(msg) + "\n")
+    self.logfile.write(str(msg) + "\n")
 
 
-  @staticmethod
-  def sendEmail(taskDesc, taskOutput, errormsg):
+  def sendEmail(self, taskOutput, errormsg):
     ''' sends an email to dev team '''
 
-    if SaltTask.emailEnabled == False:
+    if self.emailEnabled == False:
       # email off, don't send
       return
 
     # Create a text/plain message
     msg = MIMEText(taskOutput)
-    msg['Subject'] = "BigRedButton Task Completed{0}: {1}".format(' (ERRORS)' if len(errormsg) else '', taskDesc)
-    msg['From'] = SaltTask.emailFrom
-    msg['To'] = SaltTask.emailTo
+    msg['Subject'] = "BigRedButton Task Completed{0}: {1}".format(' (ERRORS)' if len(errormsg) else '', self.taskDesc)
+    msg['From'] = self.emailFrom
+    msg['To'] = self.emailTo
 
     # Send the message via our own SMTP server, but don't include the
     # envelope header.
     #SaltTask.log("SaltTask::sendEmail()\n")
     s = smtplib.SMTP('localhost')
-    s.sendmail(SaltTask.emailFrom, [SaltTask.emailTo], msg.as_string())
+    s.sendmail(self.emailFrom, [self.emailTo], msg.as_string())
     s.quit()
 
 
-  @staticmethod
-  def do(taskitem, backup=''):
+
+  def do(self):
     ''' call the salt command '''
 
     # get the official taskslist so we know what to do for the selected task
-    tasksList = TasksList.get()
+    tasksList = TasksList.getList()
     saltcmd = []
     output = ''
     errormsg = ''
 
 
     try:
-      tasksList[taskitem.task]
+      tasksList[self.taskItem.task]
     except NameError as e:
       errormsg = "Error:  task not defined\n"
       return errormsg
 
 
-    if 'sync' == tasksList[taskitem.task]['do']:
+    if 'sync' == tasksList[self.taskItem.task]['do']:
 
-      if taskitem.site == 'vf':
+      if self.taskItem.site == 'vf':
         saltcmd = [
           SaltTask.doBulkLoad,
-          'tgt=' + taskitem.subdomain,
-          'mode=sync',
-          backup
+          'tgt=' + self.taskItem.subdomain,
+          'mode=sync'
         ]
-
       else:
-        #print("SaltTask: In DO, tasksList sync " + str(taskitem) )
+        #print("SaltTask: In DO, tasksList sync " + str(self.taskItem) )
         saltcmd = [
           SaltTask.doSiteSync,
-          'tgt=' + taskitem.subdomain,
-          'site=' + taskitem.site,
-          'mode=all',
-          backup
+          'tgt=' + self.taskOptions['subdomain'],
+          'site=' + self.taskOptions['site'],
+          'mode=all'
         ]
 
-    elif 'deploy' == tasksList[taskitem.task]['do']:
+      backup = self.taskOptions.get('backup_param', '')
+      if backup != '': saltcmd.append(backup)  
+
+    elif 'deploy' == tasksList[self.taskItem.task]['do']:
       saltcmd = [
         SaltTask.doSiteDeploy,
-        'tgt=' + taskitem.subdomain,
-        'site=' + taskitem.site,
-        backup
+        'tgt=' + self.taskOptions['subdomain'],
+        'site=' + self.taskOptions['site'],
       ]
+      backup = self.taskOptions.get('backup_param', '')
+      if backup != '': saltcmd.append(backup)  
 
-    elif 'cache' == tasksList[taskitem.task]['do']:
+    elif 'cache' == tasksList[self.taskItem.task]['do']:
       saltcmd = [
         SaltTask.doCacheClear,
-        'tgt=' + taskitem.subdomain,
-        'site=' + taskitem.site
+        'tgt=' + self.taskOptions['subdomain'],
+        'site=' + self.taskOptions['site']
       ]
 
-    elif 'varnish' == tasksList[taskitem.task]['do']:
+    elif 'varnish' == tasksList[self.taskItem.task]['do']:
       saltcmd = [
         SaltTask.doVarnishClear,
-        'tgt=' + taskitem.subdomain,
-        'site=' + taskitem.site
+        'tgt=' + self.taskOptions['subdomain'],
+        'site=' + self.taskOptions['site']
       ]
 
-    elif 'rb' == tasksList[taskitem.task]['do']:
+    elif 'rb' == tasksList[self.taskItem.task]['do']:
       saltcmd = [
         SaltTask.doRollback,
-        'tgt=' + taskitem.subdomain,
-        'site=' + taskitem.site
+        'tgt=' + self.taskOptions['subdomain'],
+        'site=' + self.taskOptions['site']
       ]
 
-    elif 'unrb' == tasksList[taskitem.task]['do']:
+    elif 'unrb' == tasksList[self.taskItem.task]['do']:
       saltcmd = [
         SaltTask.doRollback,
-        'tgt=' + taskitem.subdomain,
-        'site=' + taskitem.site,
+        'tgt=' + self.taskOptions['subdomain'],
+        'site=' + self.taskOptions['site'],
         'undo'
       ]
+
+    elif 'merge' == tasksList[self.taskItem.task]['do']:
+      saltcmd = [
+        SaltTask.doMerge,
+        'repo=' + self.taskOptions['mergeRepo'],
+        'merge-to=' + self.taskOptions['mergeTo']
+      ]
+      if self.taskOptions['mergeTest']: saltcmd.append('test')
+
+    elif 'versionup' == tasksList[self.taskItem.task]['do']:
+      saltcmd = [
+        SaltTask.doVersionUpdate,
+        'repo=' + self.taskOptions['versionRepo']
+      ]
+      if self.taskOptions['versionIncrMajor']: 
+        saltcmd.append('major')
+      elif self.taskOptions['versionIncrMinor']: 
+        saltcmd.append('minor')
+      if self.taskOptions['versionTest']: saltcmd.append('test')
     else:
       saltcmd = []
 
@@ -264,7 +295,7 @@ class SaltTask(object):
         errormsg = str(e)
 
     else:
-      output = errormsg = "Task not found ({})".format(tasksList[taskitem.task])
+      output = errormsg = "Task not found ({})".format(tasksList[self.taskItem.task])
 
     #print('SaltTask End of Do')
     return (output, errormsg)

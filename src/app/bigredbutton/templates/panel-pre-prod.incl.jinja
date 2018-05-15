@@ -1,14 +1,23 @@
           <h1>Pre-Production</h1>
-          <p>Manage sites: develop, stage, master</p>
-          <div class="panel panel-default">
+          <div id="preprod-panel" class="panel panel-default">
             <div class="panel-heading">
-              <h3 class="panel-title">Send Tasks to Queue</h3>
+              <h5 class="panel-title">SELECT TASKS</h5>
             </div>
             <div class="panel-body">
+              {% if constants['PERMISSION_PRE_PRODUCTION'] in session.get('permissions', []) %}
               <form id="deploy-preprod" action="" method="POST">
 
                 <div class="row">
                   <div class="col-sm-6">
+
+                    <div class="control-group">
+                      <div class="controls">
+                        <select id="tasks-preprod" name="tasks-preprod" class="form-control brb-tasks">
+                          {% set environ = 'pre-prod' %}
+                          {% include 'select_tasks.incl.jinja' %}
+                        </select>
+                      </div>
+                    </div>
 
                     <div class="control-group">
                       <div class="controls">
@@ -29,15 +38,6 @@
                     </div>
 
                     <div class="control-group">
-                      <div class="controls">
-                        <select id="tasks-preprod" name="tasks-preprod" class="form-control brb-tasks">
-                          {% set environ = 'pre-prod' %}
-                          {% include 'select_tasks.incl.jinja' %}
-                        </select>
-                      </div>
-                    </div>
-
-                    <div class="control-group">
                       <div class="controls pull-left">
                         <label class="checkbox">
                           <input id="chk-backup-database-preprod" type="checkbox"
@@ -50,14 +50,13 @@
                   </div>
 
                   <div class="col-sm-6">
-                    <input id="btn-queue-preprod" type="button" name="button"
+                    <input id="btnQueuePreprod" type="button" name="button"
                             accept="" value="Queue" class="big-button gradient-green"/>
                     <br />
                     <a href="#" id="clearFormPreProd">Clear Form</a>
                   </div>
-
                 </div>
-
               </form>
+            {% endif %}
             </div>
           </div>

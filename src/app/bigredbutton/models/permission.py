@@ -10,14 +10,20 @@ class Permission(Base):
     __tablename__ = "permissions"
 
     id = Column(Integer, Sequence('permission_id_seq'), primary_key=True)
-    role_id = Column(Integer)
-    permission = Column(String(50))
+    name = Column(String(50))
 
     #----------------------------------------------------------------------
-    def __init__(self, role_id, permission):
+    def __init__(self, id, name):
         """"""
-        self.role_id = role_id
-        self.permission = permission
+        if id:
+          self.id = id
+        self.name = name
 
     def __repr__(self):
-        return "<Permission(id='%d', role_id='%d', permission='%s')>" % (self.id, self.role_id, self.permission)
+        return "<Permission(id='{}', name='{}')>".format(self.id, self.name)
+
+    def toDict(self):
+      dict_ = {}
+      for key in self.__mapper__.c.keys():
+          dict_[key] = getattr(self, key)
+      return dict_

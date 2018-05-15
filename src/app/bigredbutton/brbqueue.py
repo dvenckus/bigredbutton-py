@@ -21,6 +21,7 @@ class BrbQueue(object):
         tasks = db.session.query(TaskItem).filter_by(id=id, status=status).first()
       else:
         tasks = db.session.query(TaskItem).filter_by(status=status).all()
+
     except exc.SQLAlchemyError as e:
       print("Error: " + str(e) + "\n")
 
@@ -37,8 +38,12 @@ class BrbQueue(object):
     try:
       for item in data:
         # convert subdomain to forum subdomain if appropriate
-        sd = SubdomainsList.getSubdomain(item['site'], item['subdomain'], 'pre-prod')
-        task = TaskItem(username, sd, item['site'], item['task'], item['dbbackup'])
+        options = {
+          'subdomain':  SubdomainsList.getSubdomain(item['site'], item['subdomain'], 'pre-prod'),
+          'site': item.get('site'),
+          'dbbackup': item.get('dbbackup')
+        }
+        task = TaskItem(username, item['task'], options=options)
         db.session.add(task)
         doCommit = True
 
@@ -48,6 +53,7 @@ class BrbQueue(object):
         # run as a background process
         log_file = app.config['LOG_FILE']
         error_log_file = app.config['ERROR_LOG_FILE']
+
         brb_log = open(log_file, 'a', 4)
         error_log = open(error_log_file, 'a', 4)
         #devnull = open(os.devnull, 'w')

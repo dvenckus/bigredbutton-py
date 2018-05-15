@@ -1,23 +1,22 @@
           <h1>Tools</h1>
-          <p>Big Tools to do great things!</p>
-          <div class="panel panel-default">
+          <div id="tools-panel" class="panel panel-default">
             <div class="panel-heading">
-              <h3 class="panel-title">Tools</h3>
+              <h5 class="panel-title">BIG TOOLS TO DO GREAT THINGS</h5>
             </div>
             <div class="panel-body">
 
               <div class="accordion tools-accordian" id="accordion">
 
-                {% if 'merge repositories' in session.get('permissions', []) %}
+                {% if constants['PERMISSION_MERGE_REPOS'] in session.get('permissions', []) %}
                 <div class="card">
                   <div class="card-header" id="headingMerge">
                     <h5 class="mb-0">
-                      <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseMerge" aria-expanded="true" aria-controls="collapseMerge">
+                      <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseMerge" aria-expanded="false" aria-controls="collapseMerge">
                         Merge Repositories
                       </button>
                     </h5>
                   </div>
-                  <div id="collapseMerge" class="collapse show" aria-labelledby="headingMerge" data-parent="#accordion">
+                  <div id="collapseMerge" class="collapse" aria-labelledby="headingMerge" data-parent="#accordion">
                     <div class="card-body">
                       {% include 'form_merge.incl.jinja' %}
                     </div>
@@ -25,7 +24,7 @@
                 </div>
                 {% endif %}
 
-                {% if 'version update' in session.get('permissions', []) %}
+                {% if constants['PERMISSION_VERSION_UPDATE'] in session.get('permissions', []) %}
                 <div class="card">
                   <div class="card-header" id="headingVersion">
                     <h5 class="mb-0">
@@ -42,18 +41,32 @@
                 </div>
                 {% endif %}
 
-                {% if 'user management' in session.get('permissions', []) %}
                 <div class="card">
-                  <div class="card-header" id="headingThree">
+                  <div class="card-header" id="headingUsers">
                     <h5 class="mb-0">
-                      <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                        User Management
+                      <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseUsers" aria-expanded="false" aria-controls="collapseUsers">
+                        Account Management
                       </button>
                     </h5>
                   </div>
-                  <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+                  <div id="collapseUsers" class="collapse" aria-labelledby="headingUsers" data-parent="#accordion">
                     <div class="card-body">
-                      User Management
+                      {% include 'form_users.incl.jinja' %}
+                    </div>
+                  </div>
+                </div>
+                {% if constants['PERMISSION_USER_MANAGEMENT'] in session.get('permissions', []) %}
+                <div class="card">
+                  <div class="card-header" id="headingRoles">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseRoles" aria-expanded="false" aria-controls="collapseRoles">
+                        Roles & Permissions
+                      </button>
+                    </h5>
+                  </div>
+                  <div id="collapseRoles" class="collapse" aria-labelledby="headingRoles" data-parent="#accordion">
+                    <div class="card-body">
+                      {% include 'form_roles.incl.jinja' %}
                     </div>
                   </div>
                 </div>

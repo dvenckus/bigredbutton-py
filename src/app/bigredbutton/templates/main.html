@@ -5,11 +5,11 @@
 {% endblock %}
 {% block content %}
     {% if 'logged_in' in session and session['logged_in'] %}
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light">
       <div class="container-fluid">
         <div class="collapse navbar-collapse" id="navbar-collapse-1">
           <ul class="navbar-nav">
-            <li class="nav-item"><a href="#" class="nav-link hello">Hello, {{ session.username }}!</a></li>
+            <li class="nav-item"><a href="#" class="nav-link hello">Hello, {{ session['user']['realname'] }}!</a></li>
             <li class="nav-item"><a href="/logout" class="nav-link">Logout</a></li></ul>
           </ul>
         </div>
@@ -19,7 +19,7 @@
 
     <ul id="tabs" class="nav nav-tabs nav-justified" role="tablist">
       <li class="nav-item">
-        <a class="nav-link tab tab-preprod active" id="tab-preprod" data-toggle="tab" href="#preprod" role="tab" aria-controls="preprod" aria-selected="true">Pre-Prod</a>
+        <a class="nav-link tab tab-preprod active" id="tab-preprod" data-toggle="tab" href="#preprod" role="tab" aria-controls="preprod" aria-selected="true">Pre-Production</a>
       </li>
       <li id="tab-tools" class="nav-item">
         <a class="nav-link tab tab-tools" id="tab-tools" data-toggle="tab" href="#tools" role="tab" aria-controls="tools" aria-selected="false">Tools</a>
@@ -48,9 +48,11 @@
     </pre>
 
     <div id="queue-panel" class="panel panel-default">
-      <div class="panel-heading"><h3 class="panel-title">Task Queue</h3></div>
+      <div class="panel-heading">
+        <h5 class="panel-title">TASK QUEUE</h5>
+      </div>
       <div class="panel-body">
-        <table id="queue" class="table">
+        <table id="queue" class="table table-hover">
           <thead>
             <tr><td>User</td><td>Requested</td><td>Subdomain</td><td>Site</td><td>Task</td><td>DB Backup?</td><td>Cancel</td></tr>
           </thead>
@@ -61,17 +63,22 @@
       </div>
     </div>
 
-    <div id="prod-output-panel" class="panel panel-default">
-      <div class="panel-heading"><h3 class="panel-title">Output</h3></div>
+    <div id="output-panel" class="panel panel-default">
+      <div class="panel-heading">
+        <h5 class="panel-title">OUTPUT</h5>
+      </div>
       <div class="panel-body">
-        <pre id="production-output"> </pre>
+        <pre id="output"> </pre>
       </div>
     </div>
 
 {% endblock %}
 {% block scripts %}
   {{ super() }}
-  <script charset="utf-8" type="text/javascript" src="{{ url_for('static', filename='js/sse.js') }}"></script>
   <script charset="utf-8" type="text/javascript" src="{{ url_for('static', filename='js/brb.js') }}"></script>
+  <script charset="utf-8" type="text/javascript" src="{{ url_for('static', filename='js/preprod.js') }}"></script>
+  <script charset="utf-8" type="text/javascript" src="{{ url_for('static', filename='js/tools.js') }}"></script>
+  <script charset="utf-8" type="text/javascript" src="{{ url_for('static', filename='js/prod.js') }}"></script>
+  <script charset="utf-8" type="text/javascript" src="{{ url_for('static', filename='js/sse.js') }}"></script>
 {% endblock %}
 

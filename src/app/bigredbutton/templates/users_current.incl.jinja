@@ -1,0 +1,14 @@
+{% if users is defined and users != None and users|length > 0 -%}
+  {% set delete_glyph = '<i class="glyph-delete fas fa-trash-alt"></i>' %}
+  {% set bkup_glyph = '<i class="glyph-checkmark fas fa-check"></i>' %}
+  {% set edit_glyph = '<i class="glyph-edit fas fa-edit"></i>' %}
+  {% set placeholder = '<i class="glyph-delete placeholder fas fa-trash-alt"></i>' %}
+  {% for u in users %}
+    <tr>
+      <td class="userRealName" data-userId="{{ u.id }}" scope="row">{{ u.realname }}</td>
+      <td class="userName">{{ u.username }}</td>
+      <td class="userRoleName" data-roleId="{{ u.role_id }}">{{ u.role.name }}</td> 
+      <td><a href="#" class="user-edit">{{ edit_glyph }}</a>{% if u.id|int > 1 %}<a href="/user/delete/{{ u.id }}" class="user-delete">{{ delete_glyph }}</a>{% else %}{{ placeholder }}{% endif %}</td>
+    </tr>
+  {% endfor %}
+{% endif %}

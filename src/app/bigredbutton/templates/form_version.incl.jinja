@@ -1,6 +1,6 @@
 <form action="/version-update" method="POST">
   <div class="control-group col-sm-4 float-left">
-    <select id="merge-repo" name="merge-repo" class="form-control brb-merge brb-merge-repo">
+    <select id="versionRepo" name="versionRepo" class="form-control versionRepo">
       {% for key in repositories['list_order'] -%}
       {% set repo = repositories['list'][key] -%}
       <option value="{{ key }}"{% if repo['attributes'] is defined %}{{ repo['attributes'] }}{% endif %}>{{ repo['name'] }}</option>
@@ -23,9 +23,9 @@
   </div>
   
   <div class="actions col-sm-4 float-left">
-    <input id="btn-version-update" type="button" name="button"
+    <input id="btnVersionUpdate" type="button" name="button"
            accept="" value="Update" class="button-primary medium-button gradient-blue"/>
-    <a href="#" id="clearFormVersion" class="clearFormLink">Clear</a>
+    <a href="#" id="cancelVersionUpdate" class="clearFormLink"><i class="glyph-cancel fas fa-times"></i></a>
     <div class="form-check testmode">
       <input class="form-check-input" type="checkbox" name="versionTestMode" id="versionTest" value="test">
       <label class="form-check-label" for="versionTestMode">

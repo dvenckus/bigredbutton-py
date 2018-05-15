@@ -1,0 +1,48 @@
+  <div class="control-group col-sm-12">
+    <table id="rolesCurrent" class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">Role</th>
+          <th class="text-left" scope="col">Permissions</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% include 'roles_current.incl.jinja' %}
+      </tbody>
+    </table>
+
+    <p class="text-left">
+    <a id="roleFormTitle" class="h5 text-left btn-link" href="#Role" data-toggle="collapse">Add Role</a>
+    </p>
+    
+    <div id="Role" class="card role-card collapse">
+      <div class="card-body">
+        <form action="#">
+
+          <div class="role-col-1 float-left col-sm-4">
+            <div class="input-group">
+              <input id="roleName" type="text" class="form-control" placeholder="Role Name" aria-label="Role Name">
+            </div>  
+            <div class="input-group">
+              <input id="roleId" type="text" class="d-none">
+            </div>          
+          </div>
+          <div class="role-col-2 float-left col-sm-4">
+            <div class="input-group">
+              <select id="rolePermissions" name="permissions" class="form-control custom-select" aria-label="Permissions" multiple size="{{ permissions|length }}">
+                {% for p in permissions -%}
+                <option value="{{ p.id }}">{{ p.name }}</option>
+                {% endfor -%}                  
+              </select>
+            </div>
+          </div>
+          <div class="actions role-col-3 float-left col-sm-4">
+            <input id="btnSaveRole" type="button" name="button"
+                    accept="" value="Save" class="button-primary medium-button gradient-blue"/>
+            <a href="#" id="cancelRole" class="clearFormLink"><i class="glyph-cancel fas fa-times"></i></a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>

@@ -1,4 +1,8 @@
+#
 # config.py
+#
+import os
+
 # Statement for
 #  enabling the development environment
 DEBUG = True
@@ -6,11 +10,12 @@ DEBUG = True
 FLASK_DEBUG = True
 
 # Define the application directory
-import os
+
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 PID_DIR = '/var/run/bigredbutton'
 LOG_DIR = '/var/log/bigredbutton'
+SCRIPTS_DIR = '/var/www/scripts'
 
 ### LOGS ###
 LOG_FILE =  LOG_DIR + '/brb-py.log'
@@ -30,6 +35,7 @@ BRB_ENV = VIRTUAL_ENV + '/bigredbutton'
 # SQLite for this example
 # see flask-sqlalchemy settings explained here:  http://flask-sqlalchemy.pocoo.org/2.1/config/
 DATABASE_PATH = '/usr/local/sqlite/bigredbutton/brb.db'
+
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + DATABASE_PATH
 # this adds a lot of overhead -- set to True if you need to for debugging, but don't leave it on
 SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -60,18 +66,71 @@ REDIS_SOCKET_PATH = '/var/run/redis/redis.sock'
 EVENT_STREAM_CHANNEL = 'alerts'
 TIMEZONE = 'America/Chicago'
 
+# email settings
+EMAIL_FROM = 'no-reply@bigredbutton.veritashealth.com'
+EMAIL_TO = 'dev@veritashealth.com'
+EMAIL_ENABLED = True
+
+
+########## ROLE & PERMISSION SEED DATA ###########
+
 # user pre-defined roles
-ADMIN_ROLE = 1
-AUTH_ROLE = 2
-ALL_SERVER_ROLE = 3
-PRE_PROD_ROLE = 4
+# custom roles can be created in addition to these
+ROLE_ADMIN = 1
+ROLE_AUTHENTICATED = 2
+ROLE_ALL_SERVER = 3
+ROLE_PRE_PRODUCTION = 4
+
+ROLE_VALUES = {
+  ROLE_ADMIN: 'Administrator',
+  ROLE_AUTHENTICATED: 'Authenticated',
+  ROLE_ALL_SERVER: 'All Server Access',
+  ROLE_PRE_PRODUCTION: 'Pre-Production Access'
+}
 
 # role permissions 
-# basic access
-PERM_AUTHENTICATED = 'authenticated'
+# defined here because if the permission is not referenced
+# in the code, what's the point?
+PERMISSION_PRODUCTION = 1
+PERMISSION_PRE_PRODUCTION = 2
+PERMISSION_MERGE_REPOS = 3
+PERMISSION_VERSION_UPDATE = 4
+PERMISSION_USER_MANAGEMENT = 5
+PERMISSION_AUTHENTICATED = 6
+PERMISSION_VALUES = {
+  PERMISSION_AUTHENTICATED: 'authenticated',
+  PERMISSION_PRE_PRODUCTION: 'pre-production',
+  PERMISSION_PRODUCTION: 'production',
+  PERMISSION_USER_MANAGEMENT: 'user management',
+  PERMISSION_MERGE_REPOS: 'merge repositories',
+  PERMISSION_VERSION_UPDATE: 'version update'
+}
 
-# email settings
-EMAIL_FROM = 'bigredbutton@veritashealth.com'
-EMAIL_TO = 'dev@veritashealth.com'
+ROLE_PERMISSION_VALUES = {
+  ROLE_ADMIN: [
+    PERMISSION_PRODUCTION,
+    PERMISSION_PRE_PRODUCTION,
+    PERMISSION_MERGE_REPOS,
+    PERMISSION_VERSION_UPDATE,
+    PERMISSION_USER_MANAGEMENT,
+    PERMISSION_AUTHENTICATED
+  ],
+  ROLE_AUTHENTICATED: [
+    PERMISSION_AUTHENTICATED
+  ],
+  ROLE_ALL_SERVER: [
+    PERMISSION_PRODUCTION,
+    PERMISSION_PRE_PRODUCTION,
+    PERMISSION_MERGE_REPOS, 
+    PERMISSION_VERSION_UPDATE,
+    PERMISSION_AUTHENTICATED
+  ],
+  ROLE_PRE_PRODUCTION: [
+    PERMISSION_PRE_PRODUCTION,
+    PERMISSION_AUTHENTICATED
+  ]
+}
+
+
 
 

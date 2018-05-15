@@ -1,0 +1,17 @@
+{% if roles and roles|length and roles_permissions and roles_permissions|length %}
+  {% set delete_glyph = '<i class="glyph-delete fas fa-trash-alt"></i>' %}
+  {% set edit_glyph = '<i class="glyph-edit fas fa-edit"></i>' %}
+  {% for r in roles %}
+    <tr>
+      <td class="roleName" data-roleId="{{ r.id }}" scope="row">{{ r.name }}</td>
+      <td class="rolePermissions">
+        <ul class="permissions text-left">
+        {% for rp in roles_permissions if r.id == rp.role_id %}
+          <li class="permission" data-permission-id="{{ rp.permission_id }}">{{ rp.permission.name }}</li>
+        {% endfor %}
+        </ul>
+      </td>
+      <td>{% if r.id|int > 2 %}<a href="#" class="role-edit">{{ edit_glyph }}</a><a href="/role/delete/{{ r.id }}" class="role-delete">{{ delete_glyph }}</a>{% endif %}</td>
+    </tr>
+  {% endfor %}
+{% endif %}

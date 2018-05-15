@@ -12,9 +12,21 @@ class Push(object):
 
   @staticmethod
   def do(username, data):
-    ''' PRODUCTION tasks -- do a BRB task immediately '''
+    ''' do a BRB task immediately '''
+
     print('push (data): ', str(data))
-    # there should only be 1 record
-    subdomain = SubdomainsList.getSubdomain(data['site'], '', 'prod')
-    pushitem = PushItem(username, subdomain, data['site'], data['task'], data['dbbackup'])
-    return SaltTask.run(pushitem, 'push')
+    pushitem = None
+
+    if data['task'] in ['merge', 'version_update']:
+      pushitem = PushItem(username, data['task'], options=data)
+    else:
+      options = {
+        'subdomain': SubdomainsList.getSubdomain(data['site'], '', 'prod'),
+        'site': data['site'],
+        'dbbackup': data['dbbackup']
+      }
+      pushitem = PushItem(username, data['task'], options=options)
+
+    saltTask = SaltTask(pushitem, 'push')
+
+    return saltTask.run()
