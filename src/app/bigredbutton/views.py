@@ -229,7 +229,7 @@ def merge():
     content = Push.do(session['user']['username'], jsonData)
     if content != False:
       retn = True
-      if not isinstance(content, str):
+      if content and not isinstance(content, str):
         content = content.decode('utf-8')
         
   else:
@@ -239,6 +239,34 @@ def merge():
   return json.dumps({'response': retn, 'content': content }), HttpCode, {'ContentType':'application/json'}
 
 
+
+# Version
+
+@app.route('/versionup', methods = ['POST'])
+def version_update():
+  retn = False
+  # Get the parsed contents of the form content
+  jsonData = request.get_json()
+  content = ''
+  retn = False
+  HttpCode = 200
+
+  if not session.get('logged_in', False): return redirect("/")
+
+  app.logger.info("VersionUpdate: {}".format(jsonData))
+
+  if Users.checkPermission(session.get('user', None), 'PERMISSION_VERSION_UPDATE', session['permissions']):
+    content = Push.do(session['user']['username'], jsonData)
+    if content != False:
+      retn = True
+      if content and not isinstance(content, str):
+        content = content.decode('utf-8')
+        
+  else:
+    content = 'Not Authorized'
+    HttpCode = 444
+
+  return json.dumps({'response': retn, 'content': content }), HttpCode, {'ContentType':'application/json'}
 
 
 

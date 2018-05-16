@@ -37,11 +37,11 @@ $(document).ready(function() {
 
     var mergeRepo = $('#mergeRepo').val();
     var mergeBranch = $('#mergeBranch').val();
-    var mergeTest = ($('#mergeText').prop('checked') ? 1 : 0);
+    var mergeTest = ( true == $('#mergeTest').prop('checked') ? 1 : 0);
 
     if (!mergeRepo || !mergeBranch) {
       alert("Missing input values");
-      return False;
+      return false;
     }
 
     merge = {
@@ -60,9 +60,8 @@ $(document).ready(function() {
       success: updateMerge
     });
 
-    return False;
+    return false;
   });
-
 
 
   // Version -----------------------------------------
@@ -75,6 +74,48 @@ $(document).ready(function() {
 
   $('#cancelVersionUpdate').click(function() {
     clearFormToolsVersion();
+  });
+
+  function updateVersion(data, textStatus, jqXHR) {
+    if ((textStatus == 'success') && (data.response == true)) {
+      $("#output").html(data.content);
+      clearFormToolsVersion();
+    }
+    window.toolsBusy = false
+  } 
+
+
+  $('#btnVersionUpdate').click(function(e) {
+    e.preventDefault();
+
+    var versionRepo = $('#versionRepo').val();
+    var versionIncrMajor =  ( true == $('#versionIncrMajor').prop('checked') ? 1 : 0);
+    var versionIncrMinor = ( true == $('#versionIncrMinor').prop('checked') ? 1 : 0);
+    var versionTest = ( true == $('#versionTest').prop('checked') ? 1 : 0);
+
+    if (!versionRepo) {
+      alert("Missing repository value");
+      return false;
+    }
+
+    versionup = {
+      task: 'versionup',
+      versionRepo: versionRepo,
+      versionIncrMajor: versionIncrMajor,
+      versionIncrMinor: versionIncrMinor,
+      versionTest: versionTest
+    };
+
+    $.ajax({
+      type: "POST",
+      url: "/versionup",
+      contentType: 'application/json',
+      data: JSON.stringify(versionup),
+      dataType: 'json',
+      success: updateVersion
+    });
+
+    return false;
   });
 
 

@@ -63,13 +63,16 @@ class SaltTask(object):
 
     self.taskItem = taskItem
     self.taskOptions = taskItem.parseOptions()
+
+    self.taskOptions['backup_param'] = 'backup' if self.taskOptions.get('dbbackup', False) == True else ''
+
     self.taskDesc = "({}) {} {} {} {}".format(
                   taskItem.username, 
-                  taskOptions['subdomain'], 
-                  taskOptions['site'], 
+                  self.taskOptions.get('subdomain', ''), 
+                  self.taskOptions.get('site', ''), 
                   taskItem.task, 
-                  taskOptions['backup_param'])
-    self.taskOptions['backup_param'] = 'backup' if self.taskOptions.get('dbbackup', False) == True else ''
+                  self.taskOptions.get('backup_param', ''))
+    
 
 
 
@@ -81,8 +84,8 @@ class SaltTask(object):
 
     ### run the task
     try:
-      self.logStart(taskDesc)
-      self.pushMessage('BEGIN TASK ' + taskDesc)
+      self.logStart(self.taskDesc)
+      self.pushMessage('BEGIN TASK ' + self.taskDesc)
 
       self.log("SaltTask::do")
       self.log(self.taskItem)
@@ -104,10 +107,10 @@ class SaltTask(object):
       # this is an IO EPIPE error -- ignore
       #ignoreThis = 2
       print("[SaltTask] IOError: " + str(e) + "\n")
-      SaltTask.log("[SaltTask] IOError: " + str(e))
+      self.log("[SaltTask] IOError: " + str(e))
     except Exception as e:
       print("[SaltTask] Exception: " + str(e) + "\n")
-      SaltTask.log("[SaltTask] Exception: " + str(e))
+      self.log("[SaltTask] Exception: " + str(e))
       return output
 
 
@@ -126,8 +129,7 @@ class SaltTask(object):
     self._redis.set(key, pub_msg)
     self._redis.expire(key, 3600)
 
-
-  @staticmethod  
+  
   def logStart(self, msg):
     '''
     marks the beginning of the task in the log
@@ -137,7 +139,7 @@ class SaltTask(object):
     #print("[SaltTask] SaltTask::logStart()\n")
     now = datetime.datetime.now(self.tz).strftime('%Y-%m-%d %H:%M:%S')
     #print("[SaltTask] Open Log: " + SaltTask.logname + "\n")
-    self.logfile = open(SaltTask.logname, 'a', 4)
+    self.logfile = open(self.logname, 'a', 4)
     self.logfile.write("\n\n--------- BEGIN Task [{}] ---------\n".format(now))
     self.logfile.write('Task:  ' + msg + "\n")
     self.logfile.write("---------------------------------------------------\n")
@@ -153,10 +155,11 @@ class SaltTask(object):
 
 
 
-
   def log(self, msg):
     ''' log a message '''
     #print('[SaltTask] ' + str(msg) + "\n")
+    if not self.logfile:
+      self.logStart(self.taskDesc)
     self.logfile.write(str(msg) + "\n")
 
 
@@ -203,14 +206,14 @@ class SaltTask(object):
 
       if self.taskItem.site == 'vf':
         saltcmd = [
-          SaltTask.doBulkLoad,
+          self.doBulkLoad,
           'tgt=' + self.taskItem.subdomain,
           'mode=sync'
         ]
       else:
-        #print("SaltTask: In DO, tasksList sync " + str(self.taskItem) )
+        #print("self: In DO, tasksList sync " + str(self.taskItem) )
         saltcmd = [
-          SaltTask.doSiteSync,
+          self.doSiteSync,
           'tgt=' + self.taskOptions['subdomain'],
           'site=' + self.taskOptions['site'],
           'mode=all'
@@ -221,7 +224,7 @@ class SaltTask(object):
 
     elif 'deploy' == tasksList[self.taskItem.task]['do']:
       saltcmd = [
-        SaltTask.doSiteDeploy,
+        self.doSiteDeploy,
         'tgt=' + self.taskOptions['subdomain'],
         'site=' + self.taskOptions['site'],
       ]
@@ -230,28 +233,28 @@ class SaltTask(object):
 
     elif 'cache' == tasksList[self.taskItem.task]['do']:
       saltcmd = [
-        SaltTask.doCacheClear,
+        self.doCacheClear,
         'tgt=' + self.taskOptions['subdomain'],
         'site=' + self.taskOptions['site']
       ]
 
     elif 'varnish' == tasksList[self.taskItem.task]['do']:
       saltcmd = [
-        SaltTask.doVarnishClear,
+        self.doVarnishClear,
         'tgt=' + self.taskOptions['subdomain'],
         'site=' + self.taskOptions['site']
       ]
 
     elif 'rb' == tasksList[self.taskItem.task]['do']:
       saltcmd = [
-        SaltTask.doRollback,
+        self.doRollback,
         'tgt=' + self.taskOptions['subdomain'],
         'site=' + self.taskOptions['site']
       ]
 
     elif 'unrb' == tasksList[self.taskItem.task]['do']:
       saltcmd = [
-        SaltTask.doRollback,
+        self.doRollback,
         'tgt=' + self.taskOptions['subdomain'],
         'site=' + self.taskOptions['site'],
         'undo'
@@ -259,7 +262,7 @@ class SaltTask(object):
 
     elif 'merge' == tasksList[self.taskItem.task]['do']:
       saltcmd = [
-        SaltTask.doMerge,
+        self.doMerge,
         'repo=' + self.taskOptions['mergeRepo'],
         'merge-to=' + self.taskOptions['mergeTo']
       ]
@@ -267,7 +270,7 @@ class SaltTask(object):
 
     elif 'versionup' == tasksList[self.taskItem.task]['do']:
       saltcmd = [
-        SaltTask.doVersionUpdate,
+        self.doVersionUpdate,
         'repo=' + self.taskOptions['versionRepo']
       ]
       if self.taskOptions['versionIncrMajor']: 
@@ -286,7 +289,7 @@ class SaltTask(object):
       try:
         saltcmd[:0] = ['sudo']
         saltcmd_str = ', '.join(saltcmd)
-        SaltTask.log("saltcmd: " + saltcmd_str)
+        self.log("saltcmd: " + saltcmd_str)
         output = subprocess.check_output(saltcmd)
       except subprocess.CalledProcessError as e:
         errormsg = saltcmd_str  + "\nError: " + str(e)

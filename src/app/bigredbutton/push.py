@@ -17,7 +17,7 @@ class Push(object):
     print('push (data): ', str(data))
     pushitem = None
 
-    if data['task'] in ['merge', 'version_update']:
+    if data['task'] in ['merge', 'versionup']:
       pushitem = PushItem(username, data['task'], options=data)
     else:
       options = {
