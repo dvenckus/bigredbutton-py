@@ -36,5 +36,5 @@ db = SQLAlchemy(app)
 db.create_all()
 
 
-__all__ = ['views', 'Users', 'SitesList', 'TasksList', 'SubdomainsList', 'BrbQueue', 'Utils']
+#__all__ = ['views', 'Users', 'SitesList', 'TasksList', 'SubdomainsList', 'BrbQueue', 'Utils']
 from app.bigredbutton import views, utils

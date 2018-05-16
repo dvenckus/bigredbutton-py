@@ -1,7 +1,11 @@
 /*
 *   javascript: tools.js
 */
+
+
 $(document).ready(function() {
+
+  updateTaskHistory();
 
   // Tools -------------------------------------------
 
@@ -443,5 +447,34 @@ $(document).ready(function() {
   });
 
 
+  // Task History ------------------------------------------------------
+
+  function updateTaskHistory(data, textStatus, jqXHR) {
+    // updates the users list display with the current items
+    if ((textStatus == 'success') && (data.response == true)) {
+      $("#taskHistory tbody").html(data.content);
+    }
+    window.toolsBusy = false
+    currentDateTime = new Date().toLocaleString();
+    $('#lastRefreshed').text("Last Updated: " + currentDateTime);
+  };
+
+
+  $('#taskHistoryRefresh').click(function(e) {
+    e.preventDefault();
+    window.toolsBusy = true;
+
+    var href = $(this).attr('href');
+
+    $.ajax({
+      type: "GET",
+      url: href,
+      //contentType: 'application/json',
+      dataType: 'json',
+      success: updateTaskHistory
+    });
+
+    return false;
+  });
 
 });

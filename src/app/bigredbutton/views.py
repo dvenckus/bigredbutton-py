@@ -1,6 +1,13 @@
 from flask import Flask, current_app, flash, redirect, render_template, Response, request, session, abort, jsonify, url_for
 from app.bigredbutton import app, db
-from users import Users
+from admin import Admin
+
+from models.meta import Base
+from models.user import User
+from models.permission import Permission
+from models.role import Role
+from models.rolepermission import RolePermission
+from models.taskhistoryitem import TaskHistoryItem
 
 from sites import SitesList
 from subdomains import SubdomainsList
@@ -9,12 +16,7 @@ from brbqueue import BrbQueue
 from push import Push
 from repositories import Repositories
 from branches import Branches
-
-from models.meta import Base
-from models.user import User
-from models.permission import Permission
-from models.role import Role
-from models.rolepermission import RolePermission
+from taskhistory import TaskHistory 
 
 import json
 from datetime import datetime, timedelta
@@ -49,12 +51,12 @@ def main_page():
     permissions = None
     rolesPermissions = None
 
-    if Users.checkPermission(session.get('user', None), 'PERM_USER_MANAGEMENT', session['permissions']):
-      users = Users.getUsers()
-      roles = Users.getRoles()
-      permissions = Users.getPermissions()
-      rolesPermissions = Users.getRolesPermissions()
-      #rolesPermissions = Users.getRolePermissions(session['user'].role_id)
+    if Admin.checkPermission(session.get('user', None), 'PERM_USER_MANAGEMENT', session['permissions']):
+      users = Admin.getUsers()
+      roles = Admin.getRoles()
+      permissions = Admin.getPermissions()
+      rolesPermissions = Admin.getRolesPermissions()
+      #rolesPermissions = Admin.getRolePermissions(session['user'].role_id)
 
     #app.logger.info('users: {}'.format(str(users)))
     #app.logger.info('roles: {}'.format(str(roles)))
@@ -71,6 +73,7 @@ def main_page():
                                         permissions=permissions,
                                         roles_permissions=rolesPermissions,
                                         queue=BrbQueue.get(),
+                                        task_history=TaskHistory.get(),
                                         sse_history=get_sse_history(),
                                         constants=app.config)
 
@@ -90,7 +93,7 @@ def login_page():
       input_username = request.form['username']
       input_password = request.form['password']
 
-      userSession = Users.isValid(input_username, input_password)
+      userSession = Admin.validateUser(input_username, input_password)
       
       if userSession and userSession['valid']:
         app.logger.info("user session is valid")
@@ -149,7 +152,7 @@ def queue_add():
 
   app.logger.info("Queue Add: {}".format(jsonData))
 
-  if Users.checkPermission(session.get('user', None), 'PERMISSION_PRE_PRODUCTION', session['permissions']):
+  if Admin.checkPermission(session.get('user', None), 'PERMISSION_PRE_PRODUCTION', session['permissions']):
     if BrbQueue.add(session['user']['username'], jsonData):
       content = render_template('queue.incl.jinja', queue=BrbQueue.get())
       if not isinstance(content, str):
@@ -170,7 +173,7 @@ def queue_cancel(id):
 
   if not session.get('logged_in', False): return redirect("/")
 
-  if Users.checkPermission(session.get('user', None), 'PERMISSION_PRE_PRODUCTION', session['permissions']):
+  if Admin.checkPermission(session.get('user', None), 'PERMISSION_PRE_PRODUCTION', session['permissions']):
     if BrbQueue.cancel(id):
       content = render_template('queue.incl.jinja', queue=BrbQueue.get())
       retn = True
@@ -195,7 +198,7 @@ def push():
 
   if not session.get('logged_in', False): return redirect("/")
 
-  if Users.checkPermission(session.get('user', None), 'PERMISSION_PRODUCTION', session['permissions']):
+  if Admin.checkPermission(session.get('user', None), 'PERMISSION_PRODUCTION', session['permissions']):
     content = Push.do(session['user']['username'], jsonData)
     if content != False:
       retn = True
@@ -225,7 +228,7 @@ def merge():
 
   app.logger.info("Merge: {}".format(jsonData))
 
-  if Users.checkPermission(session.get('user', None), 'PERMISSION_MERGE', session['permissions']):
+  if Admin.checkPermission(session.get('user', None), 'PERMISSION_MERGE', session['permissions']):
     content = Push.do(session['user']['username'], jsonData)
     if content != False:
       retn = True
@@ -255,7 +258,7 @@ def version_update():
 
   app.logger.info("VersionUpdate: {}".format(jsonData))
 
-  if Users.checkPermission(session.get('user', None), 'PERMISSION_VERSION_UPDATE', session['permissions']):
+  if Admin.checkPermission(session.get('user', None), 'PERMISSION_VERSION_UPDATE', session['permissions']):
     content = Push.do(session['user']['username'], jsonData)
     if content != False:
       retn = True
@@ -285,16 +288,16 @@ def user_save():
 
   app.logger.info("User Save: {}".format(jsonData))
 
-  if Users.checkPermission(session.get('user', None), 'PERMISSION_USER_MANAGEMENT', session['permissions']):
-    if Users.userSave(session['user']['id'], jsonData):
-      content = render_template('users_current.incl.jinja', users=Users.getUsers())
+  if Admin.checkPermission(session.get('user', None), 'PERMISSION_USER_MANAGEMENT', session['permissions']):
+    if Admin.userSave(session['user']['id'], jsonData):
+      content = render_template('users_current.incl.jinja', users=Admin.getUsers())
       retn = True  
       if not isinstance(content, str):
         content = content.decode('utf-8')
 
   elif int(session['user']['id']) == int(jsonData['user_id']):
     # non-admin user updating own account, this is ok
-    if Users.userSave(session['user']['id'], jsonData):
+    if Admin.userSave(session['user']['id'], jsonData):
       retn = True
       content = "Account updated!"
 
@@ -313,9 +316,9 @@ def user_delete(id):
 
   if not session.get('logged_in', False): return redirect("/")
 
-  if Users.checkPermission(session.get('user', None), 'PERMISSION_USER_MANAGEMENT', session['permissions']):
-    if Users.userDelete(id):
-      content = render_template('users_current.incl.jinja', users=Users.getUsers())
+  if Admin.checkPermission(session.get('user', None), 'PERMISSION_USER_MANAGEMENT', session['permissions']):
+    if Admin.userDelete(id):
+      content = render_template('users_current.incl.jinja', users=Admin.getUsers())
       retn = True
       if not isinstance(content, str):
         content = content.decode('utf-8')
@@ -342,12 +345,12 @@ def role_save():
 
   app.logger.info("Role Save: {}".format(jsonData))
 
-  if Users.checkPermission(session.get('user', None), 'PERMISSION_USER_MANAGEMENT', session['permissions']):
+  if Admin.checkPermission(session.get('user', None), 'PERMISSION_USER_MANAGEMENT', session['permissions']):
     app.logger.info("Has Permission: True")
-    if Users.roleSave(jsonData):
+    if Admin.roleSave(jsonData):
       app.logger.info("Role Save:  True")
-      content = render_template('roles_current.incl.jinja', roles=Users.getRoles(),
-                                                            roles_permissions=Users.getRolesPermissions())
+      content = render_template('roles_current.incl.jinja', roles=Admin.getRoles(),
+                                                            roles_permissions=Admin.getRolesPermissions())
       retn = True  
       if not isinstance(content, str):
         content = content.decode('utf-8')
@@ -367,10 +370,10 @@ def role_delete(id):
 
   if not session.get('logged_in', False): return redirect("/")
 
-  if Users.checkPermission(session.get('user', None), 'PERMISSION_USER_MANAGEMENT', session['permissions']):
-    if Users.roleDelete(id):
-      content = render_template('roles_current.incl.jinja', roles=Users.getRoles(),
-                                                            roles_permissions=Users.getRolesPermissions())
+  if Admin.checkPermission(session.get('user', None), 'PERMISSION_USER_MANAGEMENT', session['permissions']):
+    if Admin.roleDelete(id):
+      content = render_template('roles_current.incl.jinja', roles=Admin.getRoles(),
+                                                            roles_permissions=Admin.getRolesPermissions())
       retn = True
       if not isinstance(content, str):
         content = content.decode('utf-8')
@@ -380,6 +383,35 @@ def role_delete(id):
     HttpCode = 444
 
   return json.dumps({ 'response': retn, 'content': content }), HttpCode, {'ContentType':'application/json' }
+
+
+# Task History
+
+@app.route('/taskhistory/refresh')
+def task_history_refresh():
+  retn = False
+  # Get the parsed contents of the form content
+  jsonData = request.get_json()
+  content = ''
+  retn = False
+  HttpCode = 200
+
+  if not session.get('logged_in', False): return redirect("/")
+
+  #app.logger.info("Role Save: {}".format(jsonData))
+
+  if Admin.checkPermission(session.get('user', None), 'PERMISSION_AUTHENTICATED', session['permissions']):
+      content = render_template('taskhistory_current.incl.jinja', task_history=TaskHistory.get())
+      retn = True  
+      if content and not isinstance(content, str):
+        content = content.decode('utf-8')
+
+  else:
+    content = 'Not Authorized'
+    HttpCode = 444
+
+  return json.dumps({'response': retn, 'content': content }), HttpCode, {'ContentType':'application/json'}
+
 
 
 # ------------------ redis Alert channel handlers --------------------

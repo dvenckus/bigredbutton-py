@@ -7,7 +7,6 @@ from app.bigredbutton.subdomains import SubdomainsList
 from subprocess import Popen
 from sqlalchemy import exc
 import os
-#import sys
 
 
 class BrbQueue(object):
@@ -23,7 +22,9 @@ class BrbQueue(object):
         tasks = db.session.query(TaskItem).filter_by(status=status).all()
 
     except exc.SQLAlchemyError as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
+    except Exception as e:
+      app.logger.error(str(e))
 
     return tasks
 
@@ -68,9 +69,11 @@ class BrbQueue(object):
     except IOError as e:
       # this is an IO EPIPE error -- ignore
       # we don't care if the socket with queue_manager.py breaks, it's a standalone daemon process
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
     except exc.SQLAlchemyError as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
+    except Exception as e:
+      app.logger.error(str(e))
 
     return False
 
@@ -86,6 +89,8 @@ class BrbQueue(object):
         db.session.commit()
         return True
     except exc.SQLAlchemyError as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
+    except Exception as e:
+      app.logger.error(str(e))
 
     return False

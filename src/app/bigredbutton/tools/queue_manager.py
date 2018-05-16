@@ -43,9 +43,15 @@ def main():
       log_msg("Task found.\n{}\n".format(str(task)))
 
       # execute task
-      result = SaltTask.run(task)
+      saltTask = SaltTask(task)
+      result = saltTask.run()
+
       log_msg("Task found.\n{}".format(str(task)))
       log_msg("Task run result: " + str(result))
+
+      # archive the task as completed
+      taskHistoryItem = TaskHistoryItem(task.username, task.task, task.options, str(result))
+      session.add(taskHistoryItem)
 
       # clean up after task run
       session.delete(task)
@@ -150,6 +156,7 @@ if __name__ == "__main__":
     from models.user import User
     from models.taskitem import TaskItem
     from salttask import SaltTask
+    from models.taskhistoryitem import TaskHistoryItem
 
     import config 
     brb_env_libs = config.BRB_ENV + '/lib/python3.5/site-packages'

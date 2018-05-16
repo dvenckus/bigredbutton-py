@@ -3,11 +3,11 @@
 *
 *   this is the home for the generic and overall use stuff
 */
-$(document).one('ready', function(){
-  $('#tab-preprod').tab('show');
-  $('#queue-panel').show();
-  //$('#output-panel').hide();
-});
+// $(document).one('ready', function(){
+//   $('#tab-preprod').tab('show');
+//   $('#queue-panel').show();
+//   $('#output-panel').hide();
+// });
 
 $(document).ready(function() {
 

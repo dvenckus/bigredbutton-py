@@ -14,7 +14,6 @@ class Role(Base):
     name = Column(String(25), unique=True)
 
 
-
     #----------------------------------------------------------------------
     def __init__(self, id=None, name=''):
         """"""

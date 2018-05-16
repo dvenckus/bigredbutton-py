@@ -1,5 +1,5 @@
 #
-# users.py
+# Admin.py
 #
 from flask import Flask, session
 from sqlalchemy import exc
@@ -13,10 +13,10 @@ from passlib.hash import sha256_crypt
 import logging
 
 
-class Users(object):
+class Admin(object):
 
   @staticmethod
-  def isValid(input_username='', input_password=''):
+  def validateUser(input_username='', input_password=''):
     ''' 
     validate the username and password to begin the session 
     retrieves the user permissions
@@ -28,8 +28,6 @@ class Users(object):
     '''
     try:
       userSession = { 'valid': False }
-
-      app.logger.info('in function Users::isValid()')
 
       if input_username == '' or input_password == '':
         app.logger.info('Missing Login Input: {}, {}'.format(input_username, input_password))
@@ -47,9 +45,9 @@ class Users(object):
 
       if user.password and sha256_crypt.verify(input_password, str(user.password)):
         app.logger.info('User Password is valid')
-        permission_list = Users.getRolePermissions(role_id=user.role_id, id_list=True)
+        permission_list = Admin.getRolePermissions(role_id=user.role_id, id_list=True)
 
-        if Users.checkPermission(user, 'PERMISSION_AUTHENTICATED', permission_list):
+        if Admin.checkPermission(user, 'PERMISSION_AUTHENTICATED', permission_list):
           # valid user and correct permission
           app.logger.info('User has Authenticated permission')
           userSession['valid'] = True
@@ -61,9 +59,9 @@ class Users(object):
 
       return userSession
     except exc.SQLAlchemyError as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
     except Exception as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
 
 
   
@@ -93,7 +91,7 @@ class Users(object):
     '''
     Wrapper for getUser()
     '''
-    return Users.getUser()
+    return Admin.getUser()
 
 
   @staticmethod
@@ -113,9 +111,9 @@ class Users(object):
       return users
           
     except exc.SQLAlchemyError as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
     except Exception as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
 
 
   @staticmethod
@@ -134,7 +132,7 @@ class Users(object):
         db.session.add(new_user)
       else:
         # editing existing user
-        user = Users.getUser(data['user_id'])
+        user = Admin.getUser(data['user_id'])
         user.realname = data['realname']
         user.username = data['username']
         user.role_id = data['role_id']
@@ -151,9 +149,9 @@ class Users(object):
       return True
 
     except exc.SQLAlchemyError as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
     except Exception as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
 
     return False
 
@@ -162,16 +160,16 @@ class Users(object):
   def userDelete(id):
     ''' delete user '''
     try:
-      user = Users.get(id)
+      user = Admin.get(id)
       if user:
         db.session.delete(user)
         db.session.commit()
         return True
     except exc.SQLAlchemyError as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
       db.session.rollback()
     except Exception as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
 
     return False
 
@@ -181,7 +179,7 @@ class Users(object):
     '''
     Wrapper for getRole()
     '''
-    return Users.getRole()
+    return Admin.getRole()
 
 
 
@@ -191,19 +189,20 @@ class Users(object):
     Retrieves the individual Role if an rid parameter is provided, otherwise
     Retrieves all roles from the roles table 
     '''
+    roles = None
     try:
       if rid:
-        role = db.session.query(Role).filter_by(id=rid).first()
-        return role
+        return db.session.query(Role).filter_by(id=rid).first()
 
       # retrieve the roles table
       roles = db.session.query(Role).all()
-      return roles
           
     except exc.SQLAlchemyError as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
     except Exception as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
+
+    return roles
 
 
 
@@ -214,7 +213,7 @@ class Users(object):
     '''
     try:
 
-      app.logger.info("Users.roleSave()")
+      app.logger.info("Admin.roleSave()")
 
       role_id = int(data['role_id']) if data['role_id'] != '' else 0
 
@@ -251,7 +250,7 @@ class Users(object):
           
       else:
         # editing existing role
-        role = Users.getRole(role_id)
+        role = Admin.getRole(role_id)
         role.name = data['role_name']
         db.session.add(role)
 
@@ -260,7 +259,7 @@ class Users(object):
           return False
 
         # get existing role permissions
-        existing_permissions_list = Users.getRolePermissions(role_id=role_id, id_list=True)
+        existing_permissions_list = Admin.getRolePermissions(role_id=role_id, id_list=True)
 
         app.logger.info("Role: {}".format(str(role)))
         app.logger.info("Role Permissions [original]: {}".format(str(existing_permissions_list)))
@@ -300,16 +299,16 @@ class Users(object):
         
 
       ## debug only ##
-      permission_list = Users.getRolePermissions(role_id=role_id, id_list=True)
+      permission_list = Admin.getRolePermissions(role_id=role_id, id_list=True)
       app.logger.info("Updated RolePermissions list: {}".format(str(permission_list)))
 
       return True
 
     except exc.SQLAlchemyError as e:
-      print("Error: {}\n".format(str(e)))
+      app.logger.error(str(e))
       db.session.rollback()
     except Exception as e:
-      print("Error: {}\n".format(str(e)))
+      app.logger.error(str(e))
 
     return False
 
@@ -336,10 +335,10 @@ class Users(object):
       return True
 
     except exc.SQLAlchemyError as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
       db.session.rollback()
     except Exception as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
 
     return False
 
@@ -356,9 +355,9 @@ class Users(object):
       return permissions
           
     except exc.SQLAlchemyError as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
     except Exception as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
 
 
 
@@ -368,7 +367,7 @@ class Users(object):
     '''
     Wrapper for getRolePermissions()
     '''
-    return Users.getRolePermissions()
+    return Admin.getRolePermissions()
 
 
 
@@ -394,9 +393,9 @@ class Users(object):
       return rolesPermissions
 
     except exc.SQLAlchemyError as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
     except Exception as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error(str(e))
 
 
 

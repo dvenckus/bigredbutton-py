@@ -1,12 +1,8 @@
 {% if queue is defined and queue != None and queue|length > 0 -%}
-  {# use bootstrap glyphs -#}
-  {# set cancel_glyph = '<span class="glyphicon glyphicon-remove" aria-hidden="false"></span>' -#}
-  {# set bkup_glyph = '<span class="glyphicon glyphicon-ok" aria-hidden="false"></span>' -#}
   {% set delete_glyph = '<i class="glyph-delete fas fa-trash"></i>' %}
   {% set bkup_glyph = '<i class="glyph-checkmark fas fa-check"></i>' %}
   {% for taskitem in queue -%}
-  {% set bkup_glyph = '<i class="glyph-checkmark fas fa-check"></i>' %}
-  {% set taskOptions = taskitem.parseOptions() %}
+    {% set taskOptions = taskitem.parseOptions() %}
     <tr>
       <td>{{ taskitem.username }}</td>
       <td>{{ taskitem.timestamp }}</td>
