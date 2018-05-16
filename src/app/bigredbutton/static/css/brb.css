@@ -21,8 +21,8 @@ a.tab:focus { outline: none; }
 
 
 .panel { border: 1px solid #CCC; margin-bottom: 2rem; }
-#preprod-panel .panel-heading, #queue-panel .panel-heading { background-color: #abd589; }
-#preprod-panel .panel-title, #queue-panel .panel-title { color: darkgreen; font-weight: bold; margin: 0;  }
+#preprod-panel .panel-heading, .preprod-output-heading, #queue-panel .panel-heading { background-color: #abd589; }
+#preprod-panel .panel-title, .preprod-output-heading .panel-title , #queue-panel .panel-title { color: darkgreen; font-weight: bold; margin: 0;  }
 #tools-panel .panel-heading, .tools-output-heading { background-color: #8bbdf5; }
 #tools-panel .panel-title, .tools-output-heading .panel-title { color: #23538a; font-weight: bold;; margin: 0;  }
 #prod-panel .panel-heading, .prod-output-heading { background-color: rgb(214, 157, 157); }
@@ -145,10 +145,10 @@ ul.nav-tabs a.tab { font-size: 20px; }
   height: 400px;
   overflow-y:scroll;
 }
-#output-panel {
+/* #output-panel {
   display: none;
   border: 1px solid #CCC;
-}
+} */
 
 #accordion { margin-bottom: 0; }
 #accordion .btn-link[aria-expanded="true"], #accordion .btn-link:hover { font-weight: bold; text-decoration: none; }

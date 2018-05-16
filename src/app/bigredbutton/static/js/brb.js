@@ -6,7 +6,7 @@
 $(document).one('ready', function(){
   $('#tab-preprod').tab('show');
   $('#queue-panel').show();
-  $('#output-panel').hide();
+  //$('#output-panel').hide();
 });
 
 $(document).ready(function() {
@@ -18,19 +18,29 @@ $(document).ready(function() {
 
   $('#tab-preprod').click(function(e) {
     $('#queue-panel').show();
-    $('#output-panel').hide();
+    $('#output-panel .panel-heading')
+      .removeClass('tools-output-heading')
+      .removeClass('prod-output-heading')
+      .addClass('preprod-output-heading');
+    //$('#output-panel').hide();
     return false;
   });
   $('#tab-tools').click(function(e) {
     $('#queue-panel').hide();
-    $('#output-panel .panel-heading').removeClass('prod-output-heading').addClass('tools-output-heading');
-    $('#output-panel').show();
+    $('#output-panel .panel-heading')
+      .removeClass('preprod-output-heading')
+      .removeClass('prod-output-heading')
+      .addClass('tools-output-heading');
+    //$('#output-panel').show();
     return false;
   });
   $('#tab-production').click(function(e) {
     $('#queue-panel').hide();
-    $('#output-panel .panel-heading').removeClass('tools-output-heading').addClass('prod-output-heading');
-    $('#output-panel').show();
+    $('#output-panel .panel-heading')
+      .removeClass('tools-output-heading')
+      .removeClass('preprod-output-heading')
+      .addClass('prod-output-heading');
+    //$('#output-panel').show();
     return false;
   });
 
