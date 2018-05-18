@@ -2,31 +2,19 @@
 # salttask.py
 #
 # called by queue_manager
-from os import path, sys, linesep
-import datetime
-import pytz
-import time
-import redis
+#
 import subprocess
-import smtplib
-from email.mime.text import MIMEText
-from models.meta import Base
 from tasks import TasksList
 import constants
+from emailnotify import EmailNotify
+from pushlog import PushLog
 
 
 # connect to redis server for message stream handling
 
 class SaltTask(object):
 
-  _redis = redis.StrictRedis(unix_socket_path=constants.REDIS_SOCKET_PATH)
-  channel = constants.EVENT_STREAM_CHANNEL
-  tz = pytz.timezone(constants.TIMEZONE)
   scripts_dir = constants.SCRIPTS_DIR + '/'
-
-  logfile = None
-  logname = constants.TASK_LOGFILE
-  # .format(datetime.date.today().strftime('%Y%m%d'))
 
   doSiteSync = scripts_dir + 'brb_site_sync.py'
   doSiteDeploy = scripts_dir + 'brb_site_deploy.py'
@@ -37,16 +25,12 @@ class SaltTask(object):
   doMerge = scripts_dir + 'brb_merge.py'
   doVersionUpdate = scripts_dir + 'brb_version_update.py'
 
-  #Email Settings
-  emailEnabled = constants.EMAIL_ENABLED
-  emailFrom = constants.EMAIL_FROM
-  emailTo = constants.EMAIL_TO
-
-
   taskItem = None
   taskOptions = None
   taskDesc = ''
   taskMode = ''
+  
+  pushLog = None
 
 
   def __init__(self, taskItem, mode='task'):
@@ -72,8 +56,11 @@ class SaltTask(object):
                   self.taskOptions.get('site', ''), 
                   taskItem.task, 
                   self.taskOptions.get('backup_param', ''))
-    
 
+    # Alert Channel messages are sent from here
+    # Log Channel messages are sent from lower-level BRB salt scripts
+    self.pushLog = PushLog(PushLog.CHANNEL_ALERT)
+    
 
 
   def run(self):
@@ -84,104 +71,28 @@ class SaltTask(object):
 
     ### run the task
     try:
-      self.logStart(self.taskDesc)
-      self.pushMessage('BEGIN TASK ' + self.taskDesc)
+      self.pushLog.start(self.taskDesc)
+      self.pushLog.send('BEGIN TASK ' + self.taskDesc)
 
-      self.log("SaltTask::do")
-      self.log(self.taskItem)
-      self.log(self.taskOptions)
       output, errormsg = self.do()
 
-      self.log(output)
+      self.pushLog.send(output)
 
       if len(errormsg):
-        self.log('An Error occurred')
-        self.log(errormsg)
-        self.pushMessage('An Error occurred ' + str(errormsg))
+        self.pushLog.send('An Error occurred ' + str(errormsg))
 
-      self.pushMessage("END TASK with {} {}".format('ERROR' if len(errormsg) else 'SUCCESS', self.taskDesc))
-      self.logEnd(self.taskDesc)
-      self.sendEmail(output, errormsg)
+      self.pushLog.send("END TASK with {} {}".format('ERROR' if len(errormsg) else 'SUCCESS', self.taskDesc))
+      self.pushLog.end(self.taskDesc)
+
+      EmailNotify.send(self.taskDesc, output, errormsg)
 
     except IOError as e:
       # this is an IO EPIPE error -- ignore
       #ignoreThis = 2
-      print("[SaltTask] IOError: " + str(e) + "\n")
-      self.log("[SaltTask] IOError: " + str(e))
+      self.pushLog.send("[SaltTask] IOError: " + str(e))
     except Exception as e:
-      print("[SaltTask] Exception: " + str(e) + "\n")
-      self.log("[SaltTask] Exception: " + str(e))
+      self.pushLog.send("[SaltTask] Exception: " + str(e))
       return output
-
-
-  def pushMessage(self, msg):
-    ''' push message to channel '''
-    if msg == '': return
-    ### publish message to alert channel
-    #SaltTask.log("SaltTask::pushMessage()\n")
-    dt = datetime.datetime.now(SaltTask.tz)
-    now = dt.strftime('%Y-%m-%d %H:%M:%S')
-    ts = int(dt.strftime("%s"))
-    pub_msg = "[{0}] {1}".format(now, msg)
-    self._redis.publish(SaltTask.channel, pub_msg)
-    # set redis history expiration after 1 hour
-    key = 'BRB_{}'.format(ts)
-    self._redis.set(key, pub_msg)
-    self._redis.expire(key, 3600)
-
-  
-  def logStart(self, msg):
-    '''
-    marks the beginning of the task in the log
-    using plain file log instead of python logging lib due to multiline formatting restrictions
-    '''
-    ### setup logging
-    #print("[SaltTask] SaltTask::logStart()\n")
-    now = datetime.datetime.now(self.tz).strftime('%Y-%m-%d %H:%M:%S')
-    #print("[SaltTask] Open Log: " + SaltTask.logname + "\n")
-    self.logfile = open(self.logname, 'a', 4)
-    self.logfile.write("\n\n--------- BEGIN Task [{}] ---------\n".format(now))
-    self.logfile.write('Task:  ' + msg + "\n")
-    self.logfile.write("---------------------------------------------------\n")
-
-
-  def logEnd(self, msg):
-    ''' marks the beginning of the task in the log '''
-    ### setup logging
-    now = datetime.datetime.now(self.tz).strftime('%Y-%m-%d %H:%M:%S')
-    self.logfile.write("--------- END Task [{}]---------\n".format(now))
-    self.logfile.write('Task:  ' + msg + "\n")
-    self.logfile.write("---------------------------------------------------\n")
-
-
-
-  def log(self, msg):
-    ''' log a message '''
-    #print('[SaltTask] ' + str(msg) + "\n")
-    if not self.logfile:
-      self.logStart(self.taskDesc)
-    self.logfile.write(str(msg) + "\n")
-
-
-  def sendEmail(self, taskOutput, errormsg):
-    ''' sends an email to dev team '''
-
-    if self.emailEnabled == False:
-      # email off, don't send
-      return
-
-    # Create a text/plain message
-    msg = MIMEText(taskOutput)
-    msg['Subject'] = "BigRedButton Task Completed{0}: {1}".format(' (ERRORS)' if len(errormsg) else '', self.taskDesc)
-    msg['From'] = self.emailFrom
-    msg['To'] = self.emailTo
-
-    # Send the message via our own SMTP server, but don't include the
-    # envelope header.
-    #SaltTask.log("SaltTask::sendEmail()\n")
-    s = smtplib.SMTP('localhost')
-    s.sendmail(self.emailFrom, [self.emailTo], msg.as_string())
-    s.quit()
 
 
 
@@ -289,7 +200,7 @@ class SaltTask(object):
       try:
         saltcmd[:0] = ['sudo']
         saltcmd_str = ', '.join(saltcmd)
-        self.log("saltcmd: " + saltcmd_str)
+        self.pushLog.send("saltcmd: " + saltcmd_str)
         output = subprocess.check_output(saltcmd)
       except subprocess.CalledProcessError as e:
         errormsg = saltcmd_str  + "\nError: " + str(e)

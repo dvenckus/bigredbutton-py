@@ -27,6 +27,7 @@ import redis
 import re
 import sys
 import os
+import subprocess
 
 import logging
 
@@ -38,13 +39,20 @@ import logging
 _redis = redis.StrictRedis(unix_socket_path=app.config['REDIS_SOCKET_PATH'])
 
 
+# Basic HTTP error handling
+@app.errorhandler(404)
+def not_found(error):
+  ''' not_found '''
+  return render_template('404.html'), 404
+
+
 ### NOTE!  Session object only available from within app request functions
 ### cannot be passed to another function without losing the session data
 
 # BIG RED BUTTON - main page & login page
 @app.route('/')
 def main_page():
-
+  ''' main_page '''
   if session.get('logged_in', None): 
     users = None
     roles = None
@@ -75,6 +83,7 @@ def main_page():
                                         queue=BrbQueue.get(),
                                         task_history=TaskHistory.get(),
                                         sse_history=get_sse_history(),
+                                        log_history=get_log_history(),
                                         constants=app.config)
 
   return render_template('login.html')
@@ -202,7 +211,7 @@ def push():
     content = Push.do(session['user']['username'], jsonData)
     if content != False:
       retn = True
-      if not isinstance(content, str):
+      if content and not isinstance(content, str):
         content = content.decode('utf-8')
   else:
     content = 'Not Authorized'
@@ -416,47 +425,72 @@ def task_history_refresh():
 
 # ------------------ redis Alert channel handlers --------------------
 
-# SSE (server sent message) handlers
-def event_stream():
-    channel = app.config['EVENT_STREAM_CHANNEL']
-    pubsub = _redis.pubsub()
-    pubsub.subscribe(channel)
-    for message in pubsub.listen():
-        print(message)
-        yield "data: %s|%s|%s\n\n" % (message['channel'].decode('utf-8'), message['type'], str(message['data']))
-
-@app.route('/stream')
-def stream():
-    resp = Response(event_stream(), mimetype="text/event-stream")
-    resp.headers['X-Accel-Buffering'] = 'no'
-    return resp
-
 def get_sse_history():
+  ''' '''
   sse_history = []
-  keys = _redis.keys('BRB*')
+  key_pattern = app.config['CHANNEL_ALERT_KEY_PREFIX'] + '*'
+  keys = _redis.keys(key_pattern)
   for key in keys:
     val = _redis.get(key)
     val = val.decode('utf-8')
     sse_history.append(val)
 
   sse_history.sort()
-
   return sse_history
+
+
+def get_log_history():
+  ''' '''
+  log_history = []
+  key_pattern = app.config['CHANNEL_LOG_KEY_PREFIX'] + '*'
+  keys = _redis.keys(key_pattern)
+  for key in keys:
+    val = _redis.get(key)
+    val = val.decode('utf-8')
+    log_history.append(val)
+
+  log_history.sort()
+  return log_history
+
+
+# SSE (server sent message) handlers
+def stream_channel():
+  ''' '''
+  channels = [
+    app.config['CHANNEL_ALERT'],
+    app.config['CHANNEL_LOG']
+  ]
+  pubsub = _redis.pubsub()
+  pubsub.subscribe(channels)
+  for message in pubsub.listen():
+    print(message)
+    yield "data: %s|%s|%s\n\n" % (message['channel'].decode('utf-8'), message['type'], str(message['data']))
+
+
+@app.route('/stream')
+def sse_stream():
+  ''' '''
+  resp = Response(stream_channel(), mimetype="text/event-stream")
+  resp.headers['X-Accel-Buffering'] = 'no'
+  return resp
 
 
 #### debug for alerts ####
 
-@app.route('/send')
-def send():
+@app.route('/alert/send')
+def alert_send():
   return render_template('send.html')
 
 
-@app.route('/post', methods=['POST'])
-def post():
-    channel = app.config['EVENT_STREAM_CHANNEL']
+@app.route('/alert/push', methods=['POST'])
+def alert_push():
+    channels = [
+      app.config['CHANNEL_ALERT'],
+      app.config['CHANNEL_LOG']
+    ]
     message = request.form['message']
     now = datetime.now().replace(microsecond=0).time()
-    _redis.publish(channel, u'[%s] BigRedButton says: %s' % (now.isoformat(), message))
+    _redis.publish(channels, u'[%s] BigRedButton says: %s' % (now.isoformat(), message))
     resp = Response(status=202)
     resp.headers['X-Accel-Buffering'] = 'no'
     return resp

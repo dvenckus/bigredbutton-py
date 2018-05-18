@@ -1,6 +1,6 @@
-from flask import Flask, render_template
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import sessionmaker
+#from sqlalchemy.orm import sessionmaker
 from os import sys, path
 import logging
 from logging.handlers import RotatingFileHandler
@@ -8,24 +8,22 @@ from logging.handlers import RotatingFileHandler
 
 app = Flask(__name__, static_url_path='')
 
-
-# Sample HTTP error handling
-@app.errorhandler(404)
-def not_found(error):
-    return render_template('404.html'), 404
-
-
 app.config.from_object('constants')
-app.secret_key = app.config['SECRET_KEY']
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
-# make sure he bigredbutton model is in the python path
+# make sure he bigredbutton model dir + saltlibs dir is in the python path
+app_bigredbutton_dir = path.abspath(path.dirname(__file__))
+scripts_dir = app.config['SCRIPTS_DIR']
+dev_saltlibs = app.config['DEV_SALTLIBS']
+
 sys.path.insert(0, './lib')
-sys.path.append(path.abspath(path.dirname(__file__)))
-sys.path.append(path.abspath(path.dirname(__file__)+'/models'))
+sys.path.append(app_bigredbutton_dir)
+sys.path.append(app_bigredbutton_dir + '/models')
+sys.path.append(scripts_dir + '/saltlibs')
+sys.path.append(dev_saltlibs)
 
+app.secret_key = app.config['SECRET_KEY']
 
-# Logging
+# Logging - set up log for access wherever app is imported
 handler = RotatingFileHandler(app.config['LOG_FILE'], maxBytes=10000, backupCount=1)
 handler.setLevel(logging.INFO)
 app.logger.addHandler(handler)
@@ -35,6 +33,5 @@ app.logger.addHandler(handler)
 db = SQLAlchemy(app)
 db.create_all()
 
-
-#__all__ = ['views', 'Users', 'SitesList', 'TasksList', 'SubdomainsList', 'BrbQueue', 'Utils']
-from app.bigredbutton import views, utils
+# Important!!  This loads the views and page handlers
+from app.bigredbutton import views

@@ -65,6 +65,10 @@ $(document).ready(function() {
       $('#sites-preprod option.site').each(function() {
         sitelist.push(this.value);
       });
+    } else if (site == 'hlth') {
+      $('#sites-preprod option.health').each(function() {
+        sitelist.push(this.value);
+      });
     } else {
       sitelist.push(site);
     }

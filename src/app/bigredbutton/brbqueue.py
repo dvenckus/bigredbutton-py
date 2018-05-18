@@ -53,17 +53,14 @@ class BrbQueue(object):
         # start the queue_manager
         # run as a background process
         log_file = app.config['LOG_FILE']
-        error_log_file = app.config['ERROR_LOG_FILE']
 
         brb_log = open(log_file, 'a', 4)
-        error_log = open(error_log_file, 'a', 4)
-        #devnull = open(os.devnull, 'w')
         brb_virt_env = app.config['BRB_ENV']
         qm_path = os.path.dirname(__file__) + '/tools'
         queue_manager =  qm_path + '/queue_manager.py'
         python_bin = brb_virt_env + '/bin/python'
 
-        Popen(['nohup', python_bin, queue_manager, '&'], stdout=brb_log, stderr=error_log)
+        Popen(['nohup', python_bin, queue_manager, '&'], stdout=brb_log, stderr=brb_log)
         return True
 
     except IOError as e:

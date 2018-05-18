@@ -6,8 +6,10 @@ import os
 # Statement for
 #  enabling the development environment
 DEBUG = True
-
 FLASK_DEBUG = True
+
+
+TIMEZONE = 'America/Chicago'
 
 # Define the application directory
 
@@ -17,9 +19,10 @@ PID_DIR = '/var/run/bigredbutton'
 LOG_DIR = '/var/log/bigredbutton'
 SCRIPTS_DIR = '/var/www/scripts'
 
+DEV_SALTLIBS = '/mnt/hgfs/veritashealth/salt/veritas-health-config/saltstack/srv/salt/base/assets/scripts/master/saltlibs'
+
 ### LOGS ###
-LOG_FILE =  LOG_DIR + '/brb-py.log'
-ERROR_LOG_FILE =  LOG_DIR + '/brb-py.error.log'
+LOG_FILE =  LOG_DIR + '/bigredbutton.log'
 
 # Queue Manager Logs
 QM_PIDFILE = PID_DIR + '/brb_queue_manager.pid'
@@ -28,6 +31,7 @@ QM_LOGFILE = LOG_DIR + '/brb_queue_manager.log'
 # SaltTask Log
 TASK_LOGFILE =  LOG_DIR + '/brb_tasks.log'   
 
+# Virtual Env - so bigredbutton can find all of its libraries
 VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV')
 BRB_ENV = VIRTUAL_ENV + '/bigredbutton'
 
@@ -52,19 +56,28 @@ CSRF_ENABLED     = True
 
 # Use a secure, unique and absolutely secret key for
 # signing the data.
-CSRF_SESSION_KEY = "I_am_not_a_pizza"
+CSRF_SESSION_KEY = "Its_whats_for_dinner"
 
 # Secret key for signing cookies
-SECRET_KEY = "I_am_a_VH_python_app"
+SECRET_KEY = "Oy_my_aching_back"
 #SECRET_KEY = os.urandom(12)
 
 SEND_FILE_MAX_AGE_DEFAULT = 0
 
+# REDIS - SSE SETTINGS
 SESSION_TYPE = 'redis'
-
 REDIS_SOCKET_PATH = '/var/run/redis/redis.sock'
-EVENT_STREAM_CHANNEL = 'alerts'
-TIMEZONE = 'America/Chicago'
+
+CHANNEL_ALERT = 'alerts'
+CHANNEL_ALERT_KEY_PREFIX = "BRB_ALERT"
+CHANNEL_ALERT_EXPIRES = 3600  #  1 hour
+
+CHANNEL_LOG = 'logstream'
+CHANNEL_LOG_KEY_PREFIX = "BRB_LOGSTREAM"
+CHANNEL_LOG_EXPIRES = 86400   # 24 hours
+
+CHANNEL_DEFAULT = CHANNEL_ALERT
+
 
 # email settings
 EMAIL_FROM = 'no-reply@bigredbutton.veritashealth.com'
