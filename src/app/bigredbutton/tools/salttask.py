@@ -6,7 +6,6 @@
 import subprocess
 from tasks import TasksList
 import constants
-from emailnotify import EmailNotify
 from pushlog import PushLog
 
 
@@ -84,7 +83,6 @@ class SaltTask(object):
       self.pushLog.send("END TASK with {} {}".format('ERROR' if len(errormsg) else 'SUCCESS', self.taskDesc))
       self.pushLog.end(self.taskDesc)
 
-      EmailNotify.send(self.taskDesc, output, errormsg)
 
     except IOError as e:
       # this is an IO EPIPE error -- ignore

@@ -1,5 +1,5 @@
 {% if log_history is defined and log_history|length > 0 -%}
 {% for item in log_history -%}
-{{ item }}
+{% if item|length -%}{{ item }}{% endif -%}
 {% endfor -%}
 {% endif -%}

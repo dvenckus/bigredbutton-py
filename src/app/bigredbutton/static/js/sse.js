@@ -20,22 +20,25 @@ sse_event.addEventListener('message', function(e) {
   var message = convString(fields[2]);
   if (channel == 'alerts') {
     if (type != 'subscribe') {
-      alerts.html(message + '<br />' + alerts.html());
+      alerts.prepend(message + '<br />');
       if (message.indexOf("END TASK") !== -1) {
         window.getQueue();
       }
     } else {
       if (window.subscribed_alerts != true) {
-        alerts.html(channel + ' enabled<br />' + alerts.html());
+        alerts.prepend(channel + ' enabled<br />');
         window.subscribed_alerts = true;
       }
     }
   } else if (channel == 'logstream') {
+    if (logstream.html().length) {
+      logstream.append('<br/>');
+    }
     if ((type != 'subscribe') && (message != '')) {
-      logstream.html(logstream.html() + '<br />' + message);
+      logstream.append(message);
     } else {
       if (window.subscribed_logstream != true) {
-        logstream.html(logstream.html() + '<br />' + channel + ' enabled<br />');
+        logstream.append(channel + ' enabled');
         window.subscribed_logstream = true;
       }
     }

@@ -82,7 +82,7 @@ CHANNEL_DEFAULT = CHANNEL_ALERT
 # email settings
 EMAIL_FROM = 'no-reply@bigredbutton.veritashealth.com'
 EMAIL_TO = 'dev@veritashealth.com'
-EMAIL_ENABLED = True
+EMAIL_ENABLED = False
 
 
 ########## ROLE & PERMISSION SEED DATA ###########
