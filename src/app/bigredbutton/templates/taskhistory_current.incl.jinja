@@ -14,9 +14,9 @@
       <td class="text-left">{{ subdomain }}</td>
       <td class="text-left">{{ site }}</td>
       <td class="text-left">
+        {# don't print unnecessary options #}
         <ul class="taskOptions">
         {% for opt, val in taskOptions.items() %}
-        {# don't print unnecessary options #}
         {% if opt not in ['task', 'subdomain', 'site', 'mergeRepo', 'mergeTo', 'versionRepo'] %}
         <li>{{ opt }}: {% if val|int == 1 %}True{% elif val|int == 0 %}False{% else %}{{ val }}{% endif %}</li>
         {% endif %}

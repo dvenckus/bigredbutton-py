@@ -3,11 +3,11 @@ from app.bigredbutton import app, db
 from admin import Admin
 
 from models.meta import Base
-from models.user import User
 from models.permission import Permission
 from models.role import Role
 from models.rolepermission import RolePermission
 from models.taskhistoryitem import TaskHistoryItem
+from models.user import User
 
 from sites import SitesList
 from subdomains import SubdomainsList
@@ -58,6 +58,9 @@ def main_page():
     roles = None
     permissions = None
     rolesPermissions = None
+
+    # run the QueueManager in the event any jobs are waiting to be processed
+    BrbQueue.runQueueManager()
 
     if Admin.checkPermission(session.get('user', None), 'PERM_USER_MANAGEMENT', session['permissions']):
       users = Admin.getUsers()

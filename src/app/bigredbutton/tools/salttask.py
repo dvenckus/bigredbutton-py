@@ -4,8 +4,8 @@
 # called by queue_manager
 #
 import subprocess
-from tasks import TasksList
 import constants
+from tasks import TasksList
 from pushlog import PushLog
 
 
@@ -201,9 +201,9 @@ class SaltTask(object):
         self.pushLog.send("saltcmd: " + saltcmd_str)
         output = subprocess.check_output(saltcmd)
       except subprocess.CalledProcessError as e:
-        errormsg = saltcmd_str  + "\nError: " + str(e)
+        errormsg = saltcmd_str  + "\nError [SaltTask::do()]: " + str(e)
       except Exception as e:
-        output = saltcmd_str + "\nError: ", str(e)
+        output = saltcmd_str + "\nError [SaltTask::do()]: ", str(e)
         errormsg = str(e)
 
     else:

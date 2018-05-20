@@ -31,6 +31,7 @@ class TaskHistoryItem(Base):
       self.task = task
       self.options = json.dumps(options)
       self.result = result
+
       self.parsedOptions = options
 
 

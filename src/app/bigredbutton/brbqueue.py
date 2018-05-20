@@ -50,17 +50,8 @@ class BrbQueue(object):
 
       if doCommit:
         db.session.commit()
-        # start the queue_manager
-        # run as a background process
-        log_file = app.config['LOG_FILE']
-
-        brb_log = open(log_file, 'a', 4)
-        brb_virt_env = app.config['BRB_ENV']
-        qm_path = os.path.dirname(__file__) + '/tools'
-        queue_manager =  qm_path + '/queue_manager.py'
-        python_bin = brb_virt_env + '/bin/python'
-
-        Popen(['nohup', python_bin, queue_manager, '&'], stdout=brb_log, stderr=brb_log)
+        # initiate the QueueManager to run the new task
+        BrbQueue.runQueueManager()
         return True
 
     except IOError as e:
@@ -91,3 +82,24 @@ class BrbQueue(object):
       app.logger.error(str(e))
 
     return False
+
+
+  @staticmethod
+  def runQueueManager():
+    ''' starts the queue_manager in the event there are any tasks to run '''
+    try:
+      # start the queue_manager
+      # run as a background process
+      log_file = app.config['LOG_FILE']
+
+      brb_log = open(log_file, 'a', 4)
+      brb_virt_env = app.config['VIRTUAL_ENV']
+      qm_path = os.path.dirname(__file__) + '/tools'
+      queue_manager =  qm_path + '/queue_manager.py'
+      python_bin = brb_virt_env + '/bin/python'
+
+      Popen(['nohup', queue_manager, '&'], stdout=brb_log, stderr=brb_log)
+
+    except Exception as e:
+      app.logger.error("Exception in BrbQueue::runQueueManager()")
+      app.logger.error(str(e))
