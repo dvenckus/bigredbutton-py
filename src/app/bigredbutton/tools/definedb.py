@@ -193,7 +193,7 @@ if __name__ == "__main__":
     from models.rolepermission import RolePermission
     from models.user import User
     from models.taskitem import TaskItem
-    from models.taskhistory import TaskHistory
+    from models.taskhistoryitem import TaskHistoryItem
     import constants
 
     #print("SQLALCHEMY_DATABASE_URI: {}".format(constants.SQLALCHEMY_DATABASE_URI))
