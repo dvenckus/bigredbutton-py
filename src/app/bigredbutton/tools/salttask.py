@@ -45,22 +45,26 @@ class SaltTask(object):
     self.taskItem = taskItem
     self.taskOptions = taskItem.parseOptions()
 
+    # define the string-version of the dbbackup setting
+    self.taskOptions['backup_param'] = ''
     try:
-      self.taskOptions['backup_param'] = 'backup' if self.taskOptions['dbbackup']  == True else ''
+      if self.taskOptions['dbbackup'] == True:
+        self.taskOptions['backup_param'] = 'backup'
     except KeyError:
-      self.taskOptions['backup_param'] = ''
+      ignoreThis = True
+      
 
     subdomain = ''
     try:
       subdomain = self.taskOptions['subdomain']
     except KeyError:
-      subdomain = ''
+      ignoreThis = True
 
     site = ''
     try:
       site = self.taskOptions['site']
     except KeyError:
-      site = ''
+      ignoreThis = True
 
     self.taskDesc = "[{}] {} {} ({}) {}".format(
                   taskItem.task.upper(), 

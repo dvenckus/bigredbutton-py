@@ -89,7 +89,7 @@ ul.taskOptions {
   padding-left: 0;
 }​
 
-
+#UserForm input { margin-bottom: 6px; }
 #User.user-card .input-group { margin-top: 6px; }
 
 .control-group { margin: 12px 0 12px 0; }

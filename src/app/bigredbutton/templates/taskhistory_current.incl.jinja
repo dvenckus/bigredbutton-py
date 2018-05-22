@@ -3,7 +3,8 @@
   {% for item in task_history -%}
     {% set taskOptions = item.parseOptions() %}
     {% set subdomain = taskOptions.get('subdomain', '') %}
-    {% set subdomain = subdomain if subdomain != '' else taskOptions.get('mergeTo', '') %}
+    {% set subdomain = taskOptions.get('mergeTo', '') if item.task == 'merge' else subdomain %}
+    {% set subdomain = '---' if item.task == 'versionup' else subdomain %}
     {% set site = taskOptions.get('site', '') %}
     {% set site = taskOptions.get('mergeRepo', '') if item.task == 'merge' else site %}
     {% set site = taskOptions.get('versionRepo', '') if item.task == 'versionup' else site %}

@@ -50,10 +50,17 @@ $(document).ready(function() {
       contentType: 'application/json',
       data: JSON.stringify(item),
       dataType: 'json',
-      success: function(data) {
-        console.log('push: ' + data.content)
-        $("#output").html(data.content);
-        clearFormProd();
+      success: function(data, textStatus, jqXHR) {
+        if (textStatus == 'succes') {
+          console.log('push: ' + data.content);
+          $output = $('#output');
+          if ($output.text().length) {
+            $output.append('<br/>');
+          }
+          $output.append(data.content);
+          window.scrollOutput();
+          clearFormProd();
+        }
         window.pushBusy = false;
       }
     });

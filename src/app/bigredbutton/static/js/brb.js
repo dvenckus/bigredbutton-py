@@ -44,4 +44,9 @@ $(document).ready(function() {
     return false;
   });
 
+
+  window.scrollOutput = function() {
+    $('#output').prop("scrollHeight") - $('#output').height()
+  };
+
 });

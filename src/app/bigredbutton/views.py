@@ -299,7 +299,9 @@ def user_save():
 
   if not session.get('logged_in', False): return redirect("/")
 
-  app.logger.info("User Save: {}".format(jsonData))
+  # uncomment as needed, outputs raw passwords into the log
+  #app.logger.info("User Save: {}".format(jsonData))
+  
 
   if Admin.checkPermission(session.get('user', None), 'PERMISSION_USER_MANAGEMENT', session['permissions']):
     if Admin.userSave(session['user']['id'], jsonData):
@@ -547,6 +549,9 @@ def nl2br(content):
   '''
   if content and not isinstance(content, str):
     content = str(content.decode('utf-8'))
+  if content.startswith("b'"):
+    content = content.strip("b'")
+
   content = "<br />".join(content.split("\n"))
   return content
 
