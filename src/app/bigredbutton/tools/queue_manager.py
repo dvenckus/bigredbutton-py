@@ -18,7 +18,7 @@ def main():
   this is an independent script not integrated with flask app
   Only 1 instance of queue_manager should be running
   '''
-  
+
   DATABASE_URI = constants.SQLALCHEMY_DATABASE_URI
   tz = pytz.timezone(constants.TIMEZONE)
 
@@ -41,16 +41,16 @@ def main():
     while task:
       logging.info("Task found.\n{}\n".format(str(task)))
 
-      
       # execute task
-      saltTask = SaltTask(task)
+      saltTask = SaltTask(taskItem=task)
       result = saltTask.run()
 
       logging.info("Task found.\n{}".format(str(task)))
       logging.info("Task run result: " + str(result))
+      logging.info("Task Options: " + task.options)
 
       # archive the task as completed
-      taskHistoryItem = TaskHistoryItem(task.username, task.task, task.options, str(result))
+      taskHistoryItem = TaskHistoryItem(task.username, task.task, task.options, result)
       session.add(taskHistoryItem)
 
       # clean up after task run
@@ -138,7 +138,7 @@ def pid_end():
 #
 if __name__ == "__main__":
   #if __package__ is None:
-  
+
   app_path = path.dirname(path.dirname(path.abspath(__file__)))
   src_dir = path.dirname(path.dirname(app_path))
   sys.path.append(app_path)

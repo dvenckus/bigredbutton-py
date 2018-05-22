@@ -23,7 +23,7 @@ sse_event.addEventListener('message', function(e) {
       alerts.prepend(message + '<br />');
       if (message.indexOf("END TASK") !== -1) {
         window.getQueue();
-      }
+      } 
     } else {
       if (window.subscribed_alerts != true) {
         alerts.prepend(channel + ' enabled<br />');
@@ -31,7 +31,7 @@ sse_event.addEventListener('message', function(e) {
       }
     }
   } else if (channel == 'logstream') {
-    if (logstream.html().length) {
+    if (logstream.text().length) {
       logstream.append('<br/>');
     }
     if ((type != 'subscribe') && (message != '')) {

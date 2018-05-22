@@ -23,7 +23,7 @@
         {% endfor %}
         </ul>
       </td>
-      <td class="text-left">{{ item.result }}</td>
+      <td class="text-left">{{ item.result|nl2br }}</td>
     </tr>
   {% endfor -%}
 {% else -%}

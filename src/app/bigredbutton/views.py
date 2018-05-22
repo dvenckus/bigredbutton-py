@@ -73,6 +73,7 @@ def main_page():
     #app.logger.info('roles: {}'.format(str(roles)))
     #app.logger.info('permissions: {}'.format(str(permissions)))
     #app.logger.info('rolesPermissions: {}'.format(str(rolesPermissions)))
+    #app.logger.info('rolesPermissions: {}'.format(str(rolesPermissions)))
 
     return render_template('main.html',  sites=SitesList.get(),
                                         tasks=TasksList.get(),
@@ -435,7 +436,7 @@ def get_sse_history():
   keys = _redis.keys(key_pattern)
   for key in keys:
     val = _redis.get(key)
-    val = val.decode('utf-8')
+    val = val.decode('utf-8').strip()
     sse_history.append(val)
 
   sse_history.sort()
@@ -447,12 +448,13 @@ def get_log_history():
   log_history = []
   key_pattern = app.config['CHANNEL_LOG_KEY_PREFIX'] + '*'
   keys = _redis.keys(key_pattern)
+  keys.sort()
   for key in keys:
     val = _redis.get(key)
-    val = val.decode('utf-8')
+    val = val.decode('utf-8').strip()
     log_history.append(val)
 
-  log_history.sort()
+  #log_history.sort()
   return log_history
 
 
@@ -528,10 +530,24 @@ def add_header(r):
     r.headers['X-Accel-Buffering'] = 'no'
     return r
 
-# this is a jinja2 custom filter for formatting dates
+
+
 @app.template_filter('timestamp')
 def format_timestamp(d):
-    tz = pytz.timezone(app.config['TIMEZONE'])
-    return datetime.fromtimestamp(int(d), tz).strftime('%Y-%m-%d %H:%M:%S')
+  ''' Jinja2 custom filter for formatting dates '''
+  tz = pytz.timezone(app.config['TIMEZONE'])
+  return datetime.fromtimestamp(int(d), tz).strftime('%Y-%m-%d %H:%M:%S')
+
+
+@app.template_filter('nl2br')
+def nl2br(content):
+  ''' 
+  Jinja2 custom filter for converting newlines to <br /> tags 
+  also removes leading byte string coding, if present
+  '''
+  if content and not isinstance(content, str):
+    content = str(content.decode('utf-8'))
+  content = "<br />".join(content.split("\n"))
+  return content
 
 

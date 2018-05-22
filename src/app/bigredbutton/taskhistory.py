@@ -17,6 +17,8 @@ class TaskHistory(object):
   def get():
     ''' return records from the task_history table '''
     history = None
+    doCommit = False
+    idx = 0
 
     try:
       # retrieve the history table
@@ -24,11 +26,12 @@ class TaskHistory(object):
 
       # trim the excess history
       if history and len(history) > TaskHistory.MAX_HISTORY:
-        index = TaskHistory.MAX_HISTORY
-        while history[index]:
-          db.session.delete(history[index])
-          index += 1
+        idx = TaskHistory.MAX_HISTORY
+        while history[idx]:
+          db.session.delete(history[idx])
+          idx += 1
 
+      if doCommit:
         db.session.commit()
 
     except exc.SQLAlchemyError as e:

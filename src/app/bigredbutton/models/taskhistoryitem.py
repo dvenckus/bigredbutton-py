@@ -10,6 +10,7 @@ from models.unixtimestamp import UnixTimestamp
 import json
 
 
+
 ########################################################################
 class TaskHistoryItem(Base):
     """"""
@@ -25,14 +26,17 @@ class TaskHistoryItem(Base):
     parsedOptions = {}
 
     #----------------------------------------------------------------------
-    def __init__(self, username, task, options={}, result=''):
-      # timestamp in unixtime
+    def __init__(self, username, task, options='', result=''):
+      '''
+      timestamp in unixtime using unixtimestamp decorator
+      options are expected in the form of a json-compatible string
+      '''
       self.username = username
       self.task = task
-      self.options = json.dumps(options)
+      self.options = options
       self.result = result
 
-      self.parsedOptions = options
+      #self.parsedOptions()
 
 
     def __repr__(self):
@@ -49,7 +53,17 @@ class TaskHistoryItem(Base):
 
 
     def parseOptions(self):
-      ''' parse options string into json dict '''
-      self.parsedOptions = json.loads(self.options)
+      ''' 
+      parse options string into json dict 
+      call json.loads 2x to handle improperly quoted strings; 
+      1st call converts to json-compatible string
+      2nd call, if necessary, converts to json dict
+      '''
+      #self.parsedOptions = json.loads(json.loads(self.options))
+      json_obj = json.loads(self.options)
+      if isinstance(json_obj, str):
+        # problem with json, call loads again
+        json_obj = json.loads(json_obj)
+        
+      self.parsedOptions = json_obj
       return self.parsedOptions
-

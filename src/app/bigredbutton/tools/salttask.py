@@ -7,22 +7,25 @@ import subprocess
 import constants
 from tasks import TasksList
 from pushlog import PushLog
-
+# import importlib
+from models.taskitem import TaskItem
+from models.pushitem import PushItem
 
 # connect to redis server for message stream handling
 
 class SaltTask(object):
 
-  scripts_dir = constants.SCRIPTS_DIR + '/'
+  # scripts_dir = constants.SCRIPTS_DIR + '/'
 
-  doSiteSync = scripts_dir + 'brb_site_sync.py'
-  doSiteDeploy = scripts_dir + 'brb_site_deploy.py'
-  doCacheClear = scripts_dir + 'brb_site_cache_clear.py'
-  doVarnishClear = scripts_dir + 'brb_varnish_clear.py'
-  doRollback = scripts_dir + 'brb_site_rollback.py'
-  doBulkLoad = scripts_dir + 'brb_bulk_load.py'
-  doMerge = scripts_dir + 'brb_merge.py'
-  doVersionUpdate = scripts_dir + 'brb_version_update.py'
+  doSiteSync = constants.SCRIPT_SITE_SYNC
+  doSiteDeploy = constants.SCRIPT_SITE_DEPLOY
+  doCacheClear = constants.SCRIPT_CACHE_CLEAR
+  doVarnishClear = constants.SCRIPT_VARNISH_CLEAR
+  doRollback = constants.SCRIPT_ROLLBACK
+  doBulkLoad = constants.SCRIPT_BULK_LOAD
+  doMerge = constants.SCRIPT_MERGE_REPOS
+  doVersionUpdate = constants.SCRIPT_VERSION_UPDATE
+
 
   taskItem = None
   taskOptions = None
@@ -31,34 +34,43 @@ class SaltTask(object):
   
   pushLog = None
 
+  itemModule = None
 
-  def __init__(self, taskItem, mode='task'):
+
+  def __init__(self, taskItem):
     ''' init a TaskItem '''
 
-    self.taskMode = mode
-
-    if self.taskMode == 'task':
-      # TaskItem model is linked to its DB table
-      from models.taskitem import TaskItem
-    elif self.taskMode == 'push':
-      # PushItem model does not have a DB relationship
-      from models.pushitem import PushItem
 
     self.taskItem = taskItem
     self.taskOptions = taskItem.parseOptions()
 
-    self.taskOptions['backup_param'] = 'backup' if self.taskOptions.get('dbbackup', False) == True else ''
+    try:
+      self.taskOptions['backup_param'] = 'backup' if self.taskOptions['dbbackup']  == True else ''
+    except KeyError:
+      self.taskOptions['backup_param'] = ''
 
-    self.taskDesc = "({}) {} {} {} {}".format(
+    subdomain = ''
+    try:
+      subdomain = self.taskOptions['subdomain']
+    except KeyError:
+      subdomain = ''
+
+    site = ''
+    try:
+      site = self.taskOptions['site']
+    except KeyError:
+      site = ''
+
+    self.taskDesc = "[{}] {} {} ({}) {}".format(
+                  taskItem.task.upper(), 
+                  subdomain, 
+                  site, 
                   taskItem.username, 
-                  self.taskOptions.get('subdomain', ''), 
-                  self.taskOptions.get('site', ''), 
-                  taskItem.task, 
-                  self.taskOptions.get('backup_param', ''))
+                  self.taskOptions['backup_param'] )
 
     # Alert Channel messages are sent from here
     # Log Channel messages are sent from lower-level BRB salt scripts
-    self.pushLog = PushLog(PushLog.CHANNEL_ALERT)
+    self.pushLog = PushLog(constants.CHANNEL_ALERT)
     
 
 
@@ -70,18 +82,19 @@ class SaltTask(object):
 
     ### run the task
     try:
-      self.pushLog.start(self.taskDesc)
-      self.pushLog.send('BEGIN TASK ' + self.taskDesc)
+      # we're just pushing Alerts, not log messages
+      self.pushLog.pushMessage('BEGIN TASK ' + self.taskDesc)
 
       output, errormsg = self.do()
 
-      self.pushLog.send(output)
+      # No need to do this as its handled directly by the saltscripts now
+      #self.pushLog.send(output)
 
       if len(errormsg):
         self.pushLog.send('An Error occurred ' + str(errormsg))
 
-      self.pushLog.send("END TASK with {} {}".format('ERROR' if len(errormsg) else 'SUCCESS', self.taskDesc))
-      self.pushLog.end(self.taskDesc)
+      # we're just pushing Alerts, not log messages
+      self.pushLog.pushMessage("END TASK with {} {}".format('ERROR' if len(errormsg) else 'SUCCESS', self.taskDesc))
 
 
     except IOError as e:
@@ -90,7 +103,8 @@ class SaltTask(object):
       self.pushLog.send("[SaltTask] IOError: " + str(e))
     except Exception as e:
       self.pushLog.send("[SaltTask] Exception: " + str(e))
-      return output
+    
+    return output
 
 
 
@@ -198,7 +212,7 @@ class SaltTask(object):
       try:
         saltcmd[:0] = ['sudo']
         saltcmd_str = ', '.join(saltcmd)
-        self.pushLog.send("saltcmd: " + saltcmd_str)
+        #self.pushLog.send("saltcmd: " + saltcmd_str)
         output = subprocess.check_output(saltcmd)
       except subprocess.CalledProcessError as e:
         errormsg = saltcmd_str  + "\nError [SaltTask::do()]: " + str(e)

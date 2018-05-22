@@ -20,19 +20,31 @@ class Push(object):
 
     print('push (data): ', str(data))
     pushitem = None
-    options = data
+    options = ''
 
-    if data['task'] in ['merge', 'versionup']:
-      pushitem = PushItem(username, data['task'], options=options)
+    if data['task'] == 'merge':
+      options = '{{ "mergeRepo": "{}", "mergeTo": "{}", "mergeTest": {} }}'.format(
+                      data['mergeRepo'],
+                      data['mergeTo'],
+                      data['mergeTest'] )
+    elif data['task'] == 'versionup':
+      options = '{{ "versionRepo": "{}", "versionIncrMajor": {}, "versionIncrMinor": {}, "versionTest": {} }}'.format(
+                      data['versionRepo'],
+                      data['versionIncrMajor'],
+                      data['versionIncrMinor'],
+                      data['versionTest'] )
     else:
-      options = {
-        'subdomain': SubdomainsList.getSubdomain(data['site'], '', 'prod'),
-        'site': data['site'],
-        'dbbackup': data['dbbackup']
-      }
-      pushitem = PushItem(username, data['task'], options=options)
+      # create a json-compatible string to pass to the TaskItem object
+      # double braces in format() indicate use of a literal
+      options = '{{ "subdomain": "{}", "site": "{}", "dbbackup": {} }}'.format(
+                      SubdomainsList.getSubdomain(data['site'], '', 'prod'),
+                      data['site'],
+                      data['dbbackup'] )
 
-    saltTask = SaltTask(pushitem, 'push')
+
+    pushitem = PushItem(username, data['task'], options=options)
+
+    saltTask = SaltTask(pushitem)
 
     result = saltTask.run()
 

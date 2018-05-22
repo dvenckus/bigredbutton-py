@@ -22,6 +22,16 @@ SCRIPTS_DIR = '/var/www/scripts'
 SALTLIBS = SCRIPTS_DIR + '/saltlibs'
 DEV_SALTLIBS = '/mnt/hgfs/veritashealth/salt/veritas-health-config/saltstack/srv/salt/base/assets/scripts/master/saltlibs'
 
+# salt scripts
+SCRIPT_SITE_SYNC = SCRIPTS_DIR + '/brb_site_sync.py'
+SCRIPT_SITE_DEPLOY = SCRIPTS_DIR + '/brb_site_deploy.py'
+SCRIPT_CACHE_CLEAR = SCRIPTS_DIR + '/brb_site_cache_clear.py'
+SCRIPT_VARNISH_CLEAR = SCRIPTS_DIR + '/brb_varnish_clear.py'
+SCRIPT_ROLLBACK = SCRIPTS_DIR + '/brb_site_rollback.py'
+SCRIPT_BULK_LOAD = SCRIPTS_DIR + '/brb_bulk_load.py'
+SCRIPT_MERGE_REPOS = SCRIPTS_DIR + '/brb_merge_repos.py'
+SCRIPT_VERSION_UPDATE = SCRIPTS_DIR + '/brb_version_update.py'
+
 ### LOGS ###
 LOG_FILE =  LOG_DIR + '/bigredbutton.log'
 
@@ -77,7 +87,7 @@ CHANNEL_LOG = 'logstream'
 CHANNEL_LOG_KEY_PREFIX = "BRB_LOGSTREAM"
 CHANNEL_LOG_EXPIRES = 86400   # 24 hours
 
-CHANNEL_DEFAULT = CHANNEL_ALERT
+CHANNEL_DEFAULT = CHANNEL_LOG
 
 
 # email settings
