@@ -4,7 +4,7 @@
 from app.bigredbutton import app, db
 from tools.salttask import SaltTask
 from subdomains import SubdomainsList
-from models.meta import Base
+#from models.meta import Base
 from models.pushitem import PushItem
 from models.taskhistoryitem import TaskHistoryItem
 import subprocess

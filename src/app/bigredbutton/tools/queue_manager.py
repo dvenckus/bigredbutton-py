@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
@@ -149,10 +149,11 @@ if __name__ == "__main__":
   brb_env_libs = constants.VIRTUAL_ENV + '/lib/python3.5/site-packages'
   sys.path.append(brb_env_libs)
   sys.path.append(constants.SALTLIBS)
-  sys.path.append(constants.DEV_SALTLIBS)
+  # sys.path.append(constants.DEV_SALTLIBS)
+  # sys.path.append(constants.DEVLIBS)
+  # sys.path.append(constants.DEVSCRIPTS)
 
   from salttask import SaltTask
-  from models.meta import Base
   from models.taskitem import TaskItem
   from models.taskhistoryitem import TaskHistoryItem
     

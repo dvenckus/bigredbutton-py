@@ -2,7 +2,7 @@
 # taskhistory.py
 #
 from app.bigredbutton import app, db
-from models.meta import Base
+#from models.meta import Base
 from models.taskhistoryitem import TaskHistoryItem
 from sqlalchemy import exc, desc
 import os

@@ -11,7 +11,7 @@ class SitesList(object):
     'list': {
       '0': { 'name': mdash + " Select Site " + mdash },
       'all': { 'name': "ALL [ah, ph, sh, sp, vh, vf]" },
-      'htlh': { 'name': "All Healthsites [ah, ph, sh, sp]" },
+      'health': { 'name': "All Healthsites [ah, ph, sh, sp]" },
       mdash: { 'name': mdash, 'attributes': 'role="separator" class="divider"' },
       'ah': { 'name': "Arthritis-health", 'attributes': 'class="site health"' },
       'ph': { 'name': "Pain-health", 'attributes': 'class="site health"' },
@@ -21,7 +21,7 @@ class SitesList(object):
       'vf': { 'name': 'Forums', 'attributes': 'class="site"' }
     },
     'list_order': {
-      'pre-prod': ['0', 'all', 'htlh', mdash, 'ah', 'ph', 'sh', 'sp', 'vh', 'vf'],
+      'pre-prod': ['0', 'all', 'health', mdash, 'ah', 'ph', 'sh', 'sp', 'vh', 'vf'],
       'production': ['0', 'ah', 'ph', 'sh', 'sp', 'vh', 'vf']
     }
   }

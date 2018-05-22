@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #
 # tabledef.py
 #
@@ -187,7 +187,8 @@ if __name__ == "__main__":
     src_dir = path.dirname(path.dirname(app_path))
     sys.path.append(app_path)
     sys.path.append(src_dir)
-    from models.meta import Base
+
+    from models.meta import Base, BaseItem
     from models.role import Role
     from models.permission import Permission
     from models.rolepermission import RolePermission

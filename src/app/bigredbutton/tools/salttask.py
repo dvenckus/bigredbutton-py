@@ -10,6 +10,7 @@ from pushlog import PushLog
 # import importlib
 from models.taskitem import TaskItem
 from models.pushitem import PushItem
+# import socket
 
 # connect to redis server for message stream handling
 
@@ -40,7 +41,7 @@ class SaltTask(object):
   def __init__(self, taskItem):
     ''' init a TaskItem '''
 
-
+    self.taskMode = 'push' if isinstance(taskItem, PushItem) else 'task'
     self.taskItem = taskItem
     self.taskOptions = taskItem.parseOptions()
 
@@ -127,7 +128,7 @@ class SaltTask(object):
 
     if 'sync' == tasksList[self.taskItem.task]['do']:
 
-      if self.taskItem.site == 'vf':
+      if self.taskOptions['site'] == 'vf':
         saltcmd = [
           self.doBulkLoad,
           'tgt=' + self.taskItem.subdomain,
@@ -210,6 +211,17 @@ class SaltTask(object):
       saltcmd_str = ''
 
       try:
+        # if socket.gethostname() == constants.SALT_MASTER_LOCAL:
+        #   from saltdev import SaltDev
+        #   saltcmd_str = ' '.join(saltcmd)
+        #   errors = 0
+        #   # relay the commands to the salt_master
+        #   output, errors = SaltDev.run_remote(constants.SALT_MASTER, saltcmd_str, errors)
+        #   if errors:
+        #     errormsg = "Error [SaltTask::do()] SaltDev.run_remote()"
+        # else:
+
+        # this is the salt master, issue commandsd to subprocess
         saltcmd[:0] = ['sudo']
         saltcmd_str = ', '.join(saltcmd)
         #self.pushLog.send("saltcmd: " + saltcmd_str)

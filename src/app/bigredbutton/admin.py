@@ -4,7 +4,7 @@
 from flask import Flask, session
 from sqlalchemy import exc
 from app.bigredbutton import app, db
-from models.meta import Base
+#from models.meta import Base
 from models.user import User
 from models.permission import Permission
 from models.role import Role

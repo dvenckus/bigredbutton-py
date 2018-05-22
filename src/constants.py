@@ -21,6 +21,8 @@ SCRIPTS_DIR = '/var/www/scripts'
 
 SALTLIBS = SCRIPTS_DIR + '/saltlibs'
 DEV_SALTLIBS = '/mnt/hgfs/veritashealth/salt/veritas-health-config/saltstack/srv/salt/base/assets/scripts/master/saltlibs'
+DEVLIBS = '/mnt/hgfs/veritashealth/salt/veritas-health-config/saltstack/srv/salt/base/assets/scripts/local/devlibs'
+DEVSCRIPTS = '/mnt/hgfs/veritashealth/salt/veritas-health-config/saltstack/srv/salt/base/assets/scripts/local'
 
 # salt scripts
 SCRIPT_SITE_SYNC = SCRIPTS_DIR + '/brb_site_sync.py'
@@ -45,6 +47,9 @@ TASK_LOGFILE =  LOG_DIR + '/brb_tasks.log'
 # Virtual Env - so bigredbutton can find all of its libraries
 VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV')
 BRB_ENV = VIRTUAL_ENV
+
+SALT_MASTER = 'boss'
+SALT_MASTER_LOCAL = 'dev-boss'
 
 # Define the database - we are working with
 # SQLite for this example

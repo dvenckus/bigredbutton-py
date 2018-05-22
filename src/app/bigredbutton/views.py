@@ -2,7 +2,7 @@ from flask import Flask, current_app, flash, redirect, render_template, Response
 from app.bigredbutton import app, db
 from admin import Admin
 
-from models.meta import Base
+#from models.meta import Base
 from models.permission import Permission
 from models.role import Role
 from models.rolepermission import RolePermission
