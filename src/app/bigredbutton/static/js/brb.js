@@ -45,8 +45,4 @@ $(document).ready(function() {
   });
 
 
-  window.scrollOutput = function() {
-    $('#output').prop("scrollHeight") - $('#output').height()
-  };
-
 });

@@ -29,16 +29,11 @@ $(document).ready(function() {
 
   function updateMerge(data, textStatus, jqXHR) {
     if ((textStatus == 'success') && (data.response == true)) {
-      console.log('merge: ' + data.content);
-      $output = $('#output');
-      if ($output.text().length) {
-        $output.append('<br/>');
-      }
-      $output.append(data.content);
-      window.scrollOutput();
+      window.appendOutput(data.content);
       clearFormToolsMerge();
     }
-    window.toolsBusy = false
+    window.toolsBusy = false;
+    return false;
   } 
 
 
@@ -89,14 +84,11 @@ $(document).ready(function() {
   function updateVersion(data, textStatus, jqXHR) {
     console.log('versionup: ' + data.content);
     if ((textStatus == 'success') && (data.response == true)) {
-      $output = $('#output');
-      if ($output.text().length) {
-        $output.append('<br/>');
-      }
-      $output.append(data.content);
-      window.scrollOutput();
+      window.appendOutput(data.content);
+      clearFormToolsVersion();
     }
-    window.toolsBusy = false
+    window.toolsBusy = false;
+    return false;
   } 
 
 

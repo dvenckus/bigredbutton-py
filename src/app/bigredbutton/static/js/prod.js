@@ -51,14 +51,9 @@ $(document).ready(function() {
       data: JSON.stringify(item),
       dataType: 'json',
       success: function(data, textStatus, jqXHR) {
-        if (textStatus == 'succes') {
+        if (textStatus == 'success' && data.response == true) {
           console.log('push: ' + data.content);
-          $output = $('#output');
-          if ($output.text().length) {
-            $output.append('<br/>');
-          }
-          $output.append(data.content);
-          window.scrollOutput();
+          window.appendOutput(data.content);
           clearFormProd();
         }
         window.pushBusy = false;

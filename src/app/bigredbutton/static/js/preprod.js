@@ -20,7 +20,7 @@ $(document).ready(function() {
   clearFormPreProd();
 
 
-  function updateQueue(data) {
+  function updateQueue(data, textStatus, jqXHR) {
     // updates the queue display with the current items
     if (data.response == true) {
       //console.log('updateQueue: ' + data.content)
