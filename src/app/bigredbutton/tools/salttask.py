@@ -135,7 +135,7 @@ class SaltTask(object):
       if self.taskOptions['site'] == 'vf':
         saltcmd = [
           self.doBulkLoad,
-          'tgt=' + self.taskItem.subdomain,
+          'tgt=' + self.taskOptions['subdomain'],
           'mode=sync'
         ]
       else:
