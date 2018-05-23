@@ -92,6 +92,8 @@ ul.taskOptions {
 #UserForm input { margin-bottom: 6px; }
 #User.user-card .input-group { margin-top: 6px; }
 
+.taskHistoryItemView .fa-eye { margin-left: 12px; }
+
 .control-group { margin: 12px 0 12px 0; }
 .control-group .controls * { text-align: left; }
 .control-group .controls p { font-size: 14px; }

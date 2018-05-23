@@ -17,6 +17,7 @@ from push import Push
 from repositories import Repositories
 from branches import Branches
 from taskhistory import TaskHistory 
+from utils import Utils
 
 import json
 from datetime import datetime, timedelta
@@ -428,6 +429,30 @@ def task_history_refresh():
   return json.dumps({'response': retn, 'content': content }), HttpCode, {'ContentType':'application/json'}
 
 
+@app.route('/taskhistory/view/<id>')
+def task_history_view(id):
+  content = ''
+  retn = False
+  HttpCode = 200
+
+  if not session.get('logged_in', False): return redirect("/")
+
+  if Admin.checkPermission(session.get('user', None), 'PERMISSION_AUTHENTICATED', session['permissions']):
+    taskHistoryItem = TaskHistory.getItem(id)
+    title = TaskHistory.formatTitle(taskHistoryItem.task)
+    content = render_template('taskhistory_detail.incl.jinja', task_history=taskHistoryItem)
+    retn = True
+    
+    if not isinstance(content, str):
+      content = content.decode('utf-8')
+        
+  else:
+    content = 'Not Authorized'
+    HttpCode = 444
+
+  return json.dumps({ 'response': retn, 'title': title, 'content': content }), HttpCode, {'ContentType':'application/json' }
+
+
 
 # ------------------ redis Alert channel handlers --------------------
 
@@ -547,12 +572,9 @@ def nl2br(content):
   Jinja2 custom filter for converting newlines to <br /> tags 
   also removes leading byte string coding, if present
   '''
-  if content and not isinstance(content, str):
-    content = str(content.decode('utf-8'))
-  if content.startswith("b'"):
-    content = content.strip("b'")
+  return Utils.trim(content)
 
-  content = "<br />".join(content.split("\n"))
-  return content
+
+
 
 

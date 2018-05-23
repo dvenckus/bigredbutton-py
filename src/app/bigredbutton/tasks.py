@@ -46,6 +46,18 @@ class TasksList(object):
     return TasksList.list['list']
 
   @staticmethod
+  def getListItem(key):
+    '''
+    returns dictionary for list item
+    '''
+    item = {}
+    try:
+      item = TasksList.list['list'][key]
+    except KeyError:
+      item = {}
+    return item
+
+  @staticmethod
   def getListOrder():
     '''
     returns list

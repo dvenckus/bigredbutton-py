@@ -488,4 +488,40 @@ $(document).ready(function() {
     return false;
   });
 
+
+
+  function viewTaskHistoryItem(data, textStatus, jqXHR) {
+    // Displays the task history result for a specific item
+    var debug = true;
+    if ((textStatus == 'success') && (data.response == true)) {
+      // display in popup 
+      $('#popupViewer .modal-title').html(data.title);
+      $('#popupViewer .modal-body').html(data.content);
+      $('#popupViewer').modal('show');
+    }
+    window.toolsBusy = false;
+    return false;
+  };
+  
+
+  /*
+  * view full result for a specific item history
+  */
+  $('#taskHistory').on('click', 'td a.taskHistoryItemView', function(e) {
+    e.preventDefault();
+    window.toolsBusy = true;
+
+    var href = $(this).attr('href');
+
+    $.ajax({
+      type: "GET",
+      url: href,
+      //contentType: 'application/json',
+      dataType: 'json',
+      success: viewTaskHistoryItem
+    });
+
+    return false;
+  });
+
 });
