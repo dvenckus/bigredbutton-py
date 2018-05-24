@@ -34,4 +34,4 @@ db = SQLAlchemy(app)
 db.create_all()
 
 # Important!!  This loads the views and page handlers
-from app.bigredbutton import views
+from app.bigredbutton import views, utils

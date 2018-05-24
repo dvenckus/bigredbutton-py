@@ -420,7 +420,7 @@ def task_history_refresh():
       content = render_template('taskhistory_current.incl.jinja', task_history=TaskHistory.get())
       retn = True  
       if content and not isinstance(content, str):
-        content = content.decode('utf-8')
+        content = str(content.decode('utf-8'))
 
   else:
     content = 'Not Authorized'
@@ -443,8 +443,8 @@ def task_history_view(id):
     content = render_template('taskhistory_detail.incl.jinja', task_history=taskHistoryItem)
     retn = True
     
-    if not isinstance(content, str):
-      content = content.decode('utf-8')
+    if content and not isinstance(content, str):
+      content = str(content.decode('utf-8'))
         
   else:
     content = 'Not Authorized'

@@ -6,9 +6,8 @@ from app.bigredbutton import app, db
 from models.taskhistoryitem import TaskHistoryItem
 from tasks import TasksList
 from sqlalchemy import exc, desc
-import os
 from utils import Utils
-
+import re
 
 class TaskHistory(object):
 
@@ -31,11 +30,14 @@ class TaskHistory(object):
           if len(history[idx].result) > 50:
             # don't display the entire result... too long
             if history[idx].result and not isinstance(history[idx].result, str):
-              history[idx].result = history[idx].result.decode('utf-8')
-            history[idx].result = '...' + history[idx].result[-50:]
-            pos = history[idx].result.find("Completed [")
-            if pos: history[idx].result = history[idx].result[pos:].strip()
-            # history[idx].result = "<br />".join(history[idx].result.strip().split("\n"))
+              history[idx].result = str(history[idx].result.decode('utf-8'))
+            # trim down to last 50 chars
+            history[idx].result = history[idx].result[-50:]
+            m = re.search('(Completed [\[A-Z]+\])', history[idx].result)
+            if m.group(0):
+              history[idx].result = m.group(0)
+            else:
+              history[idx].result = '...' + history[idx].result
         else:
           # trim the excess history
           db.session.delete(history[idx])
