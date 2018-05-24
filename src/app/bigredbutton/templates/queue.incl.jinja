@@ -3,7 +3,7 @@
   {% set bkup_glyph = '<i class="glyph-checkmark fas fa-check"></i>' %}
   {% for taskitem in queue -%}
     {% set taskOptions = taskitem.parseOptions() %}
-    <tr>
+    <tr id="task-{{ taskitem.id }}">
       <td>{{ taskitem.username }}</td>
       <td>{{ taskitem.timestamp }}</td>
        <td>{{ taskitem.task }}</td>
@@ -16,12 +16,6 @@
 {% else -%}
   {# empty queue -#}
   <tr class="empty">
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
-    <td>EMPTY</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
+    <td colspan="7">EMPTY</td>
   </tr>
 {% endif -%}

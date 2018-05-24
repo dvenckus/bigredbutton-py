@@ -42,7 +42,21 @@ $(document).ready(function() {
       if (type != 'subscribe') {
         alerts.prepend(message + '<br />');
         if (message.indexOf("END TASK") !== -1) {
-          window.getQueue();
+          //window.getQueue();
+          // find the ID tag from the message
+          var pattern = /\[ID\=([0-9]+)\]$/g;
+          var result = pattern.exec(message);
+          console.log('END TASK id match: ' + result);
+          if (typeof result[1] !== 'undefined') {
+            var taskid = result[1];
+            // remove from queue
+            $('#task-' + taskid).remove();
+            // if queue is empty, add the 'Empty' row
+            if ($('#queue tbody tr').length == 0) {
+              $('#queue tbody').append('<tr id="task-0" class="empty"><td colspan="7">EMPTY</td></tr>');
+            }
+           
+          }
         } 
       } else {
         if (window.subscribed_alerts != true) {

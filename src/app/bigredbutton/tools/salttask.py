@@ -99,7 +99,7 @@ class SaltTask(object):
         self.pushLog.send('An Error occurred ' + str(errormsg))
 
       # we're just pushing Alerts, not log messages
-      self.pushLog.pushMessage("END TASK with {} {}".format('ERROR' if len(errormsg) else 'SUCCESS', self.taskDesc))
+      self.pushLog.pushMessage("END TASK with {} {} [ID={}]".format('ERROR' if len(errormsg) else 'SUCCESS', self.taskDesc, self.taskItem.id))
 
 
     except IOError as e:

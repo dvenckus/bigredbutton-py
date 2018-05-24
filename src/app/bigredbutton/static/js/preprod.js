@@ -31,7 +31,6 @@ $(document).ready(function() {
     window.queueBusy = false;
   };
 
-
   window.getQueue = function() {
     if (window.queueBusy == true) { return; }
     window.queueBusy = true;
