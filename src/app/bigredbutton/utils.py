@@ -29,6 +29,6 @@ class Utils(object):
     #app.logger.info("Utils::trim() rstrip/strip: " + str(content))
 
     # convert newlines to html breaks
-    content = re.sub(r'\\n', '<br />', content)
+    content = re.sub("\n", "<br />", content)
     #app.logger.info("Utils::trim() newlines to breaks: " + str(content))
     return content
