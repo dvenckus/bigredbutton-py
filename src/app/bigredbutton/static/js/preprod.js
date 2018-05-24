@@ -22,24 +22,25 @@ $(document).ready(function() {
 
   function updateQueue(data, textStatus, jqXHR) {
     // updates the queue display with the current items
-    if (data.response == true) {
+    var debug = true;
+    if ((textStatus == 'success') && (data.response == true)) {
       //console.log('updateQueue: ' + data.content)
-      $("#queue tbody").html(data.content);
+      $('#queue tbody').html(data.content);
       clearFormPreProd();
     }
-    window.queueBusy = false
+    window.queueBusy = false;
   };
 
 
   window.getQueue = function() {
     if (window.queueBusy == true) { return; }
-    window.queueBusy = true
+    window.queueBusy = true;
+
+    var href = $('#queue').attr('data-href');
 
     $.ajax({
       type: "GET",
-      url: "/queue",
-      //contentType: 'application/json',
-      data: '',
+      url: href,
       dataType: 'json',
       success: updateQueue
     });
@@ -92,11 +93,13 @@ $(document).ready(function() {
       post_data.push(item);
     }
 
-    window.queueBusy = true
+    window.queueBusy = true;
+
+    var href = $(this).attr('data-href');
 
     $.ajax({
       type: "POST",
-      url: "/queue/add",
+      url: href,
       contentType: 'application/json',
       data: JSON.stringify(post_data),
       dataType: 'json',
@@ -108,12 +111,12 @@ $(document).ready(function() {
 
   $('#queue').on('click', 'tr a.cancel', function() {
     if (confirm('Cancel task?')) {
-      window.queueBusy = true
+      window.queueBusy = true;
 
       $.ajax({
         type: "GET",
         url: $(this).attr('href'),
-        contentType: 'application/json',
+        // contentType: 'application/json',
         dataType: 'json',
         success: updateQueue
       });

@@ -1,4 +1,5 @@
 $(document).ready(function() {
+  
   window.scrollDown = function() {
     //$('#output').prop("scrollHeight") - $('#output').height()
     $('#output').animate({scrollTop: $('#output').prop("scrollHeight")}, 500);
