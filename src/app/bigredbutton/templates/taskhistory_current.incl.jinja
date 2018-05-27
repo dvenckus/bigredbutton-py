@@ -19,7 +19,7 @@
         <ul class="taskOptions">
         {% for opt, val in taskOptions.items() -%}
         {% if opt not in ['task', 'subdomain', 'site', 'mergeRepo', 'mergeTo', 'versionRepo'] -%}
-        <li>{{ opt }}: {% if val|int == 1 %}True{% elif val|int == 0 %}False{% else %}{{ val }}{% endif %}</li>
+        <li>{{ opt }}: {% if val|string == '1' %}True{% elif val|string == '0' %}False{% else %}{{ val }}{% endif %}</li>
         {% endif -%}
         {% endfor -%}
         </ul>
