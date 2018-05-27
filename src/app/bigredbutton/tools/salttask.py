@@ -130,13 +130,14 @@ class SaltTask(object):
       return errormsg
 
 
-    if 'sync' == tasksList[self.taskItem.task]['do']:
+    if constants.TASK_SYNC == tasksList[self.taskItem.task]['do']:
 
       if self.taskOptions['site'] == 'vf':
         saltcmd = [
           self.doBulkLoad,
           'tgt=' + self.taskOptions['subdomain'],
-          'mode=sync'
+          'mode=sync',
+          'username=' + self.taskItem.username
         ]
       else:
         #print("self: In DO, tasksList sync " + str(self.taskItem) )
@@ -144,62 +145,70 @@ class SaltTask(object):
           self.doSiteSync,
           'tgt=' + self.taskOptions['subdomain'],
           'site=' + self.taskOptions['site'],
-          'mode=all'
+          'mode=all',
+          'username=' + self.taskItem.username
         ]
 
       backup = self.taskOptions.get('backup_param', '')
       if backup != '': saltcmd.append(backup)  
 
-    elif 'deploy' == tasksList[self.taskItem.task]['do']:
+    elif constants.TASK_DEPLOY == tasksList[self.taskItem.task]['do']:
       saltcmd = [
         self.doSiteDeploy,
         'tgt=' + self.taskOptions['subdomain'],
         'site=' + self.taskOptions['site'],
+        'username=' + self.taskItem.username
       ]
       backup = self.taskOptions.get('backup_param', '')
       if backup != '': saltcmd.append(backup)  
 
-    elif 'cache' == tasksList[self.taskItem.task]['do']:
+    elif constants.TASK_CACHE == tasksList[self.taskItem.task]['do']:
       saltcmd = [
         self.doCacheClear,
         'tgt=' + self.taskOptions['subdomain'],
-        'site=' + self.taskOptions['site']
+        'site=' + self.taskOptions['site'],
+        'username=' + self.taskItem.username
       ]
 
-    elif 'varnish' == tasksList[self.taskItem.task]['do']:
+    elif constants.TASK_VARNISH == tasksList[self.taskItem.task]['do']:
       saltcmd = [
         self.doVarnishClear,
         'tgt=' + self.taskOptions['subdomain'],
-        'site=' + self.taskOptions['site']
+        'site=' + self.taskOptions['site'],
+        'username=' + self.taskItem.username
       ]
 
-    elif 'rb' == tasksList[self.taskItem.task]['do']:
-      saltcmd = [
-        self.doRollback,
-        'tgt=' + self.taskOptions['subdomain'],
-        'site=' + self.taskOptions['site']
-      ]
-
-    elif 'unrb' == tasksList[self.taskItem.task]['do']:
+    elif constants.TASK_ROLLBACK == tasksList[self.taskItem.task]['do']:
       saltcmd = [
         self.doRollback,
         'tgt=' + self.taskOptions['subdomain'],
         'site=' + self.taskOptions['site'],
+        'username=' + self.taskItem.username
+      ]
+
+    elif constants.TASK_ROLLBACK_UNDO == tasksList[self.taskItem.task]['do']:
+      saltcmd = [
+        self.doRollback,
+        'tgt=' + self.taskOptions['subdomain'],
+        'site=' + self.taskOptions['site'],
+        'username=' + self.taskItem.username,
         'undo'
       ]
 
-    elif 'merge' == tasksList[self.taskItem.task]['do']:
+    elif constants.TASK_MERGE == tasksList[self.taskItem.task]['do']:
       saltcmd = [
         self.doMerge,
         'repo=' + self.taskOptions['mergeRepo'],
-        'merge-to=' + self.taskOptions['mergeTo']
+        'merge-to=' + self.taskOptions['mergeTo'],
+        'username=' + self.taskItem.username
       ]
       if self.taskOptions['mergeTest']: saltcmd.append('test')
 
-    elif 'versionup' == tasksList[self.taskItem.task]['do']:
+    elif constants.TASK_VERSION_UPDATE == tasksList[self.taskItem.task]['do']:
       saltcmd = [
         self.doVersionUpdate,
-        'repo=' + self.taskOptions['versionRepo']
+        'repo=' + self.taskOptions['versionRepo'],
+        'username=' + self.taskItem.username
       ]
       if self.taskOptions['versionIncrMajor']: 
         saltcmd.append('major')

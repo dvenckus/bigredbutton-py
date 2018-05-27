@@ -100,6 +100,24 @@ EMAIL_FROM = 'no-reply@bigredbutton.veritashealth.com'
 EMAIL_TO = 'dev@veritashealth.com'
 EMAIL_ENABLED = False
 
+USERNAME_DEFAULT='root'
+
+# tasks
+TASK_BULKLOAD = 'bulkload'
+TASK_DEPLOY = 'deploy'
+TASK_SYNC = 'sync'
+TASK_CACHE = 'cache'
+TASK_VARNISH = 'varnish'
+TASK_MERGE = 'merge'
+TASK_VERSION_UPDATE = 'versionup'
+TASK_ROLLBACK = 'rollback'
+TASK_ROLLBACK_UNDO = 'unrollback'
+
+# TASKOPT_MERGE_REPO = 'mergeRepo'
+# TASKOPT_MERGE_TO = 'mergeTo'
+# TASKOPT_MERGE_TEST = 'mergeTest'
+
+
 
 ########## ROLE & PERMISSION SEED DATA ###########
 

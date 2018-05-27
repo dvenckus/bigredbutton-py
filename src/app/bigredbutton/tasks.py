@@ -3,6 +3,8 @@
 #
 
 from html.parser import HTMLParser
+import constants
+
 
 class TasksList(object):
 
@@ -12,21 +14,19 @@ class TasksList(object):
     'list': {
       '0': { 'name': mdash + " Select Task " + mdash, 'do': ''  },
       'pepperoni': { 'name': "Pepperoni", 'do': '', 'attributes': '' },
-      'push': { 'name': "Push", 'do': 'deploy', 'attributes': 'class="task"' },
-      'sync': { 'name': "Sync (database + files)", 'do': 'sync', 'attributes': 'class="task"' },
-      'cache': { 'name': "Cache Clear", 'do': 'cache', 'attributes': 'class="task"' },
-      'varnish': { 'name': "Varnish Clear", 'do': 'varnish', 'attributes': 'class="task"' },
-      'merge': { 'name': 'Merge Repositories', 'do': 'merge', 'attributes': 'class="task"' },
-      'versionup': { 'name': 'Release Version Update', 'do': 'versionup', 'attributes': 'class="task"' }
-      #mdash: { 'name': mdash, 'attributes': 'role="separator" class="divider"', 'do': '' },
-      #'rb': { 'name': 'Rollback', 'do': 'rb'},
-      #'unrb': { 'name': 'Undo Rollback', 'do': 'unrb' }
+      'push': { 'name': "Push", 'do': constants.TASK_DEPLOY, 'attributes': 'class="task"' },
+      'sync': { 'name': "Sync (database + files)", 'do': constants.TASK_SYNC, 'attributes': 'class="task"' },
+      'cache': { 'name': "Cache Clear", 'do': constants.TASK_CACHE, 'attributes': 'class="task"' },
+      'varnish': { 'name': "Varnish Clear", 'do': constants.TASK_VARNISH, 'attributes': 'class="task"' },
+      'merge': { 'name': 'Merge Repositories', 'do': constants.TASK_MERGE, 'attributes': 'class="task"' },
+      'versionup': { 'name': 'Release Version Update', 'do': constants.TASK_VERSION_UPDATE, 'attributes': 'class="task"' },
+      '-': { 'name': mdash, 'attributes': 'role="separator" class="divider"', 'do': '' },
+      'rb': { 'name': 'Rollback', 'do': constants.TASK_ROLLBACK, 'attributes': 'class="task"'},
+      'unrb': { 'name': 'Undo Rollback', 'do': constants.TASK_ROLLBACK_UNDO,  'attributes': 'class="task"' }
     },
     'list_order': {
-      'pre-prod': ['0', 'push', 'sync', 'cache'], 
-      #, mdash, 'rb', 'unrb'],
-      'production': ['0', 'push', 'cache', 'varnish']
-      #, mdash, 'rb', 'unrb']
+      'pre-prod': ['0', 'push', 'sync', 'cache', '-', 'rb', 'unrb'],
+      'production': ['0', 'push', 'cache', 'varnish', '-', 'rb', 'unrb']
     }
   }
 

@@ -25,7 +25,7 @@ class Utils(object):
     #app.logger.info("Utils::trim() strip b': " + str(content))
 
     # strip whitespace
-    content = content.strip('\n')
+    content = content.strip('\n').lstrip()
     #app.logger.info("Utils::trim() rstrip/strip: " + str(content))
 
     # convert newlines to html breaks

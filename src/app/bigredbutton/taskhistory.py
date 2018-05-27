@@ -8,6 +8,7 @@ from tasks import TasksList
 from sqlalchemy import exc, desc
 from utils import Utils
 import re
+import sys
 
 class TaskHistory(object):
 
@@ -34,7 +35,7 @@ class TaskHistory(object):
             # trim down to last 50 chars
             history[idx].result = history[idx].result[-50:]
             m = re.search('(Completed [\[A-Z]+\])', history[idx].result)
-            if m.group(0):
+            if m and m.group(0):
               history[idx].result = m.group(0)
             else:
               history[idx].result = '...' + history[idx].result
@@ -49,8 +50,10 @@ class TaskHistory(object):
 
     except exc.SQLAlchemyError as e:
       app.logger.error(str(e))
+      app.logger.error('Error on line {}'.format(sys.exc_info()[-1].tb_lineno))
     except Exception as e:
       app.logger.error(str(e))
+      app.logger.error('Error on line {}'.format(sys.exc_info()[-1].tb_lineno))
 
     return history
 
@@ -83,7 +86,10 @@ class TaskHistory(object):
     taskListItem = TasksList.getListItem(task)
     if not TasksList: return title
     
-    title = taskListItem['name']
+    try:
+      title = taskListItem['name']
+    except KeyError:
+      title = 'Task Unknown'
     return title
   
 
