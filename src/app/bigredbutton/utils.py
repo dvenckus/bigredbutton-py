@@ -24,11 +24,11 @@ class Utils(object):
       content = content.lstrip('b').strip("'")
     #app.logger.info("Utils::trim() strip b': " + str(content))
 
-    # strip whitespace
-    content = content.strip('\n').lstrip()
+    # strip whitespace - for longish strings regex works best here
+    content = re.sub(r'^\s+', "", content)
     #app.logger.info("Utils::trim() rstrip/strip: " + str(content))
 
     # convert newlines to html breaks
     content = re.sub("\n", "<br />", content)
     #app.logger.info("Utils::trim() newlines to breaks: " + str(content))
-    return content
+    return content.strip()
