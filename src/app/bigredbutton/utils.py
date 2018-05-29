@@ -1,21 +1,34 @@
 #
 # utils.py
 #
+from app.bigredbutton import app
+import re
+
+
 
 class Utils(object):
 
   @staticmethod
-  def formatAttributes(attributes):
-    '''
-    converts dictionary of attributes into formatted string for
-    including with html elements
-    '''
-    f_attrib = ''
+  def trim(content):
+    ''' '''
+    #app.logger.info("Utils::trim() raw: " + str(content))
 
-    if not attributes:
-      return f_attrib
+    # decode the content
+    if content and not isinstance(content, str):
+      content = str(content.decode('utf-8'))
 
-    for name, value in attributes:
-      f_attrib += '%s %s="%s"' % (f_attrib, name, value)
+    #app.logger.info("Utils::trim() decoded: " + str(content))
 
-    return f_attrib
+    # clean up
+    if content.startswith("b'"):
+      content = content.lstrip('b').strip("'")
+    #app.logger.info("Utils::trim() strip b': " + str(content))
+
+    # strip whitespace - for longish strings regex works best here
+    content = re.sub(r'^\s+', "", content)
+    #app.logger.info("Utils::trim() rstrip/strip: " + str(content))
+
+    # convert newlines to html breaks
+    content = re.sub("\n", "<br />", content)
+    #app.logger.info("Utils::trim() newlines to breaks: " + str(content))
+    return content.strip()

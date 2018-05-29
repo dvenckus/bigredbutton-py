@@ -1,0 +1,39 @@
+<form id="VersionForm" action="/version-update" method="POST">
+  <div class="control-group col-sm-4 float-left">
+    <select id="versionRepo" name="versionRepo" class="form-control versionRepo">
+      {% for key in repositories['list_order'] -%}
+      {% set repo = repositories['list'][key] -%}
+      <option value="{{ key }}"{% if repo['attributes'] is defined %}{{ repo['attributes'] }}{% endif %}>{{ repo['name'] }}</option>
+      {% endfor -%}                  
+    </select>
+  </div>
+  <div class="control-group col-sm-4 float-left">
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="versionIncr" id="versionIncrMajor" value="major">
+      <label class="form-check-label" for="versionIncrementMajor">
+        Increment Major (M+.mm.bbb)
+      </label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="versionIncr" id="versionIncrMinor" value="minor" checked="checked">
+      <label class="form-check-label" for="versionIncrementMinor">
+        Increment Minor (M.mm+.bbb)
+      </label>
+    </div>
+  </div>
+  
+  <div class="actions col-sm-4 float-left">
+    <input id="btnVersionUpdate" type="button" name="button"
+           accept="" value="Update" class="button-primary medium-button gradient-blue"/>
+    <a href="#" id="cancelVersionUpdate" class="clearFormLink"><i class="glyph-cancel fas fa-times"></i></a>
+    <div class="form-check testmode">
+      <input class="form-check-input" type="checkbox" name="versionTest" id="versionTest" value="test">
+      <label class="form-check-label" for="versionTest">
+        Test Mode (No Changes)
+      </label>
+    </div>
+  </div>
+</form>
+
+
+

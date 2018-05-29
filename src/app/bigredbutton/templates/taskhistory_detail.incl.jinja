@@ -1,0 +1,38 @@
+{%- if task_history -%}
+  {%- set item = task_history -%}
+  <div class="item" data-item-id="{{ item.id }}">
+    {%- set taskOptions = item.parseOptions() -%}
+    {%- set subdomain = taskOptions.get('subdomain', '') -%}
+    {%- set subdomain = taskOptions.get('mergeTo', '') if item.task == 'merge' else subdomain -%}
+    {%- set subdomain = '---' if item.task == 'versionup' else subdomain -%}
+    {%- set site = taskOptions.get('site', '') -%}
+    {%- set site = taskOptions.get('mergeRepo', '') if item.task == 'merge' else site -%}
+    {%- set site = taskOptions.get('versionRepo', '') if item.task == 'versionup' else site -%}
+    <table class="table">
+      <tbody>
+        <tr><th class="text-left">User: </th><td class="text-left">{{ item.username }}</td></tr>
+        <tr><th class="text-left">Timestamp: </th><td class="text-left">{{ item.timestamp }}</td></tr>
+        <tr><th class="text-left">Task: </th><td class="text-left">{{ item.task }}</td></tr>
+        <tr><th class="text-left">Subdomain: </th><td class="text-left">{{ subdomain }}</td></tr>
+        <tr><th class="text-left">Site: </th><td class="text-left">{{ site }}</td></tr>
+        <tr>
+          <th class="text-left">Options: </th>
+          <td class="text-left">
+            <ul class="taskOptions">
+            {%- for opt, val in taskOptions.items() -%}
+            {#- don't print unnecessary options -#}
+            {%- if opt not in ['task', 'subdomain', 'site', 'mergeRepo', 'mergeTo', 'versionRepo'] -%}
+            <li>{{ opt }}: {% if val|string == '1' -%}True{% elif val|string == '0' -%}False{% else -%}{{ val }}{% endif -%}</li>
+            {%- endif -%}
+            {%- endfor -%}
+            </ul>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="taskResult text-left">
+    <h5>RESULT</h5>
+    <pre>{{ item.result|nl2br }}</pre>
+    </div>
+  </div>
+{%- endif -%} 

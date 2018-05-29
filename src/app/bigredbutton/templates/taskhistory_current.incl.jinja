@@ -1,0 +1,35 @@
+{% if task_history and task_history|length -%}
+  {% set bkup_glyph = '<i class="glyph-checkmark fas fa-check"></i>' -%}
+  {% for item in task_history -%}
+    {% set taskOptions = item.parseOptions() -%}
+    {% set subdomain = taskOptions.get('subdomain', '') -%}
+    {% set subdomain = taskOptions.get('mergeTo', '') if item.task == 'merge' else subdomain -%}
+    {% set subdomain = '---' if item.task == 'versionup' else subdomain -%}
+    {% set site = taskOptions.get('site', '') -%}
+    {% set site = taskOptions.get('mergeRepo', '') if item.task == 'merge' else site -%}
+    {% set site = taskOptions.get('versionRepo', '') if item.task == 'versionup' else site -%}
+    <tr>
+      <td class="text-left">{{ item.username }}</td>
+      <td class="text-left">{{ item.timestamp }}</td>
+      <td class="text-left">{{ item.task }}</td>
+      <td class="text-left">{{ subdomain }}</td>
+      <td class="text-left">{{ site }}</td>
+      <td class="text-left">
+        {# don't print unnecessary options #}
+        <ul class="taskOptions">
+        {% for opt, val in taskOptions.items() -%}
+        {% if opt not in ['task', 'subdomain', 'site', 'mergeRepo', 'mergeTo', 'versionRepo'] -%}
+        <li>{{ opt }}: {% if val|string == '1' %}True{% elif val|string == '0' %}False{% else %}{{ val }}{% endif %}</li>
+        {% endif -%}
+        {% endfor -%}
+        </ul>
+      </td>
+      <td class="text-left">{% if item.result|length %}{{ item.result|nl2br }}<a href="/taskhistory/view/{{ item.id }}" class="taskHistoryItemView"><i class="far fa-eye float-right"></i></a>{% else %}ERROR{% endif %}</td>
+    </tr>
+  {% endfor -%}
+{% else -%}
+  {# empty queue -#}
+  <tr class="empty">
+    <td colspan="7">EMPTY</td>
+  </tr>
+{% endif -%}

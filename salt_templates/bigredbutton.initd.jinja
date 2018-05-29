@@ -21,16 +21,14 @@ USER={{ user }}
 GROUP={{ group }}
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
 ACTIVATE=bigredbutton_activate
-#APPMODULE=yourproject.wsgi:application
 APPMODULE=run:app
 DAEMON=gunicorn
-DAEMON_PATH=$APP_PATH/brb_env/bin
-#BIND=0.0.0.0:8000
+DAEMON_PATH=$APP_PATH/bigredbutton/bin
 VAR_RUN_DIR=/var/run/$APPNAME
 BIND=unix:$VAR_RUN_DIR/$APPNAME.sock
 PIDFILE=$VAR_RUN_DIR/$APPNAME.pid
 LOGDIR=/var/log/$APPNAME
-LOGFILE=$LOGDIR/$DAEMON.log
+LOGFILE=$LOGDIR/$APPNAME.log
 WORKERS=2
 WORKER_CLASS="gevent"
 
@@ -75,6 +73,7 @@ case "$1" in
         #killproc -p $PIDFILE $DAEMON
         #pkill -TERM -F $PIDFILE
         #kill $(pgrep -f $APPNAME)
+        #kill `cat $PIDFILE` 2>&1 
         pgrep -f $DAEMON | xargs kill -s SIGTERM
         RETVAL=$?
         if [ $RETVAL -eq 0 ]; then
@@ -83,6 +82,7 @@ case "$1" in
           failure "Stopping $APPNAME"
         fi
         echo "Stopping $APPNAME"
+        rm -fr $PIDFILE
     ;;
   restart|reload)
       # this won't work here as the worker processes take longer to shutdown and

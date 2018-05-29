@@ -7,7 +7,7 @@ from app.bigredbutton.subdomains import SubdomainsList
 from subprocess import Popen
 from sqlalchemy import exc
 import os
-#import sys
+import json
 
 
 class BrbQueue(object):
@@ -21,8 +21,13 @@ class BrbQueue(object):
         tasks = db.session.query(TaskItem).filter_by(id=id, status=status).first()
       else:
         tasks = db.session.query(TaskItem).filter_by(status=status).all()
+
     except exc.SQLAlchemyError as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error("BrbQueue::get()")
+      app.logger.error(str(e))
+    except Exception as e:
+      app.logger.error("BrbQueue::get()")
+      app.logger.error(str(e))
 
     return tasks
 
@@ -31,39 +36,43 @@ class BrbQueue(object):
   def add(username, data):
     ''' add groups of tasks to queue '''
 
-    print('queue_add (data): ', str(data))
     doCommit = False
 
     try:
       for item in data:
-        # convert subdomain to forum subdomain if appropriate
-        sd = SubdomainsList.getSubdomain(item['site'], item['subdomain'], 'pre-prod')
-        task = TaskItem(username, sd, item['site'], item['task'], item['dbbackup'])
+        # app.logger.info("BrbQueue::add(): item {}".format(item))
+
+        subdomain = SubdomainsList.getSubdomain(item['site'], item['subdomain'], 'pre-prod')
+        
+        # create a json-compatible string to pass to the TaskItem object
+        # double braces in format() indicate use of a literal
+        options = '{{ "subdomain": "{}", "site": "{}", "dbbackup": {} }}'.format(
+                        subdomain,
+                        item['site'],
+                        item['dbbackup'] )
+                      
+        # app.logger.info("BrbQueue::add(): options " + options)
+        task = TaskItem(username, str(item['task']), options=options)
         db.session.add(task)
         doCommit = True
 
       if doCommit:
         db.session.commit()
-        # start the queue_manager
-        qm_path = os.path.dirname(__file__)
-        # run as a background process
-        brb_log = open('/var/log/bigredbutton/brb-py.log', 'a', 4)
-        error_log = open('/var/log/bigredbutton/brb-py.error.log', 'a', 4)
-        #devnull = open(os.devnull, 'w')
-        virt_env = name = os.environ.get('VIRTUAL_ENV')
-        qm_path = os.path.dirname(virt_env) + '/app/bigredbutton/tools'
-        queue_manager =  qm_path + '/queue_manager.py'
-        python_bin = virt_env + '/bin/python'
-
-        Popen(['nohup', python_bin, queue_manager, '&'], stdout=brb_log, stderr=error_log)
+        # initiate the QueueManager to run the new task
+        BrbQueue.runQueueManager()
         return True
-
+      
     except IOError as e:
       # this is an IO EPIPE error -- ignore
       # we don't care if the socket with queue_manager.py breaks, it's a standalone daemon process
-      print("Error: " + str(e) + "\n")
+      app.logger.error("BrbQueue::add(), IOError")
+      app.logger.error(str(e))
     except exc.SQLAlchemyError as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error("BrbQueue::add(), SQLAlchemyError")
+      app.logger.error(str(e))
+    except Exception as e:
+      app.logger.error("BrbQueue::add() Exception")
+      app.logger.error(str(e))
 
     return False
 
@@ -79,6 +88,31 @@ class BrbQueue(object):
         db.session.commit()
         return True
     except exc.SQLAlchemyError as e:
-      print("Error: " + str(e) + "\n")
+      app.logger.error("BrbQueue::cancel()")
+      app.logger.error(str(e))
+    except Exception as e:
+      app.logger.error("BrbQueue::cancel()")
+      app.logger.error(str(e))
 
     return False
+
+
+  @staticmethod
+  def runQueueManager():
+    ''' starts the queue_manager in the event there are any tasks to run '''
+    try:
+      # start the queue_manager
+      # run as a background process
+      log_file = app.config['LOG_FILE']
+
+      brb_log = open(log_file, 'a', 4)
+      #brb_virt_env = app.config['VIRTUAL_ENV']
+      qm_path = os.path.dirname(__file__) + '/tools'
+      queue_manager =  qm_path + '/queue_manager.py'
+      #python_bin = brb_virt_env + '/bin/python'
+
+      Popen(['nohup', queue_manager, '&'], stdout=brb_log, stderr=brb_log)
+
+    except Exception as e:
+      app.logger.error("BrbQueue::runQueueManager()")
+      app.logger.error(str(e))

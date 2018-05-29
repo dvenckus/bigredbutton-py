@@ -2,11 +2,10 @@
 {% block head %}
   {{ super() }}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}" type="text/css">
-
 {% endblock %}
 {% block content %}
 {% if not session['logged_in'] %}
-
+ 
 <form action="/login" method="POST">
   <div class="login">
     <div class="login-screen">
@@ -15,7 +14,7 @@
       </div>
 
       <div class="login-form">
-        {% if 'attempts' in session and session['attempts'] > 0 %}
+        {% if session.get('attempts', 0) > 0 %}
         <div class="invalid-message">Login Invalid!</div>
         {% endif %}
         <div class="control-group">

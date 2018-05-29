@@ -1,0 +1,23 @@
+  <div class="control-group col-sm-12">
+    <p class="text-left">
+      <a id="taskHistoryRefresh" class="h5 text-left btn-link" href="/taskhistory/refresh">Refresh</a>
+    </p>
+    <p id="lastRefreshed" class="text-left">
+    </p>
+    <table id="taskHistory" class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col" class="text-left">User</th>
+          <th scope="col" class="text-left">Completed</th>
+          <th scope="col" class="text-left">Task</th>
+          <th scope="col" class="text-left">Subdomain</th>
+          <th scope="col" class="text-left">Site</th>
+          <th scope="col" class="text-left">Options</th>
+          <th scope="col" class="text-left">Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% include 'taskhistory_current.incl.jinja' %}
+      </tbody>
+    </table>
+  </div>

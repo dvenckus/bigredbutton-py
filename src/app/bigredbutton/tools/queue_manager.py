@@ -5,8 +5,12 @@ from sqlalchemy.orm.exc import NoResultFound
 from os import sys, path, unlink, getpid
 import datetime
 import pytz
+import logging
 
-app_path = ''
+
+QM_LOG_PREFIX = "[BRB Queue Manager] "
+qm_log = None
+
 
 def main():
   '''
@@ -15,34 +19,18 @@ def main():
   Only 1 instance of queue_manager should be running
   '''
 
-  DATABASE_NAME = app_path + '/database/brb.db'
-  QM_PIDFILE = '/var/run/bigredbutton/brb_queue_manager.pid'
-  QM_LOGFILE = '/var/log/bigredbutton/brb_queue_manager.log'
-  tz = pytz.timezone('America/Chicago')
+  DATABASE_URI = constants.SQLALCHEMY_DATABASE_URI
+  tz = pytz.timezone(constants.TIMEZONE)
 
-
-  # check if the pid file already exists
-  if path.isfile(QM_PIDFILE):
-    print("The queue_manager is already running.  My work is done here.")
-    sys.exit()
-
-  # create pidfile (as lock file -- we only want 1 queue_manager running at a time)
-  pid = str(getpid())
-  #file(QM_PIDFILE, 'w').write(pid)
-  with open(QM_PIDFILE,'w+') as f:
-      f.write(pid + '\n')
+  if not pid_begin():
+   sys.exit("The queue_manager is already running.  My work is done here.")
 
   # manage the queue
   try:
-    qm_log = open('/var/log/bigredbutton/brb_queue_manager.log', 'a', 4)
-    now = datetime.datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S')
-    qm_log.write("[BRB Queue Manager] BEGIN [{}]\n".format(now))
-    qm_log.write('[BRB Queue Manager] sys.path: ' + str(sys.path) + "\n")
-
-    qm_log.write("[BRB Queue Manager] Retrieve tasks\n")
+    log_init(tz)
 
     # add 'echo=True' to turn on logging for create_engine
-    engine = create_engine('sqlite:///' + DATABASE_NAME)
+    engine = create_engine(DATABASE_URI)
 
     # create a Session
     Session = sessionmaker(bind=engine)
@@ -51,13 +39,19 @@ def main():
     task = session.query(TaskItem).order_by(TaskItem.id).first()
 
     while task:
-      qm_log.write("[BRB Queue Manager] Task found.\n" + str(task) + "\n")
-      #print("Task found. " + str(task))
+      logging.info("Task found.\n{}\n".format(str(task)))
 
       # execute task
-      result = SaltTask.run(task)
-      #print("Task result. " + str(result))
-      qm_log.write("[BRB Queue Manager] Task run result: " + str(result) + "\n")
+      saltTask = SaltTask(taskItem=task)
+      result = saltTask.run()
+
+      logging.info("Task found.\n{}".format(str(task)))
+      logging.info("Task run result: " + str(result))
+      logging.info("Task Options: " + task.options)
+
+      # archive the task as completed
+      taskHistoryItem = TaskHistoryItem(task.username, task.task, task.options, result)
+      session.add(taskHistoryItem)
 
       # clean up after task run
       session.delete(task)
@@ -65,23 +59,21 @@ def main():
 
       # get the next task
       task = session.query(TaskItem).order_by(TaskItem.id).first()
+      
 
   except NoResultFound as e:
-    ignoreThis = 1
+    ignoreIt = True
 
   except Exception as e:
-    unlink(QM_PIDFILE)
-    msg = "Error: {0!r}\nExiting...\n".format(e)
-    qm_log.write(msg)
+    #pid_end()
+    msg = "Error: QueueManager main, {0!r}\nExiting...".format(e)
+    logging.info(msg)
     sys.exit(msg)
 
   finally:
-    try:
-      unlink(QM_PIDFILE)
-    except Exception as e:
-      ignoreIt = True
-    now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    qm_log.write("[BRB Queue Manager] END [{}]\n".format(now))
+    pid_end()
+    log_end(tz)
+    
 
 
   # ----- end - main() -----
@@ -94,19 +86,76 @@ def usage():
   ''' Usage Statment '''
   print("queue_manager.py\n")
 
+#
+# log_init
+#
+def log_init(timezone):
+  ''' '''
+  logging.basicConfig(filename=constants.QM_LOGFILE, format='%(asctime)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S', level=logging.INFO)
+  logging.info("Begin QUEUE MANAGER")
+
+
+#
+# log_end
+#
+def log_end(timezone):
+  ''' '''
+  logging.info('QUEUE MANAGER... END')
+
+#
+# pid_begin
+#
+def pid_begin():
+  ''' '''
+  try:
+    # check if the pid file already exists
+    if path.isfile(constants.QM_PIDFILE):
+      print("The queue_manager is already running.  My work is done here.")
+      return False
+
+    # create pidfile (as lock file -- we only want 1 queue_manager running at a time)
+    pid = str(getpid())
+    with open(constants.QM_PIDFILE,'w+') as f:
+        f.write(pid + '\n')
+
+    return True
+  except Exception as e:
+    print("Error: QueueManager, pid_begin()")
+
+#
+# pid_end
+#
+def pid_end():
+  ''' '''
+  try:
+    unlink(constants.QM_PIDFILE)
+  except Exception as e:
+    ignoreIt = True
+
 
 #
 # call the main function
 #
 if __name__ == "__main__":
-  if __package__ is None:
-    app_path = path.dirname(path.dirname(path.abspath(__file__)))
-    src_dir = path.dirname(path.dirname(app_path))
-    sys.path.append(app_path)
-    sys.path.append(src_dir + "/brb_env/lib/python3.5/site-packages")
-    from models.meta import Base
-    from models.user import User
-    from models.taskitem import TaskItem
-    from tools.salttask import SaltTask
+  #if __package__ is None:
 
+  app_path = path.dirname(path.dirname(path.abspath(__file__)))
+  src_dir = path.dirname(path.dirname(app_path))
+  sys.path.append(app_path)
+  sys.path.append(src_dir)
+
+  import constants 
+
+  brb_env_libs = constants.VIRTUAL_ENV + '/lib/python3.5/site-packages'
+  sys.path.append(brb_env_libs)
+  sys.path.append(constants.SALTLIBS)
+  # sys.path.append(constants.DEV_SALTLIBS)
+  # sys.path.append(constants.DEVLIBS)
+  # sys.path.append(constants.DEVSCRIPTS)
+
+  from salttask import SaltTask
+  from models.taskitem import TaskItem
+  from models.taskhistoryitem import TaskHistoryItem
+    
+  
   main()

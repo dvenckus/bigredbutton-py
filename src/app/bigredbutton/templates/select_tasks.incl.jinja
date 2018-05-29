@@ -1,4 +1,4 @@
-{% for code in tasks_order[environ] -%}
-  {% set task = tasks[code] -%}
-  <option value="{{ code }}"{% if task['attributes'] is defined %}{{ task['attributes'] }}{% endif %}>{{ task['name'] }}</option>
+{% for key in tasks['list_order'][environ] -%}
+  {% set task = tasks['list'][key] -%}
+  <option value="{{ key }}"{% if task['attributes'] is defined %}{{ task['attributes'] }}{% endif %}>{{ task['name'] }}</option>
 {% endfor -%}

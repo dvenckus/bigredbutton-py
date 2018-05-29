@@ -1,27 +1,21 @@
 {% if queue is defined and queue != None and queue|length > 0 -%}
-  {# use bootstrap glyphs -#}
-  {% set cancel_glyph = '<span class="glyphicon glyphicon-remove" aria-hidden="false"></span>' -%}
-  {% set bkup_glyph = '<span class="glyphicon glyphicon-ok" aria-hidden="false"></span>' -%}
+  {% set delete_glyph = '<i class="glyph-delete fas fa-trash"></i>' %}
+  {% set bkup_glyph = '<i class="glyph-checkmark fas fa-check"></i>' %}
   {% for taskitem in queue -%}
-    <tr class="{{ 'even' if loop.index is divisibleby(2) else 'odd' }}">
+    {% set taskOptions = taskitem.parseOptions() %}
+    <tr id="task-{{ taskitem.id }}">
       <td>{{ taskitem.username }}</td>
-      <td>{{ taskitem.timestamp }}
-      <td>{{ taskitem.subdomain }}</td>
-      <td>{{ taskitem.site }}</td>
-      <td>{{ taskitem.task }}</td>
-      <td>{{ bkup_glyph if taskitem.dbbackup == True else '&nbsp;' }}</td>
-      <td><a href="/queue/cancel/{{ taskitem.id }}" class="cancel">{{ cancel_glyph }}</a></td>
+      <td>{{ taskitem.timestamp }}</td>
+       <td>{{ taskitem.task }}</td>
+      <td>{{ taskOptions['subdomain'] }}</td>
+      <td>{{ taskOptions['site'] }}</td>
+      <td>{{ bkup_glyph if taskOptions['dbbackup'] == True else '&nbsp;' }}</td>
+      <td><a href="/queue/cancel/{{ taskitem.id }}" class="cancel delete">{{ delete_glyph }}</a></td>
     </tr>
   {% endfor -%}
 {% else -%}
   {# empty queue -#}
   <tr class="empty">
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
-    <td>EMPTY</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
+    <td colspan="7">EMPTY</td>
   </tr>
 {% endif -%}

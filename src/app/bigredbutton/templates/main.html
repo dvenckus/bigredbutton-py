@@ -1,196 +1,46 @@
 {% extends "base.html" %}
 {% block head %}
   {{ super() }}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/brb.css') }}" />
 {% endblock %}
 {% block content %}
-    {% if session['logged_in'] %}
-    <nav class="navbar navbar-default">
+    {% if 'logged_in' in session and session['logged_in'] %}
+    <nav class="navbar navbar-expand-lg navbar-light">
       <div class="container-fluid">
         <div class="collapse navbar-collapse" id="navbar-collapse-1">
-          <ul class="nav navbar-nav">
-            <li><a href="#" class="hello">Hello, {{ session['username'] }}!</a></li>
-            <li><a href="/logout">Logout</a></li></ul>
+          <ul class="navbar-nav">
+            <li class="nav-item"><a href="#" class="nav-link hello">Hello, {{ session['user']['realname'] }}!</a></li>
+            <li class="nav-item"><a href="/logout" class="nav-link">Logout</a></li></ul>
           </ul>
         </div>
       </div>
     </nav>
     {% endif %}
 
-    <ul id="tabs" class="nav nav-tabs nav-justified" data-tabs="tabs">
-      <li class="active">
-        <a href="#preprod" data-toggle="tab" class="tab tab-preprod">Pre-Prod</a>
+    <ul id="tabs" class="nav nav-tabs nav-justified" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link tab tab-preprod active" id="tab-preprod" data-toggle="tab" href="#preprod" role="tab" aria-controls="preprod" aria-selected="true">Pre-Production</a>
       </li>
-      <li>
-        <a href="#tools" data-toggle="tab" class="tab tab-tools">Tools</a>
-      </li>
-      <li>
-        <a href="#production" data-toggle="tab" class="tab tab-production">Production</a>
+      <li id="tab-tools" class="nav-item">
+        <a class="nav-link tab tab-tools" id="tab-tools" data-toggle="tab" href="#tools" role="tab" aria-controls="tools" aria-selected="false">Tools</a>
+      </li class="nav-item">
+      <li id="tab-production" class="nav-item">
+        <a class="nav-link tab tab-production" id="tab-production" data-toggle="tab" href="#production" role="tab" aria-controls="production" aria-selected="false">Production</a>
       </li>
     </ul>
-    <div id="tab-content-preprod" class="tab-content">
+    <div id="tab-content" class="tab-content" >
         <!-- tab: pre-prod -->
-        <div class="tab-pane active" id="preprod">
-            <h1>Pre-Production</h1>
-            <p>Manage sites: develop, stage, master</p>
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h3 class="panel-title">Send Tasks to Queue</h3>
-              </div>
-              <div class="panel-body">
-                <form id="deploy-preprod" action="" method="POST">
-
-                  <div class="row">
-                    <div class="col-sm-6">
-
-                      <div class="control-group">
-                        <div class="controls">
-                          <select id="subdomains-preprod" name="subdomains-preprod" class="form-control brb-subdomains">
-                            {% set environ = 'pre-prod' %}
-                            {% include 'select_subdomains.incl.jinja' %}
-                          </select>
-                        </div>
-                      </div>
-
-                      <div class="control-group">
-                        <div class="controls">
-                          <select id="sites-preprod" name="sites-preprod" class="form-control brb-sites">
-                            {% set environ = 'pre-prod' %}
-                            {% include 'select_sites.incl.jinja' %}
-                          </select>
-                        </div>
-                      </div>
-
-                      <div class="control-group">
-                        <div class="controls">
-                          <select id="tasks-preprod" name="tasks-preprod" class="form-control brb-tasks">
-                            {% set environ = 'pre-prod' %}
-                            {% include 'select_tasks.incl.jinja' %}
-                          </select>
-                        </div>
-                      </div>
-
-                      <div class="control-group">
-                        <div class="controls pull-left">
-                          <label class="checkbox">
-                            <input id="chk-backup-database-preprod" type="checkbox"
-                                   name="backup-database-preprod" />
-                            Backup Database Before Push?
-                          </label>
-                        </div>
-                      </div>
-
-                    </div>
-
-                    <div class="col-sm-6">
-                      <input id="btn-queue-preprod" type="button" name="button"
-                             accept="" value="Queue" class="big-button gradient-green"/>
-                      <br />
-                      <a href="#" id="clearFormPreProd">Clear Form</a>
-                    </div>
-
-                  </div>
-
-                </form>
-              </div>
-            </div>
-
+        <div class="tab-pane active" id="preprod" role="tabpanel" aria-labelledby="preprod">
+          {% include 'panel-pre-prod.incl.jinja' %}
         </div>   <!-- tab: pre-prod -->
-
         <!-- tab: tools -->
-        <div class="tab-pane" id="tools">
-            <h1>Tools</h1>
-            <p>Big Tools to do great things!</p>
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h3 class="panel-title">Tools</h3>
-              </div>
-              <div class="panel-body">
-                <form id="deploy-tools" action="" method="POST">
-
-                  <div class="control-group">
-                    <div class="controls">
-                      <select id="task-tools" name="task-tools" class="form-control">
-                         {#  % set environ = 'stage' % #}
-                         {#  % include 'select_tasks.incl.jinja' % #}
-                      </select>
-                    </div>
-                  </div>
-                  <div class="control-group">
-                    <div class="controls">
-                      <select id="site-tools" name="site-tools" class="form-control">
-                        {# % include 'select_sites.incl.jinja' % #}
-                      </select>
-                    </div>
-                  </div>
-                  <div class="control-group">
-                    <div class="controls">
-                      <select id="stage-server" name="stage-server" class="form-control">
-
-                      </select>
-                    </div>
-                  </div>
-                  <input id="big-blue-button" type="button" name="button"
-                         accept="" value="PUSH!" class="big-button gradient-blue"/>
-                </form>
-
-              </div>
-            </div>
+        <div class="tab-pane" id="tools" role="tabpanel" aria-labelledby="tools">
+          {% include 'panel-tools.incl.jinja' %}
         </div> <!-- tab: tools -->
         <!-- tab: production  -->
-        <div class="tab-pane" id="production">
-            <h1>Production</h1>
-            <p>Manage sites: www, forum</p>
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h3 class="panel-title">Immediate TaskItem Execution on Production</h3>
-              </div>
-              <div class="panel-body">
-                <form id="deploy-production" action="" method="POST">
-
-                  <div class="row">
-                    <div class="col-sm-6">
-
-                      <div class="control-group">
-                        <div class="controls">
-                          <select id="sites-prod" name="sites-prod" class="form-control">
-                            {% set environ = 'production' %}
-                            {% include 'select_sites.incl.jinja' %}
-                          </select>
-                        </div>
-                      </div>
-
-                      <div class="control-group">
-                        <div class="controls">
-                          <select id="tasks-prod" name="tasks-prod" class="form-control">
-                             {% set environ = 'production' %}
-                             {% include 'select_tasks.incl.jinja' %}
-                          </select>
-                        </div>
-                      </div>
-
-                      <div class="control-group">
-                        <div class="controls pull-left">
-                          <label class="checkbox">
-                            <input id="chk-backup-database-prod" type="checkbox"
-                                   name="backup-database-prod" value="1" checked />
-                            Backup Database Before Push?
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="col-sm-6">
-
-                      <input id="btn-push-prod" type="button" name="button"
-                             accept="" value="PUSH!" class="big-button gradient-red"/>
-                      <br />
-                      <a href="#" id="clearFormProd">Clear Form</a>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-        </div>  <!-- tab: production -->
+        <div class="tab-pane" id="production" role="tabpanel" aria-labelledby="production">
+          {% include 'panel-prod.incl.jinja' %}
+          </div>  <!-- tab: production -->
     </div> <!-- deployment-tab-content -->
 
     <pre id="sse-out">
@@ -198,11 +48,13 @@
     </pre>
 
     <div id="queue-panel" class="panel panel-default">
-      <div class="panel-heading"><h3 class="panel-title">TaskItem Queue</h3></div>
+      <div class="panel-heading">
+        <h5 class="panel-title">TASK QUEUE</h5>
+      </div>
       <div class="panel-body">
-        <table id="queue" class="table">
+        <table id="queue" data-href="/queue" class="table table-hover">
           <thead>
-            <tr><td>User</td><td>Requested</td><td>Subdomain</td><td>Site</td><td>Task</td><td>DB Backup?</td><td>Cancel</td></tr>
+            <tr><td>User</td><td>Requested</td><td>Task</td><td>Subdomain</td><td>Site</td><td>DB Backup?</td><td>Cancel</td></tr>
           </thead>
           <tbody>
             {% include 'queue.incl.jinja' %}
@@ -211,13 +63,42 @@
       </div>
     </div>
 
-    <div id="prod-output-panel" class="panel panel-default">
-      <div class="panel-heading"><h3 class="panel-title">Output</h3></div>
+    <div id="output-panel" class="panel panel-default">
+      <div class="panel-heading preprod-output-heading">
+        <h5 class="panel-title">OUTPUT</h5>
+      </div>
       <div class="panel-body">
-        <pre id="production-output"> </pre>
+        <pre id="output">{% include 'logstream.incl.jinja' -%}</pre>
       </div>
     </div>
 
-    <script type="text/javascript" src="{{ url_for('static', filename='js/sse.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/brb.js') }}"></script>
+    <!-- Modal -->
+    <div class="modal fade" id="popupViewer" tabindex="-1" role="dialog" aria-labelledby="popupViewerTitle" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="popupViewerTitle">...</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            ...
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 {% endblock %}
+{% block scripts %}
+  {{ super() }}
+  <script charset="utf-8" type="text/javascript" src="{{ url_for('static', filename='js/brb.js') }}"></script>
+  <script charset="utf-8" type="text/javascript" src="{{ url_for('static', filename='js/preprod.js') }}"></script>
+  <script charset="utf-8" type="text/javascript" src="{{ url_for('static', filename='js/tools.js') }}"></script>
+  <script charset="utf-8" type="text/javascript" src="{{ url_for('static', filename='js/prod.js') }}"></script>
+  <script charset="utf-8" type="text/javascript" src="{{ url_for('static', filename='js/sse.js') }}"></script>
+{% endblock %}
+

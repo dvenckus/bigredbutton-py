@@ -1,0 +1,97 @@
+          <h1>Tools</h1>
+          <div id="tools-panel" class="panel panel-default">
+            <div class="panel-heading">
+              <h5 class="panel-title">BIG TOOLS TO DO GREAT THINGS</h5>
+            </div>
+            <div class="panel-body">
+
+              <div class="accordion tools-accordian" id="accordion">
+
+                {% if constants['PERMISSION_MERGE_REPOS'] in session.get('permissions', []) %}
+                <div class="card">
+                  <div class="card-header" id="headingMerge">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseMerge" aria-expanded="false" aria-controls="collapseMerge">
+                        Merge Repositories
+                      </button>
+                    </h5>
+                  </div>
+                  <div id="collapseMerge" class="collapse" aria-labelledby="headingMerge" data-parent="#accordion">
+                    <div class="card-body">
+                      {% include 'form_merge.incl.jinja' %}
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+
+                {% if constants['PERMISSION_VERSION_UPDATE'] in session.get('permissions', []) %}
+                <div class="card">
+                  <div class="card-header" id="headingVersion">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseVersion" aria-expanded="false" aria-controls="collapseVersion">
+                        Version Update
+                      </button>
+                    </h5>
+                  </div>
+                  <div id="collapseVersion" class="collapse" aria-labelledby="headingVersion" data-parent="#accordion">
+                    <div class="card-body">
+                      {% include 'form_version.incl.jinja' %}
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+
+                <div class="card">
+                  <div class="card-header" id="headingUsers">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseUsers" aria-expanded="false" aria-controls="collapseUsers">
+                        Account Management
+                      </button>
+                    </h5>
+                  </div>
+                  <div id="collapseUsers" class="collapse" aria-labelledby="headingUsers" data-parent="#accordion">
+                    <div class="card-body">
+                      {% include 'form_users.incl.jinja' %}
+                    </div>
+                  </div>
+                </div>
+
+                {% if constants['PERMISSION_USER_MANAGEMENT'] in session.get('permissions', []) %}
+                <div class="card">
+                  <div class="card-header" id="headingRoles">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseRoles" aria-expanded="false" aria-controls="collapseRoles">
+                        Roles & Permissions
+                      </button>
+                    </h5>
+                  </div>
+                  <div id="collapseRoles" class="collapse" aria-labelledby="headingRoles" data-parent="#accordion">
+                    <div class="card-body">
+                      {% include 'form_roles.incl.jinja' %}
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+
+                <div class="card">
+                  <div class="card-header" id="headingTaskHistory">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTaskHistory" aria-expanded="false" aria-controls="collapseTaskHistory">
+                        Task History
+                      </button>
+                    </h5>
+                  </div>
+                  <div id="collapseTaskHistory" class="collapse" aria-labelledby="headingTaskHistory" data-parent="#accordion">
+                    <div class="card-body">
+                      {% include 'taskhistory.incl.jinja' %}
+                    </div>
+                  </div>
+                </div>
+
+              </div> <!-- accordion -->
+
+              <!-- input id="big-blue-button" type="button" name="button"
+                      accept="" value="PUSH!" class="big-button gradient-blue"/ -->
+
+            </div><!-- panel-body -->
+          </div><!-- panel -->
