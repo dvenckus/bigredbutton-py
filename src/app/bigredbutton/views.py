@@ -496,7 +496,7 @@ def stream_channel():
   pubsub.subscribe(channels)
   for message in pubsub.listen():
     print(message)
-    yield "data: %s|%s|%s\n\n" % (message['channel'].decode('utf-8'), message['type'], str(message['data']))
+    yield "data: {}||{}||{}\n\n".format(message['channel'].decode('utf-8'), message['type'], str(message['data']))
 
 
 @app.route('/stream')
