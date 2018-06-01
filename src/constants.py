@@ -111,7 +111,7 @@ TASK_VARNISH = 'varnish'
 TASK_MERGE = 'merge'
 TASK_VERSION_UPDATE = 'versionup'
 TASK_ROLLBACK = 'rollback'
-TASK_ROLLBACK_UNDO = 'unrollback'
+TASK_ROLLBACK_UNDO = 'unrb'
 
 # TASKOPT_MERGE_REPO = 'mergeRepo'
 # TASKOPT_MERGE_TO = 'mergeTo'

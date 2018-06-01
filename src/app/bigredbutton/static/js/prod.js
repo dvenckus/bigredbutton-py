@@ -40,9 +40,11 @@ $(document).ready(function() {
 
     var item = {
                   'site':      site,
-                  'task':      task,
-                  'dbbackup':  dbbackup
+                  'task':      task
               };
+    if ((task == 'push') || (task == 'sync')) {
+      item.dbbackup = dbbackup;
+    } 
 
     $.ajax({
       type: "POST",
