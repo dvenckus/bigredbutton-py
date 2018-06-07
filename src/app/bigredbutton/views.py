@@ -23,7 +23,7 @@ import json
 from datetime import datetime, timedelta
 import pytz
 
-from gevent import monkey; monkey.patch_all()
+#from gevent import monkey; monkey.patch_all()
 import redis
 import re
 import sys

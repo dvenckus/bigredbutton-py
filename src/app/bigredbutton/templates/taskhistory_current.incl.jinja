@@ -24,7 +24,7 @@
         {% endfor -%}
         </ul>
       </td>
-      <td class="text-left">{% if item.result|length %}{{ item.result|nl2br }}<a href="/taskhistory/view/{{ item.id }}" class="taskHistoryItemView"><i class="far fa-eye float-right"></i></a>{% else %}ERROR{% endif %}</td>
+      <td class="text-left">{% if item.result and item.result|length %}{{ item.result|nl2br }}<a href="/taskhistory/view/{{ item.id }}" class="taskHistoryItemView"><i class="far fa-eye float-right"></i></a>{% else %}ERROR{% endif %}</td>
     </tr>
   {% endfor -%}
 {% else -%}

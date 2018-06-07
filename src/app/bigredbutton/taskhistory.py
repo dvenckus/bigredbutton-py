@@ -13,7 +13,7 @@ import sys
 class TaskHistory(object):
 
   ''' limit of history to the last n tasks '''
-  MAX_HISTORY = 100
+  MAX_HISTORY = app.config['MAX_TASK_HISTORY']
 
   @staticmethod
   def get():
@@ -25,24 +25,13 @@ class TaskHistory(object):
       # retrieve the history table
       history = db.session.query(TaskHistoryItem).order_by(desc(TaskHistoryItem.timestamp)).all()
 
-      for idx, item in enumerate(history):
-        if idx < TaskHistory.MAX_HISTORY:
-          # only retain the last ~100 tasks run
-          if len(history[idx].result) > 50:
-            # don't display the entire result... too long
-            if history[idx].result and not isinstance(history[idx].result, str):
-              history[idx].result = str(history[idx].result.decode('utf-8'))
-            # trim down to last 50 chars
-            history[idx].result = history[idx].result[-50:]
-            m = re.search('(Completed [\[A-Z]+\])', history[idx].result)
-            if m and m.group(0):
-              history[idx].result = m.group(0)
-            else:
-              history[idx].result = '...' + history[idx].result
-        else:
+      for idx, item in reversed(list(enumerate(history))):
+        if idx >= TaskHistory.MAX_HISTORY:
           # trim the excess history
           db.session.delete(history[idx])
           doCommit = True
+        else:
+          break
         idx += 1
 
       if doCommit:

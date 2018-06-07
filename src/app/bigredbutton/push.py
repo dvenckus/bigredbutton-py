@@ -2,6 +2,7 @@
 # push.py
 #
 from app.bigredbutton import app, db
+from utils import Utils
 from tools.salttask import SaltTask
 from subdomains import SubdomainsList
 #from models.meta import Base
@@ -46,10 +47,12 @@ class Push(object):
 
     saltTask = SaltTask(pushitem)
 
-    result = saltTask.run()
+    output = saltTask.run()
+
+    result = Utils.parseTaskResult(output)
 
     # archive the task as completed
-    taskHistoryItem = TaskHistoryItem(username, data['task'], options, str(result))
+    taskHistoryItem = TaskHistoryItem(username, data['task'], options, str(result), str(output))
     db.session.add(taskHistoryItem)
     db.session.commit()
 
