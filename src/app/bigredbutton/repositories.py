@@ -18,9 +18,11 @@ class Repositories(object):
       'sh': { 'name': "Spine-health", 'attributes': 'class="repo"' },
       'sp': { 'name': "Sports-health", 'attributes': 'class="repo"' },
       'vh': { 'name': "Veritashealth", 'attributes': 'class="repo"'},
-      'vf': { 'name': 'Forums', 'attributes': 'class="repo"' }
+      'vf': { 'name': 'Forums', 'attributes': 'class="repo"' },
+      'vc': { 'name': 'Veritas Health Config', 'attributes': 'class="repo"' },
+      'brb': { 'name': 'BigRedButton', 'attributes': 'class="repo"' }
     },
-    'list_order': ['0', 'all', 'h+p', 'pr', 'ah', 'ph', 'sh', 'sp', 'vh', 'vf']
+    'list_order': ['0', 'all', 'h+p', 'pr', 'ah', 'ph', 'sh', 'sp', 'vh', 'vf', 'vc', 'brb']
   }
 
   @staticmethod
