@@ -242,7 +242,7 @@ def merge():
 
   app.logger.info("Merge: {}".format(jsonData))
 
-  if Admin.checkPermission(session.get('user', None), 'PERMISSION_MERGE', session['permissions']):
+  if Admin.checkPermission(session.get('user', None), 'PERMISSION_MERGE_REPOS', session['permissions']):
     content = Push.do(session['user']['username'], jsonData)
     if content != False:
       retn = True
