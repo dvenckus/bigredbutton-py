@@ -23,7 +23,7 @@ import json
 from datetime import datetime, timedelta
 import pytz
 
-from gevent import monkey; monkey.patch_all()
+#from gevent import monkey; monkey.patch_all()
 import redis
 import re
 import sys
@@ -242,7 +242,7 @@ def merge():
 
   app.logger.info("Merge: {}".format(jsonData))
 
-  if Admin.checkPermission(session.get('user', None), 'PERMISSION_MERGE', session['permissions']):
+  if Admin.checkPermission(session.get('user', None), 'PERMISSION_MERGE_REPOS', session['permissions']):
     content = Push.do(session['user']['username'], jsonData)
     if content != False:
       retn = True
@@ -496,7 +496,7 @@ def stream_channel():
   pubsub.subscribe(channels)
   for message in pubsub.listen():
     print(message)
-    yield "data: %s|%s|%s\n\n" % (message['channel'].decode('utf-8'), message['type'], str(message['data']))
+    yield "data: {}|||{}|||{}\n\n".format(message['channel'].decode('utf-8'), message['type'], str(message['data']))
 
 
 @app.route('/stream')

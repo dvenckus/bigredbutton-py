@@ -34,7 +34,7 @@ $(document).ready(function() {
   sse_event.addEventListener('error', function(e) { console.log('EventSource closed'); }, false);
   sse_event.addEventListener('message', function(e) {
     console.log(e.data);
-    var fields = e.data.split('|');
+    var fields = e.data.split('|||');
     var channel = String(fields[0]);
     var type = fields[1];
     var message = convString(fields[2]);

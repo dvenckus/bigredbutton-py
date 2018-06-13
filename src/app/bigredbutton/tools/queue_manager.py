@@ -5,6 +5,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from os import sys, path, unlink, getpid
 import datetime
 import pytz
+import re
 import logging
 
 
@@ -43,14 +44,18 @@ def main():
 
       # execute task
       saltTask = SaltTask(taskItem=task)
-      result = saltTask.run()
+      output = saltTask.run()
 
       logging.info("Task found.\n{}".format(str(task)))
-      logging.info("Task run result: " + str(result))
       logging.info("Task Options: " + task.options)
+      logging.info("Task run output: " + str(output))
 
       # archive the task as completed
-      taskHistoryItem = TaskHistoryItem(task.username, task.task, task.options, result)
+
+      # retrieve the final result from the full output
+      result = Utils.parseTaskResult(output)
+      
+      taskHistoryItem = TaskHistoryItem(task.username, task.task, task.options, result, output)
       session.add(taskHistoryItem)
 
       # clean up after task run
@@ -156,6 +161,7 @@ if __name__ == "__main__":
   from salttask import SaltTask
   from models.taskitem import TaskItem
   from models.taskhistoryitem import TaskHistoryItem
+  from utils import Utils
     
   
   main()

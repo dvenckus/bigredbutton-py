@@ -85,9 +85,12 @@ $(document).ready(function() {
       var item = {
                     'subdomain': subdomain,
                     'site':      sitelist[i],
-                    'task':      task,
-                    'dbbackup':  dbbackup
+                    'task':      task
                  };
+
+      if ((task == 'push') || (task == 'sync')) {
+        item.dbbackup = dbbackup;
+      } 
 
       post_data.push(item);
     }

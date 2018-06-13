@@ -28,11 +28,12 @@
             </ul>
           </td>
         </tr>
+        <tr><th class="text-left">Result: </th><td class="text-left">{{ item.result }}</td></tr>
       </tbody>
     </table>
     <div class="taskResult text-left">
-    <h5>RESULT</h5>
-    <pre>{{ item.result|nl2br }}</pre>
+    <h5>OUTPUT</h5>
+    <pre>{{ item.full_output|nl2br }}</pre>
     </div>
   </div>
 {%- endif -%} 

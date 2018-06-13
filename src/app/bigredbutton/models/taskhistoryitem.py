@@ -18,10 +18,11 @@ class TaskHistoryItem(Base, BaseItem):
     username = Column(String(25), default='')
     task = Column(String(25), default='')
     options = Column(String(256), default='')
-    result = Column(Text, default='')
+    result = Column(String(256), default='')
+    full_output = Column(Text, default='')
 
     #----------------------------------------------------------------------
-    def __init__(self, username, task, options='', result=''):
+    def __init__(self, username, task, options='', result='', full_output=''):
       '''
       timestamp in unixtime using unixtimestamp decorator
       options are expected in the form of a json-compatible string
@@ -30,9 +31,10 @@ class TaskHistoryItem(Base, BaseItem):
       self.task = task
       self.options = options
       self.result = result
+      self.full_output = full_output
 
 
     def __repr__(self):
-      return "<TaskHistoryItem(id='%d', task='%s', options='%s', username='%s', timestamp='%s', result='%s')>" % (
-                    self.id, self.task, self.options, self.username, self.timestamp, self.result)
+      return "<TaskHistoryItem(id='%d', task='%s', options='%s', username='%s', timestamp='%s', result='%s', full_output='%s')>" % (
+                    self.id, self.task, self.options, self.username, self.timestamp, self.result, self.full_output)
 

@@ -52,7 +52,7 @@ class SaltTask(object):
         self.taskOptions['backup_param'] = 'backup'
     except KeyError:
       ignoreThis = True
-      
+
 
     subdomain = ''
     try:
@@ -66,12 +66,13 @@ class SaltTask(object):
     except KeyError:
       ignoreThis = True
 
+
     self.taskDesc = "[{}] {} {} ({}) {}".format(
                   taskItem.task.upper(), 
                   subdomain, 
                   site, 
                   taskItem.username, 
-                  self.taskOptions['backup_param'] )
+                  self.taskOptions['backup_param'])
 
     # Alert Channel messages are sent from here
     # Log Channel messages are sent from lower-level BRB salt scripts
@@ -178,22 +179,15 @@ class SaltTask(object):
         'username=' + self.taskItem.username
       ]
 
-    elif constants.TASK_ROLLBACK == tasksList[self.taskItem.task]['do']:
+    elif tasksList[self.taskItem.task]['do'] in [ constants.TASK_ROLLBACK, constants.TASK_ROLLBACK_UNDO ]:
       saltcmd = [
         self.doRollback,
         'tgt=' + self.taskOptions['subdomain'],
         'site=' + self.taskOptions['site'],
         'username=' + self.taskItem.username
       ]
+      if constants.TASK_ROLLBACK_UNDO == tasksList[self.taskItem.task]['do']: saltcmd.append('undo')
 
-    elif constants.TASK_ROLLBACK_UNDO == tasksList[self.taskItem.task]['do']:
-      saltcmd = [
-        self.doRollback,
-        'tgt=' + self.taskOptions['subdomain'],
-        'site=' + self.taskOptions['site'],
-        'username=' + self.taskItem.username,
-        'undo'
-      ]
 
     elif constants.TASK_MERGE == tasksList[self.taskItem.task]['do']:
       saltcmd = [

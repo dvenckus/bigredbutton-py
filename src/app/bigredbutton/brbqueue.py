@@ -43,13 +43,18 @@ class BrbQueue(object):
         # app.logger.info("BrbQueue::add(): item {}".format(item))
 
         subdomain = SubdomainsList.getSubdomain(item['site'], item['subdomain'], 'pre-prod')
+        opt_backup = ''
+        opt_undo = ''
         
         # create a json-compatible string to pass to the TaskItem object
         # double braces in format() indicate use of a literal
-        options = '{{ "subdomain": "{}", "site": "{}", "dbbackup": {} }}'.format(
-                        subdomain,
-                        item['site'],
-                        item['dbbackup'] )
+        try:
+          opt_backup = ', "dbbackup": {}'.format(item['dbbackup'])
+        except KeyError:
+          opt_backup = ''
+
+
+        options = '{{ "subdomain": "{}", "site": "{}"{} }}'.format(subdomain, item['site'], opt_backup)
                       
         # app.logger.info("BrbQueue::add(): options " + options)
         task = TaskItem(username, str(item['task']), options=options)
