@@ -44,7 +44,7 @@ class BrbQueue(object):
 
         subdomain = SubdomainsList.getSubdomain(item['site'], item['subdomain'], 'pre-prod')
         opt_backup = ''
-        opt_undo = ''
+        opt_relscript = ''
         
         # create a json-compatible string to pass to the TaskItem object
         # double braces in format() indicate use of a literal
@@ -53,8 +53,13 @@ class BrbQueue(object):
         except KeyError:
           opt_backup = ''
 
+        try:
+          opt_relscript = ', "script": {}'.format(item['relscript'])
+        except KeyError:
+          opt_relscript = ''
 
-        options = '{{ "subdomain": "{}", "site": "{}"{} }}'.format(subdomain, item['site'], opt_backup)
+
+        options = '{{ "subdomain": "{}", "site": "{}"{}{} }}'.format(subdomain, item['site'], opt_backup, opt_relscript)
                       
         # app.logger.info("BrbQueue::add(): options " + options)
         task = TaskItem(username, str(item['task']), options=options)

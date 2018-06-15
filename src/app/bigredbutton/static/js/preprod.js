@@ -5,10 +5,20 @@ $(document).ready(function() {
   
   // Pre-Production ----------------------------------------
 
+  $('#tasks-preprod').click(function(){
+    if ( $(this).val() == 'relscript' ) {
+      $('form#deploy-preprod .control-group.releases').show();
+    } else {
+      $('form#deploy-preprod .control-group.releases').hide();
+    }
+  });
+
   function clearFormPreProd() {
     $('#subdomains-preprod').val(0);
     $('#sites-preprod').val(0);
     $('#tasks-preprod').val(0);
+    $('#releases-preprod').val(0);
+    $('form#deploy-preprod .control-group.releases').hide();
     $('#chk-backup-database-preprod').prop('checked', false);
   };
 
@@ -50,6 +60,7 @@ $(document).ready(function() {
     var subdomain = $('#subdomains-preprod').val();
     var site = $('#sites-preprod').val();
     var task = $('#tasks-preprod').val();
+    var relscript = $('#releases-preprod').val();
 
     if (subdomain == '-' || subdomain == '0' ||
         site == '-' || site == '0' ||
@@ -57,6 +68,13 @@ $(document).ready(function() {
       alert('Invalid selection');
       return false;
     }
+
+    if ((task == 'relscript') && (relscript == '0')) {
+      alert('Invalid selection');
+      return false;
+    } 
+    // now get the filename of the release script
+    relscript = $('#releases-preprod').text();
 
     var dbbackup = $('#chk-backup-database-preprod').prop('checked') ? 1 : 0;
     var sitelist = [];
@@ -91,6 +109,9 @@ $(document).ready(function() {
       if ((task == 'push') || (task == 'sync')) {
         item.dbbackup = dbbackup;
       } 
+      if (task == 'relscript') {
+        item.relscript = relscript;
+      }
 
       post_data.push(item);
     }

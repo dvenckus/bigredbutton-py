@@ -18,6 +18,7 @@ from repositories import Repositories
 from branches import Branches
 from taskhistory import TaskHistory 
 from utils import Utils
+from releases import Releases
 
 import json
 from datetime import datetime, timedelta
@@ -78,6 +79,7 @@ def main_page():
 
     return render_template('main.html',  sites=SitesList.get(),
                                         tasks=TasksList.get(),
+                                        releases=Releases.get(),
                                         subdomains=SubdomainsList.get(),
                                         repositories=Repositories.get(),
                                         branches=Branches.get(),

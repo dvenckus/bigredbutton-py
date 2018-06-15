@@ -44,5 +44,6 @@ $(document).ready(function() {
     return false;
   });
 
+  $('div.control-group.releases').hide();
 
 });
