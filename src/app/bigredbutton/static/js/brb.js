@@ -47,3 +47,9 @@ $(document).ready(function() {
   $('div.control-group.releases').hide();
 
 });
+
+$.fn.force_redraw = function() {
+  return this.hide( 0, function() {
+      $( this ).show();
+  } );
+}

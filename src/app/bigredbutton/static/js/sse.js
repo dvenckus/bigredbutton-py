@@ -1,27 +1,31 @@
 $(document).ready(function() {
   
+  /*
   window.scrollDown = function() {
     //$('#output').prop("scrollHeight") - $('#output').height()
     $('#output').animate({scrollTop: $('#output').prop("scrollHeight")}, 500);
   };
+  */
   
   window.appendOutput = function(content) {
-    var $output = $('#output');
-    if ($output.text().length) {
-      $output.append('<br/>');
+    var $logstream = $('#output');
+    if ($logstream.text().length) {
+      content = '<br/>' + content;
     }
-    $output.append(content)
+    $logstream.append(content)
                   .delay(500)
                   .fadeIn({
                     duration: 500,
-                    start: window.scrollDown
+                    start: $logstream.animate({scrollTop: $('#output').prop("scrollHeight")}, 500)
                   });
   };
 
+
   //server-sent-events handler
   var sse_event = new EventSource("/stream");
-  var alerts = $('#sse-out');
-  var logstream = $('#output');
+  var $alerts = $('#sse-out');
+  var $queue = $('#queue-body');
+
 
   function convString(str) {
     if (str[0] == 'b') {
@@ -38,9 +42,13 @@ $(document).ready(function() {
     var channel = String(fields[0]);
     var type = fields[1];
     var message = convString(fields[2]);
-    if (channel == 'alerts') {
+    if (channel == 'queue') {
+      if ((type != 'subscribe') && (message != '')) {
+        $queue.html(message);
+      }
+    } else if (channel == 'alerts') {
       if (type != 'subscribe') {
-        alerts.prepend(message + '<br />');
+        $alerts.prepend(message + '<br />');
         if (message.indexOf("END TASK") !== -1) {
           //window.getQueue();
           // find the ID tag from the message
@@ -53,14 +61,14 @@ $(document).ready(function() {
             $('#task-' + taskid).remove();
             // if queue is empty, add the 'Empty' row
             if ($('#queue tbody tr').length == 0) {
-              $('#queue tbody').append('<tr id="task-0" class="empty"><td colspan="7">EMPTY</td></tr>');
+              $queue.html('<tr id="task-0" class="empty"><td colspan="7">EMPTY</td></tr>');
             }
            
           }
         } 
       } else {
         if (window.subscribed_alerts != true) {
-          alerts.prepend(channel + ' enabled<br />');
+          $alerts.prepend(channel + ' enabled<br />');
           window.subscribed_alerts = true;
         }
       }

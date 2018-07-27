@@ -4,7 +4,7 @@
 from app.bigredbutton import app, db
 from models.taskitem import TaskItem
 from app.bigredbutton.subdomains import SubdomainsList
-from subprocess import Popen
+import subprocess
 from sqlalchemy import exc
 import os
 import json
@@ -13,14 +13,15 @@ import json
 class BrbQueue(object):
 
   @staticmethod
-  def get(id=0, status=0):
+  def get(id=0):
     '''  '''
     tasks = None
     try:
+      app.logger.info("TaskItem id="+str(id))
       if int(id) > 0:
-        tasks = db.session.query(TaskItem).filter_by(id=id, status=status).first()
+        tasks = db.session.query(TaskItem).filter_by(id=id).first()
       else:
-        tasks = db.session.query(TaskItem).filter_by(status=status).all()
+        tasks = db.session.query(TaskItem).all()
 
     except exc.SQLAlchemyError as e:
       app.logger.error("BrbQueue::get()")
@@ -28,6 +29,7 @@ class BrbQueue(object):
     except Exception as e:
       app.logger.error("BrbQueue::get()")
       app.logger.error(str(e))
+
 
     return tasks
 
@@ -64,13 +66,10 @@ class BrbQueue(object):
         # app.logger.info("BrbQueue::add(): options " + options)
         task = TaskItem(username, str(item['task']), options=options)
         db.session.add(task)
-        doCommit = True
 
-      if doCommit:
-        db.session.commit()
-        # initiate the QueueManager to run the new task
-        BrbQueue.runQueueManager()
-        return True
+      # after for loop, commit all new items
+      db.session.commit()
+      return True
       
     except IOError as e:
       # this is an IO EPIPE error -- ignore
@@ -108,7 +107,7 @@ class BrbQueue(object):
 
 
   @staticmethod
-  def runQueueManager():
+  def runQueueManager(delay=0):
     ''' starts the queue_manager in the event there are any tasks to run '''
     try:
       # start the queue_manager
@@ -120,8 +119,8 @@ class BrbQueue(object):
       qm_path = os.path.dirname(__file__) + '/tools'
       queue_manager =  qm_path + '/queue_manager.py'
       #python_bin = brb_virt_env + '/bin/python'
-
-      Popen(['nohup', queue_manager, '&'], stdout=brb_log, stderr=brb_log)
+      #subprocess.Popen(['whoami'], stdout=brb_log, stderr=brb_log)
+      subprocess.call([queue_manager, '-d', str(delay), '&'], shell=True, stdout=brb_log, stderr=brb_log)
 
     except Exception as e:
       app.logger.error("BrbQueue::runQueueManager()")
