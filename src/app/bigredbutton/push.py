@@ -22,6 +22,7 @@ class Push(object):
     print('push (data): ', str(data))
     pushitem = None
     options = ''
+    opt_backup = ''
 
     if data['task'] == 'merge':
       options = '{{ "mergeRepo": "{}", "mergeTo": "{}", "mergeTest": {} }}'.format(
@@ -35,12 +36,17 @@ class Push(object):
                       data['versionIncrMinor'],
                       data['versionTest'] )
     else:
+
       # create a json-compatible string to pass to the TaskItem object
       # double braces in format() indicate use of a literal
-      options = '{{ "subdomain": "{}", "site": "{}", "dbbackup": {} }}'.format(
+      try:
+        opt_backup = ', "dbbackup": {}'.format(data['dbbackup'])
+      except KeyError:
+        opt_backup = ''
+
+      options = '{{ "subdomain": "{}", "site": "{}"{} }}'.format(
                       SubdomainsList.getSubdomain(data['site'], '', 'prod'),
-                      data['site'],
-                      data['dbbackup'] )
+                      data['site'], opt_backup )
 
 
     pushitem = PushItem(username, data['task'], options=options)

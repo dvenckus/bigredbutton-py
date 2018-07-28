@@ -21,7 +21,8 @@ $(document).ready(function() {
     $('#tasks-prod').val(0);
     $('#releases-prod').val(0);
     $('form#deploy-prod .control-group.releases').hide();
-    $('#chk-backup-database-prod').prop('checked', false);
+    $('#chk-backup-database-prod').prop('checked', true);
+    window.pushBusy = false;
   };
 
 
@@ -29,6 +30,8 @@ $(document).ready(function() {
     clearFormProd();
     return false;
   });
+
+  clearFormProd();
 
 
   $('#btnPushProd').click(function(e) {
