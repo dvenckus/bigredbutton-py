@@ -18,6 +18,8 @@ from repositories import Repositories
 from branches import Branches
 from taskhistory import TaskHistory 
 from utils import Utils
+from releases import Releases
+from pushlog import PushLog
 
 import json
 from datetime import datetime, timedelta
@@ -78,6 +80,7 @@ def main_page():
 
     return render_template('main.html',  sites=SitesList.get(),
                                         tasks=TasksList.get(),
+                                        releases=Releases.get(),
                                         subdomains=SubdomainsList.get(),
                                         repositories=Repositories.get(),
                                         branches=Branches.get(),
@@ -168,9 +171,15 @@ def queue_add():
 
   if Admin.checkPermission(session.get('user', None), 'PERMISSION_PRE_PRODUCTION', session['permissions']):
     if BrbQueue.add(session['user']['username'], jsonData):
-      content = render_template('queue.incl.jinja', queue=BrbQueue.get())
+      queueContent = BrbQueue.get()
+      #app.logger.info("Queue Content: {}".format(queueContent))
+      content = render_template('queue.incl.jinja', queue=queueContent)
       if not isinstance(content, str):
         content = content.decode('utf-8')
+
+      queue_update(content)
+
+      BrbQueue.runQueueManager(3)
       retn = True
   else:
     content = 'Not Authorized'
@@ -193,11 +202,27 @@ def queue_cancel(id):
       retn = True
       if not isinstance(content, str):
         content = content.decode('utf-8')
+      
+      queue_update(content)
+      
   else:
     content = 'Not Authorized'
     HttpCode = 444
 
   return json.dumps({ 'response': retn, 'content': content }), HttpCode, {'ContentType':'application/json' }
+
+
+def queue_update(queueContent=''):
+  ''' 
+  sends the queue updates via redis pubsub as sse stream from redis pubsub 
+  doesn't work and play well (causes blocking) with ajax response updates
+  '''
+  pushLog = PushLog(app.config['CHANNEL_QUEUE'])
+  pushLog.pushMessage(queueContent)
+  resp = Response(status=202)
+  resp.headers['X-Accel-Buffering'] = 'no'
+  return resp
+
 
 
 # PUSH handlers
@@ -490,7 +515,8 @@ def stream_channel():
   ''' '''
   channels = [
     app.config['CHANNEL_ALERT'],
-    app.config['CHANNEL_LOG']
+    app.config['CHANNEL_LOG'],
+    app.config['CHANNEL_QUEUE']
   ]
   pubsub = _redis.pubsub()
   pubsub.subscribe(channels)

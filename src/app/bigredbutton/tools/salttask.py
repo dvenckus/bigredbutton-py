@@ -26,6 +26,7 @@ class SaltTask(object):
   doBulkLoad = constants.SCRIPT_BULK_LOAD
   doMerge = constants.SCRIPT_MERGE_REPOS
   doVersionUpdate = constants.SCRIPT_VERSION_UPDATE
+  doReleaseScript = constants.SCRIPT_RELEASE_SCRIPT
 
 
   taskItem = None
@@ -66,13 +67,20 @@ class SaltTask(object):
     except KeyError:
       ignoreThis = True
 
+    relscript = ''
+    try:
+      relscript = self.taskOptions['script']
+    except KeyError:
+      ignoreThis = True
 
-    self.taskDesc = "[{}] {} {} ({}) {}".format(
+
+    self.taskDesc = "[{}] {} {} ({}) {}{}".format(
                   taskItem.task.upper(), 
                   subdomain, 
                   site, 
                   taskItem.username, 
-                  self.taskOptions['backup_param'])
+                  self.taskOptions['backup_param'],
+                  relscript)
 
     # Alert Channel messages are sent from here
     # Log Channel messages are sent from lower-level BRB salt scripts
@@ -209,6 +217,16 @@ class SaltTask(object):
       elif self.taskOptions['versionIncrMinor']: 
         saltcmd.append('minor')
       if self.taskOptions['versionTest']: saltcmd.append('test')
+
+    elif constants.TASK_RELEASE_SCRIPT == tasksList[self.taskItem.task]['do']:
+      saltcmd = [
+        self.doReleaseScript,
+        'tgt=' + self.taskOptions['subdomain'],
+        'site=' + self.taskOptions['site'],
+        'script=' + self.taskOptions['script'],
+        'username=' + self.taskItem.username
+      ]
+
     else:
       saltcmd = []
 

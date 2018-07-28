@@ -9,7 +9,7 @@
       <div class="container-fluid">
         <div class="collapse navbar-collapse" id="navbar-collapse-1">
           <ul class="navbar-nav">
-            <li class="nav-item"><a href="#" class="nav-link hello">Hello, {{ session['user']['realname'] }}!</a></li>
+            <li class="nav-item"><a id="user" href="#" class="nav-link hello" data-username="{{ session['user']['username'] }}">Hello, {{ session['user']['realname'] }}!</a></li>
             <li class="nav-item"><a href="/logout" class="nav-link">Logout</a></li></ul>
           </ul>
         </div>
@@ -56,7 +56,7 @@
           <thead>
             <tr><td>User</td><td>Requested</td><td>Task</td><td>Subdomain</td><td>Site</td><td>DB Backup?</td><td>Cancel</td></tr>
           </thead>
-          <tbody>
+          <tbody id="queue-body">
             {% include 'queue.incl.jinja' %}
           </tbody>
         </table>

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# turn off output buffering
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
@@ -7,6 +8,8 @@ import datetime
 import pytz
 import re
 import logging
+import getopt
+import time
 
 
 QM_LOG_PREFIX = "[BRB Queue Manager] "
@@ -22,9 +25,32 @@ def main():
 
   DATABASE_URI = constants.SQLALCHEMY_DATABASE_URI
   tz = pytz.timezone(constants.TIMEZONE)
+  delay = 0
 
   if not pid_begin():
    sys.exit("The queue_manager is already running.  My work is done here.")
+
+
+  try:
+    opts, args = getopt.getopt(sys.argv[1:], "d:", ["delay="])
+  except getopt.GetoptError:
+    print('Error:  missing arguments')
+    usage()
+    sys.exit(2)
+
+  # handle options/args either way
+  for o, a in opts:
+    if o in ("-d", "--delay"):
+      delay = a
+
+  for a in args:
+    if "delay=" in a:
+      tmp = a.split('=')
+      delay = tmp[1]
+
+  # delay for n seconds
+  if int(delay) > 0:
+    time.sleep(int(delay))
 
   # manage the queue
   try:

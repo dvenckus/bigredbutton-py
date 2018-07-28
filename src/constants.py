@@ -18,11 +18,17 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 PID_DIR = '/var/run/bigredbutton'
 LOG_DIR = '/var/log/bigredbutton'
 SCRIPTS_DIR = '/var/www/scripts'
+SALT_SCRIPTS_DIR = '/srv/salt/base/assets/scripts'
+DEV_SCRIPTS_DIR = '/mnt/hgfs/veritashealth/salt/veritas-health-config/saltstack/srv/salt/base/assets/scripts'
 
 SALTLIBS = SCRIPTS_DIR + '/saltlibs'
-DEV_SALTLIBS = '/mnt/hgfs/veritashealth/salt/veritas-health-config/saltstack/srv/salt/base/assets/scripts/master/saltlibs'
-DEVLIBS = '/mnt/hgfs/veritashealth/salt/veritas-health-config/saltstack/srv/salt/base/assets/scripts/local/devlibs'
-DEVSCRIPTS = '/mnt/hgfs/veritashealth/salt/veritas-health-config/saltstack/srv/salt/base/assets/scripts/local'
+
+DEV_SALTLIBS = DEV_SCRIPTS_DIR + '/master/saltlibs'
+DEVLIBS = DEV_SCRIPTS_DIR + '/local/devlibs'
+DEVSCRIPTS = DEV_SCRIPTS_DIR + '/local'
+
+RELEASE_SCRIPTS_DIR = SALT_SCRIPTS_DIR + '/releases'
+DEV_RELEASE_SCRIPTS_DIR = DEV_SCRIPTS_DIR + '/releases'
 
 # salt scripts
 SCRIPT_SITE_SYNC = SCRIPTS_DIR + '/brb_site_sync.py'
@@ -33,6 +39,7 @@ SCRIPT_ROLLBACK = SCRIPTS_DIR + '/brb_site_rollback.py'
 SCRIPT_BULK_LOAD = SCRIPTS_DIR + '/brb_bulk_load.py'
 SCRIPT_MERGE_REPOS = SCRIPTS_DIR + '/brb_merge_repos.py'
 SCRIPT_VERSION_UPDATE = SCRIPTS_DIR + '/brb_version_update.py'
+SCRIPT_RELEASE_SCRIPT = SCRIPTS_DIR + '/brb_release_script.py'
 
 ### LOGS ###
 LOG_FILE =  LOG_DIR + '/bigredbutton.log'
@@ -92,6 +99,10 @@ CHANNEL_LOG = 'logstream'
 CHANNEL_LOG_KEY_PREFIX = "BRB_LOGSTREAM"
 CHANNEL_LOG_EXPIRES = 3600   # 1 hours
 
+CHANNEL_QUEUE = "queue"
+CHANNEL_QUEUE_KEY_PREFIX = "BRB_QUEUE"
+CHANNEL_QUEUE_EXPIRES = 30 #sec
+
 CHANNEL_DEFAULT = CHANNEL_LOG
 
 
@@ -112,6 +123,7 @@ TASK_CACHE = 'cache'
 TASK_VARNISH = 'varnish'
 TASK_MERGE = 'merge'
 TASK_VERSION_UPDATE = 'versionup'
+TASK_RELEASE_SCRIPT = 'relscript'
 TASK_ROLLBACK = 'rollback'
 TASK_ROLLBACK_UNDO = 'unrb'
 
