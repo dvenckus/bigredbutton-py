@@ -1,0 +1,22 @@
+[Unit]
+Description = BigRedButton
+After = network.target
+
+[Service]
+PermissionsStartOnly = true
+PIDFile = {{ pid_file }}
+User = {{ user }}
+Group = {{ group }}
+WorkingDirectory = {{ app_path }}
+Environment = "{{ environment }}"
+ExecStartPre = /bin/mkdir -p {{ pid_dir }} && /bin/mkdir -p {{ log_dir }}
+ExecStartPre = /bin/chown -R {{ user }}:{{ group }} {{ pid_dir }} && /bin/chmod -R 775 {{ pid_dir }}
+ExecStartPre = /bin/chown -R {{ user }}:{{ group }} {{ log_dir }} && /bin/chmod -R 775 {{ log_dir }}
+ExecStart = gunicorn --daemon --name={{ app_name }} --bind={{ bind }} --pid {{ pid_file }} --user={{ user }} --workers={{ workers }} --worker-class={{ worker_class }} --log-file={{ log_file }} run:app
+ExecReload = /bin/kill -s HUP $MAINPID
+ExecStop = /bin/kill -s TERM $MAINPID
+ExecStopPost = /bin/rm -rf {{ pid_dir }}/*
+PrivateTmp = true
+
+[Install]
+WantedBy = multi-user.target
