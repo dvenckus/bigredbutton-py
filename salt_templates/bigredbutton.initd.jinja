@@ -33,8 +33,11 @@ WORKERS=2
 WORKER_CLASS="gevent"
 
 # Source function library.
+{% if os == 'CentOS' %}
 . /etc/rc.d/init.d/functions
-#. /lib/lsb/init-functions
+{% elif os == 'Ubuntu' %}
+. /lib/lsb/init-functions
+{% endif %}
 
 . /etc/profile.d/bigredbutton.sh
 
@@ -54,35 +57,44 @@ if [ ! -d "$VAR_RUN_DIR" ]; then
   chown ${USER}:${GROUP} $VAR_RUN_DIR
 fi
 
+get_pid() {
+  cat "$PIDFILE"
+}
+
+is_running() {
+  [ -e "$PIDFILE" ] && ps -p `get_pid` > /dev/null 2>&1
+}
+
 
 case "$1" in
   start)
-        $ACTIVATE
-        cd $APP_PATH
-        echo "$DAEMON --daemon --bind=$BIND --pid=$PIDFILE --name=$APPNAME --workers=$WORKERS --worker-class=$WORKER_CLASS --user=$USER --log-file=$LOGFILE $APPMODULE"
-        $DAEMON --daemon --bind=$BIND --pid=$PIDFILE --name=$APPNAME --workers=$WORKERS --worker-class=$WORKER_CLASS --user=$USER --log-file=$LOGFILE $APPMODULE
-        RETVAL=$?
-        if [ $RETVAL -eq 0 ]; then
-          success "Starting $APPNAME"
+        if is_running; then
+          echo "Already started"
         else
-          failure "Starting $APPNAME"
+          echo "Starting $APPNAME"
+
+          $ACTIVATE
+          cd $APP_PATH
+          echo "$DAEMON --daemon --bind=$BIND --pid=$PIDFILE --name=$APPNAME --workers=$WORKERS --worker-class=$WORKER_CLASS --user=$USER --log-file=$LOGFILE $APPMODULE"
+          $DAEMON --daemon --bind=$BIND --pid=$PIDFILE --name=$APPNAME --workers=$WORKERS --worker-class=$WORKER_CLASS --user=$USER --log-file=$LOGFILE $APPMODULE
+          RETVAL=$?
+          if [ $RETVAL -eq 0 ]; then
+            echo "Starting $APPNAME
+          else
+            echo "Error: Unable to start $APPNAME"
+          fi
         fi
-        echo "Starting $APPNAME"
     ;;
   stop)
-        #killproc -p $PIDFILE $DAEMON
-        #pkill -TERM -F $PIDFILE
-        #kill $(pgrep -f $APPNAME)
-        #kill `cat $PIDFILE` 2>&1 
+        ## We cant use a normal kill -s TERM here since BRB has worker processes
         pgrep -f $DAEMON | xargs kill -s SIGTERM
         RETVAL=$?
         if [ $RETVAL -eq 0 ]; then
-          success "Stopping $APPNAME"
+          echo "Stopped $APPNAME"
+          rm -fr $PIDFILE
         else
-          failure "Stopping $APPNAME"
+          echo "Error:  Unable to stop $APPNAME"
         fi
-        echo "Stopping $APPNAME"
-        rm -fr $PIDFILE
     ;;
   restart|reload)
       # this won't work here as the worker processes take longer to shutdown and
@@ -94,16 +106,13 @@ case "$1" in
       ps aux | grep $DAEMON | grep $APPNAME | awk '{ print $2 }' | xargs kill -HUP
       RETVAL=$?
       if [ $RETVAL -eq 0 ]; then
-        success "Reloading $APPNAME"
+        echo "Reloading $APPNAME"
       else
-        failure "Reloading $APPNAME"
-        exit 1
+        echo "Error: Reloading $APPNAME"
       fi
-      echo "Reloading $APPNAME"
     ;;
   status)
-    #status $APPNAME && exit 0 || exit $?
-    if [ -e $PIDFILE ]; then
+    if is_running; then
       echo "$APPNAME is running"
     else
       echo "$APPNAME is NOT running"
@@ -111,7 +120,7 @@ case "$1" in
     fi
     ;;
   *)
-    echo "Usage: /etc/init.d/$APPNAME {start|stop|status|restart|reload}"
+    echo "Usage: $0 /etc/init.d/$APPNAME {start|stop|status|restart|reload}"
     exit 1
     ;;
 esac
