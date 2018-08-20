@@ -3,7 +3,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
-from os import sys, path, unlink, getpid
+from os import sys, path, unlink, getpid, environ
 import datetime
 import pytz
 import re
@@ -80,7 +80,7 @@ def main():
 
       # retrieve the final result from the full output
       result = Utils.parseTaskResult(output)
-      
+
       taskHistoryItem = TaskHistoryItem(task.username, task.task, task.options, result, output)
       session.add(taskHistoryItem)
 
@@ -177,7 +177,12 @@ if __name__ == "__main__":
 
   import constants 
 
-  brb_env_libs = constants.VIRTUAL_ENV + '/lib/python3.5/site-packages'
+  venv = constants.VIRTUAL_ENV
+  if not venv:
+    venv = environ.get('VIRTUAL_ENV')
+
+  pyversion = sys.version
+  brb_env_libs = "{}/lib/python{}/site-packages".format(venv, pyversion[:3])
   sys.path.append(brb_env_libs)
   sys.path.append(constants.SALTLIBS)
   # sys.path.append(constants.DEV_SALTLIBS)
