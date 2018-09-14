@@ -79,7 +79,7 @@ case "$1" in
           $DAEMON --daemon --bind=$BIND --pid=$PIDFILE --name=$APPNAME --workers=$WORKERS --worker-class=$WORKER_CLASS --user=$USER --log-file=$LOGFILE $APPMODULE
           RETVAL=$?
           if [ $RETVAL -eq 0 ]; then
-            echo "Starting $APPNAME
+            echo "Starting $APPNAME"
           else
             echo "Error: Unable to start $APPNAME"
           fi
