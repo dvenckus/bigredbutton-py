@@ -16,7 +16,18 @@ ExecStartPre = /bin/chown -R {{ user }}:{{ group }} {{ pid_dir }}
 ExecStartPre = /bin/chmod -R 775 {{ pid_dir }}
 ExecStartPre = /bin/chown -R {{ user }}:{{ group }} {{ log_dir }}
 ExecStartPre = /bin/chmod -R 775 {{ log_dir }}
-ExecStart = /usr/local/bin/gunicorn --daemon --name={{ app_name }} --bind={{ bind }} --pid {{ pid_file }} --user={{ user }} --workers={{ workers }} --worker-class={{ worker_class }} --log-file={{ log_file }} run:app
+{# DO NOT USE gunicorn --daemon with Ubuntu, causes failures #}
+ExecStart = /usr/local/bin/gunicorn \
+            --name={{ app_name }} \
+            --bind={{ bind }} \
+            --umask={{ umask }} \
+            --pid {{ pid_file }} \
+            --user={{ user }} \
+            --group={{ group }} \
+            --workers={{ workers }} \
+            --worker-class={{ worker_class }} \
+            --log-file={{ log_file }} \
+            run:app
 ExecReload = /bin/kill -HUP $MAINPID
 PrivateTmp = true
 KillSignal=SIGINT

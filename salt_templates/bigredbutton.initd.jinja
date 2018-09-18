@@ -31,6 +31,7 @@ LOGDIR=/var/log/$APPNAME
 LOGFILE=$LOGDIR/$APPNAME.log
 WORKERS=2
 WORKER_CLASS="gevent"
+UMASK=002
 
 # Source function library.
 {% if os == 'CentOS' %}
@@ -75,8 +76,8 @@ case "$1" in
 
           $ACTIVATE
           cd $APP_PATH
-          echo "$DAEMON --daemon --bind=$BIND --pid=$PIDFILE --name=$APPNAME --workers=$WORKERS --worker-class=$WORKER_CLASS --user=$USER --log-file=$LOGFILE $APPMODULE"
-          $DAEMON --daemon --bind=$BIND --pid=$PIDFILE --name=$APPNAME --workers=$WORKERS --worker-class=$WORKER_CLASS --user=$USER --log-file=$LOGFILE $APPMODULE
+          echo "$DAEMON {% if os == 'CentOS' %}--daemon {% endif %}--bind=$BIND --umask=$UMASK --pid=$PIDFILE --name=$APPNAME --workers=$WORKERS --worker-class=$WORKER_CLASS --user=$USER --group=$GROUP --log-file=$LOGFILE $APPMODULE"
+          $DAEMON {% if os == 'CentOS' %}--daemon {% endif %}--bind=$BIND --umask=$UMASK --pid=$PIDFILE --name=$APPNAME --workers=$WORKERS --worker-class=$WORKER_CLASS --user=$USER --group=$GROUP --log-file=$LOGFILE $APPMODULE
           RETVAL=$?
           if [ $RETVAL -eq 0 ]; then
             echo "Starting $APPNAME"
