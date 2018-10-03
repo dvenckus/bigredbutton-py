@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # turn off output buffering
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker

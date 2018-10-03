@@ -10,18 +10,13 @@ Group = {{ group }}
 WorkingDirectory = {{ app_path }}
 RuntimeDirectory = gunicorn
 Environment = "{{ environment }}"
-ExecStartPre = /bin/mkdir -p {{ pid_dir }}
-ExecStartPre = /bin/mkdir -p {{ log_dir }}
-ExecStartPre = /bin/chown -R {{ user }}:{{ group }} {{ pid_dir }}
-ExecStartPre = /bin/chmod -R 775 {{ pid_dir }}
-ExecStartPre = /bin/chown -R {{ user }}:{{ group }} {{ log_dir }}
-ExecStartPre = /bin/chmod -R 775 {{ log_dir }}
+
 {# DO NOT USE gunicorn --daemon with Ubuntu, causes failures #}
-ExecStart = /usr/local/bin/gunicorn \
+ExecStart = {{ environment }}/gunicorn \
             --name={{ app_name }} \
             --bind={{ bind }} \
             --umask={{ umask }} \
-            --pid {{ pid_file }} \
+            --pid={{ pid_file }} \
             --user={{ user }} \
             --group={{ group }} \
             --workers={{ workers }} \

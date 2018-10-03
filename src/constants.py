@@ -2,6 +2,7 @@
 # config.py
 #
 import os
+import distro
 
 # Statement for
 #  enabling the development environment
@@ -14,6 +15,7 @@ TIMEZONE = 'America/Chicago'
 # Define the application directory
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DISTRO = distro.linux_distribution()
 
 PID_DIR = '/var/run/bigredbutton'
 LOG_DIR = '/var/log/bigredbutton'
@@ -89,7 +91,7 @@ SEND_FILE_MAX_AGE_DEFAULT = 0
 
 # REDIS - SSE SETTINGS
 SESSION_TYPE = 'redis'
-REDIS_SOCKET_PATH = '/var/run/redis/redis.sock'
+REDIS_SOCKET_PATH = '/var/run/redis/redis.sock' if ('CentOS' in DISTRO) else '/var/run/redis/redis-server.sock'
 
 CHANNEL_ALERT = 'alerts'
 CHANNEL_ALERT_KEY_PREFIX = "BRB_ALERT"
