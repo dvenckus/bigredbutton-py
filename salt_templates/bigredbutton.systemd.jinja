@@ -12,7 +12,7 @@ RuntimeDirectory = gunicorn
 Environment = "{{ environment }}"
 
 {# DO NOT USE gunicorn --daemon with Ubuntu, causes failures #}
-ExecStart = {{ environment }}/gunicorn \
+ExecStart = {{ venv_bin }}/gunicorn \
             --name={{ app_name }} \
             --bind={{ bind }} \
             --umask={{ umask }} \
