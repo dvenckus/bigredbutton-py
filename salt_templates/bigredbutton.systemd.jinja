@@ -1,0 +1,31 @@
+[Unit]
+Description = BigRedButton
+After = network.target
+
+[Service]
+Restart=on-failure
+PIDFile = {{ pid_file }}
+User = {{ user }}
+Group = {{ group }}
+WorkingDirectory = {{ app_path }}
+RuntimeDirectory = gunicorn
+Environment = "{{ environment }}"
+
+{# DO NOT USE gunicorn --daemon with Ubuntu, causes failures #}
+ExecStart = {{ environment }}/gunicorn \
+            --name={{ app_name }} \
+            --bind={{ bind }} \
+            --umask={{ umask }} \
+            --pid={{ pid_file }} \
+            --user={{ user }} \
+            --group={{ group }} \
+            --workers={{ workers }} \
+            --worker-class={{ worker_class }} \
+            --log-file={{ log_file }} \
+            run:app
+ExecReload = /bin/kill -HUP $MAINPID
+PrivateTmp = true
+KillSignal=SIGINT
+
+[Install]
+WantedBy = multi-user.target

@@ -17,7 +17,7 @@ class BrbQueue(object):
     '''  '''
     tasks = None
     try:
-      app.logger.info("TaskItem id="+str(id))
+      #app.logger.info("TaskItem id="+str(id))
       if int(id) > 0:
         tasks = db.session.query(TaskItem).filter_by(id=id).first()
       else:

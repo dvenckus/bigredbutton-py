@@ -247,9 +247,9 @@ class SaltTask(object):
         # else:
 
         # this is the salt master, issue commandsd to subprocess
-        saltcmd[:0] = ['sudo']
+        saltcmd[:0] = ['/usr/bin/sudo']
         saltcmd_str = ', '.join(saltcmd)
-        #self.pushLog.send("saltcmd: " + saltcmd_str)
+        self.pushLog.send("saltcmd: " + saltcmd_str)
         output = subprocess.check_output(saltcmd)
       except subprocess.CalledProcessError as e:
         errormsg = saltcmd_str  + "\nError [SaltTask::do()]: " + str(e)

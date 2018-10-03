@@ -1,8 +1,8 @@
 {% if queue is defined and queue != None and queue|length > 0 -%}
-  {% set delete_glyph = '<i class="glyph-delete fas fa-trash"></i>' %}
-  {% set bkup_glyph = '<i class="glyph-checkmark fas fa-check"></i>' %}
+  {% set delete_glyph = '<i class="glyph-delete fas fa-trash-alt"></i>' -%}
+  {% set bkup_glyph = '<i class="glyph-checkmark fas fa-check"></i>'-%}
   {% for taskitem in queue -%}
-    {% set taskOptions = taskitem.parseOptions() %}
+    {% set taskOptions = taskitem.parseOptions() -%}
     <tr id="task-{{ taskitem.id }}">
       <td>{{ taskitem.username }}</td>
       <td>{{ taskitem.timestamp }}</td>
