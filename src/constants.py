@@ -54,7 +54,8 @@ QM_LOGFILE = LOG_DIR + '/brb_queue_manager.log'
 TASK_LOGFILE =  LOG_DIR + '/brb_tasks.log'   
 
 # Virtual Env - so bigredbutton can find all of its libraries
-VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV')
+#VIRTUAL_ENV = os.environ.get('VIRTUAL_ENV')
+VIRTUAL_ENV = '/usr/local/python_virtualenv/bigredbutton'
 BRB_ENV = VIRTUAL_ENV
 
 SALT_MASTER = 'boss'
