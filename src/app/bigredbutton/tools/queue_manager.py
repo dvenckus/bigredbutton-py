@@ -73,7 +73,7 @@ def main():
       output = saltTask.run()
 
       logging.info("Task found.\n{}".format(str(task)))
-      logging.info("Task Options: " + task.options)
+      logging.info("Task Options: " + str(task.options))
       logging.info("Task run output: " + str(output))
 
       # archive the task as completed
@@ -99,6 +99,7 @@ def main():
     #pid_end()
     msg = "Error: QueueManager main, {0!r}\nExiting...".format(e)
     logging.info(msg)
+    logging.info('Error on line {}'.format(sys.exc_info()[-1].tb_lineno))
     sys.exit(msg)
 
   finally:
@@ -181,9 +182,7 @@ if __name__ == "__main__":
   if not venv:
     venv = environ.get('VIRTUAL_ENV')
 
-  pyversion = sys.version
-  brb_env_libs = "{}/lib/python{}/site-packages".format(venv, pyversion[:3])
-  sys.path.append(brb_env_libs)
+  sys.path.append(constants.VIRTUAL_ENV_LIBS)
   sys.path.append(constants.SALTLIBS)
   # sys.path.append(constants.DEV_SALTLIBS)
   # sys.path.append(constants.DEVLIBS)
