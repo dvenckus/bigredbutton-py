@@ -1,6 +1,6 @@
 [Unit]
 Description = BigRedButton
-After = network.target
+After = network.target redis-server.service
 
 [Service]
 Restart=on-failure

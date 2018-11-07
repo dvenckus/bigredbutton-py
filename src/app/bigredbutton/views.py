@@ -31,6 +31,7 @@ import re
 import sys
 import os
 import subprocess
+import distro
 
 import logging
 
@@ -39,7 +40,10 @@ import logging
 # connect to redis server for message stream handling
 # unix_socket_path='/var/run/redis/redis.sock'
 # remove the unix_socket_path parameter to default to 127.0.0.1:6379
-_redis = redis.StrictRedis(unix_socket_path=app.config['REDIS_SOCKET_PATH'])
+linux_distro = distro.linux_distribution()
+redis_socket_path =  '/var/run/redis/redis.sock' if ('CentOS' in linux_distro) else '/var/run/redis/redis-server.sock'
+
+_redis = redis.StrictRedis(unix_socket_path=redis_socket_path)
 
 
 # Basic HTTP error handling
