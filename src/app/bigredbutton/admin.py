@@ -160,7 +160,7 @@ class Admin(object):
   def userDelete(id):
     ''' delete user '''
     try:
-      user = Admin.get(id)
+      user = Admin.getUser(id)
       if user:
         db.session.delete(user)
         db.session.commit()
