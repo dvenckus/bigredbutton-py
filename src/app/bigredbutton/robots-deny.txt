@@ -1,0 +1,5 @@
+# Don't spider this site.
+
+User-agent: *
+Disallow: /
+Noindex: /
