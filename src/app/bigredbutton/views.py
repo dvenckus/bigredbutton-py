@@ -565,7 +565,8 @@ def alert_push():
 # handle session expiration
 @app.before_request
 def set_session_timeout():
-    app.permanent_session_lifetime = timedelta(hours=1)
+    session.permanent = True
+    app.permanent_session_lifetime = timedelta(hours=6)
 
 #@app.before_request
 #def force_https():
