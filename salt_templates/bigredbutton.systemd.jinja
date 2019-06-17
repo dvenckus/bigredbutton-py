@@ -5,8 +5,8 @@ After = network.target redis-server.service
 [Service]
 Restart=on-failure
 PIDFile = {{ pid_file }}
-User = {{ user }}
-Group = {{ group }}
+User = root
+Group = root
 WorkingDirectory = {{ app_path }}
 RuntimeDirectory = gunicorn
 Environment = "{{ environment }}"
@@ -24,6 +24,9 @@ ExecStart = {{ venv_bin }}/gunicorn \
             --log-file={{ log_file }} \
             run:app
 ExecReload = /bin/kill -HUP $MAINPID
+ExecStartPre=-/bin/mkdir -p {{ run_dir }}
+ExecStartPre=-/bin/chmod 775 {{ run_dir }}
+ExecStartPre=-/bin/chown root:{{ group }} {{ run_dir }}
 PrivateTmp = true
 KillSignal=SIGINT
 
