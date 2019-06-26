@@ -151,13 +151,13 @@ class SaltTask(object):
       #   ]
       # else:
         #print("self: In DO, tasksList sync " + str(self.taskItem) )
-        saltcmd = [
-          self.doSiteSync,
-          'tgt=' + self.taskOptions['subdomain'],
-          'site=' + self.taskOptions['site'],
-          'mode=all',
-          'username=' + self.taskItem.username
-        ]
+      saltcmd = [
+        self.doSiteSync,
+        'tgt=' + self.taskOptions['subdomain'],
+        'site=' + self.taskOptions['site'],
+        'mode=all',
+        'username=' + self.taskItem.username
+      ]
 
       backup = self.taskOptions.get('backup_param', '')
       if backup != '': saltcmd.append(backup)  
