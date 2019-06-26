@@ -141,14 +141,15 @@ class SaltTask(object):
 
     if constants.TASK_SYNC == tasksList[self.taskItem.task]['do']:
 
-      if self.taskOptions['site'] == 'vf':
-        saltcmd = [
-          self.doBulkLoad,
-          'tgt=' + self.taskOptions['subdomain'],
-          'mode=sync',
-          'username=' + self.taskItem.username
-        ]
-      else:
+      # Forum Migration -- only 1 forum site now, no need for bulk_load
+      # if self.taskOptions['site'] == 'vf':
+      #   saltcmd = [
+      #     self.doBulkLoad,
+      #     'tgt=' + self.taskOptions['subdomain'],
+      #     'mode=sync',
+      #     'username=' + self.taskItem.username
+      #   ]
+      # else:
         #print("self: In DO, tasksList sync " + str(self.taskItem) )
         saltcmd = [
           self.doSiteSync,
