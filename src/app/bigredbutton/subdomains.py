@@ -16,19 +16,21 @@ class SubdomainsList(object):
     'list': {
       '0': { 'name': mdash + " Select Subdomain " + mdash },
       'eve': { 'name': "Eve" },
+      'eve8': { 'name': "Eve8" },
       'frye': { 'name': "Frye" },
-      'gumby': { 'name': "Gumby" },
-      'hobbes': { 'name': "Hobbes" },
       'itchy': { 'name': "Itchy" },
       'stage': { 'name': "Stage" },
       'master': { 'name': "Master" },
       'www': { 'name': "Production" }
     },
     'list_order': {
-      'pre-prod': ['0', 'eve', 'frye', 'gumby', 'hobbes', 'itchy', 'stage', 'master'],
+      'pre-prod': ['0', 'eve', 'eve8', 'frye', 'itchy', 'stage', 'master'],
       'production': ['www']
     }
   }
+
+  # 'gumby': { 'name': "Gumby" },
+  # 'hobbes': { 'name': "Hobbes" },
 
 
   @staticmethod
