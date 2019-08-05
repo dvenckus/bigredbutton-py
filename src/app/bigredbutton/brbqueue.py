@@ -56,7 +56,7 @@ class BrbQueue(object):
           opt_backup = ''
 
         try:
-          opt_relscript = ', "script": {}'.format(item['relscript'])
+          opt_relscript = ', "script": "{}"'.format(item['relscript'])
         except KeyError:
           opt_relscript = ''
 
