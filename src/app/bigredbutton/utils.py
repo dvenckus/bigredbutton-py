@@ -29,7 +29,11 @@ class Utils(object):
     #app.logger.info("Utils::trim() rstrip/strip: " + str(content))
 
     # convert newlines to html breaks
+    content = re.sub("\\\\n", "<br />", content)
+    content = re.sub("\\\\r", "", content)
     content = re.sub("\n", "<br />", content)
+    content = re.sub("\r", "", content)
+    
     #app.logger.info("Utils::trim() newlines to breaks: " + str(content))
     return content.strip()
 
