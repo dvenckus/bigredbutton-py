@@ -51,8 +51,6 @@ $(document).ready(function() {
       alert('Invalid selection');
       return false;
     } 
-    // now get the filename of the release script
-    relscript = $('#releases-prod').text();
 
     window.pushBusy = true;
 

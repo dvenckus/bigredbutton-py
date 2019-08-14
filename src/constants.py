@@ -18,8 +18,12 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 PID_DIR = '/var/run/bigredbutton'
 LOG_DIR = '/var/log/bigredbutton'
 SCRIPTS_DIR = '/var/www/scripts'
+VH_CONFIG_REPO = '/srv/salt/repos/veritashealth/veritas-health-config/develop'
+VERITAS_PROFILE_REPO = '/srv/salt/repos/veritashealth/veritas-profile-d7/develop'
 SALT_SCRIPTS_DIR = '/srv/salt/base/assets/scripts'
-DEV_SCRIPTS_DIR = '/mnt/hgfs/veritashealth/salt/veritas-health-config/saltstack/srv/salt/base/assets/scripts'
+
+DEV_VH_CONFIG_REPO = '/mnt/hgfs/veritashealth/salt/veritas-health-config'
+DEV_SCRIPTS_DIR = DEV_VH_CONFIG_REPO + '/saltstack/srv/salt/base/assets/scripts'
 
 SALTLIBS = SCRIPTS_DIR + '/saltlibs'
 
@@ -27,12 +31,13 @@ DEV_SALTLIBS = DEV_SCRIPTS_DIR + '/master/saltlibs'
 DEVLIBS = DEV_SCRIPTS_DIR + '/local/devlibs'
 DEVSCRIPTS = DEV_SCRIPTS_DIR + '/local'
 
-RELEASE_SCRIPTS_DIR = SALT_SCRIPTS_DIR + '/releases'
-DEV_RELEASE_SCRIPTS_DIR = DEV_SCRIPTS_DIR + '/releases'
+RELEASE_SCRIPTS_DIR = VH_CONFIG_REPO + '/releases'
+DEV_RELEASE_SCRIPTS_DIR = DEV_VH_CONFIG_REPO + '/releases'
 
 # salt scripts
 SCRIPT_SITE_SYNC = SCRIPTS_DIR + '/brb_site_sync.py'
 SCRIPT_SITE_DEPLOY = SCRIPTS_DIR + '/brb_site_deploy.py'
+SCRIPT_SITE_RELEASE = SCRIPTS_DIR + '/brb_site_release.py'
 SCRIPT_CACHE_CLEAR = SCRIPTS_DIR + '/brb_site_cache_clear.py'
 SCRIPT_VARNISH_CLEAR = SCRIPTS_DIR + '/brb_varnish_clear.py'
 SCRIPT_ROLLBACK = SCRIPTS_DIR + '/brb_site_rollback.py'
@@ -124,6 +129,7 @@ TASK_CACHE = 'cache'
 TASK_VARNISH = 'varnish'
 TASK_MERGE = 'merge'
 TASK_VERSION_UPDATE = 'versionup'
+TASK_RELEASE_SITE = 'relsite'
 TASK_RELEASE_SCRIPT = 'relscript'
 TASK_ROLLBACK = 'rollback'
 TASK_ROLLBACK_UNDO = 'unrb'

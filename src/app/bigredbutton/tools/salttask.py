@@ -27,6 +27,7 @@ class SaltTask(object):
   doMerge = constants.SCRIPT_MERGE_REPOS
   doVersionUpdate = constants.SCRIPT_VERSION_UPDATE
   doReleaseScript = constants.SCRIPT_RELEASE_SCRIPT
+  doReleaseSite = constants.SCRIPT_RELEASE_SITE
 
 
   taskItem = None
@@ -151,13 +152,13 @@ class SaltTask(object):
       #   ]
       # else:
         #print("self: In DO, tasksList sync " + str(self.taskItem) )
-        saltcmd = [
-          self.doSiteSync,
-          'tgt=' + self.taskOptions['subdomain'],
-          'site=' + self.taskOptions['site'],
-          'mode=all',
-          'username=' + self.taskItem.username
-        ]
+      saltcmd = [
+        self.doSiteSync,
+        'tgt=' + self.taskOptions['subdomain'],
+        'site=' + self.taskOptions['site'],
+        'mode=all',
+        'username=' + self.taskItem.username
+      ]
 
       backup = self.taskOptions.get('backup_param', '')
       if backup != '': saltcmd.append(backup)  
@@ -218,6 +219,14 @@ class SaltTask(object):
       elif self.taskOptions['versionIncrMinor']: 
         saltcmd.append('minor')
       if self.taskOptions['versionTest']: saltcmd.append('test')
+
+    elif constants.TASK_RELEASE_SITE == tasksList[self.taskItem.task]['do']:
+      saltcmd = [
+        self.doReleaseSite,
+        'tgt=' + self.taskOptions['subdomain'],
+        'site=' + self.taskOptions['site'],
+        'username=' + self.taskItem.username
+      ]
 
     elif constants.TASK_RELEASE_SCRIPT == tasksList[self.taskItem.task]['do']:
       saltcmd = [

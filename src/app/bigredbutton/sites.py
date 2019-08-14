@@ -18,11 +18,12 @@ class SitesList(object):
       'sh': { 'name': "Spine-health", 'attributes': 'class="site health"' },
       'sp': { 'name': "Sports-health", 'attributes': 'class="site health"' },
       'vh': { 'name': "Veritas Health", 'attributes': 'class="site"'},
-      'vf': { 'name': 'Forums', 'attributes': 'class="site"' }
+      'vf': { 'name': 'Forums', 'attributes': 'class="site"' },
+      'ed': { 'name': 'Editorial', 'attributes': 'class="site"' }
     },
     'list_order': {
       'pre-prod': ['0', 'all', 'health', '-', 'ah', 'ph', 'sh', 'sp', 'vh', 'vf'],
-      'production': ['0', 'ah', 'ph', 'sh', 'sp', 'vh', 'vf']
+      'production': ['0', 'ah', 'ph', 'sh', 'sp', 'vh', 'vf', 'ed']
     }
   }
 

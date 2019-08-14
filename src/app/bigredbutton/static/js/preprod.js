@@ -79,9 +79,6 @@ $(document).ready(function() {
 
     window.queueBusy = true;
 
-    // now get the filename of the release script
-    relscript = $('#releases-preprod').text();
-
     var dbbackup = $('#chk-backup-database-preprod').prop('checked') ? 1 : 0;
     var sitelist = [];
 
