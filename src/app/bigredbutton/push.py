@@ -44,9 +44,15 @@ class Push(object):
       except KeyError:
         opt_backup = ''
 
-      options = '{{ "subdomain": "{}", "site": "{}"{} }}'.format(
+      try:
+        opt_relscript = ', "script": "{}"'.format(data['relscript'])
+      except KeyError:
+        opt_relscript = ''
+
+
+      options = '{{ "subdomain": "{}", "site": "{}"{}{} }}'.format(
                       SubdomainsList.getSubdomain(data['site'], '', 'prod'),
-                      data['site'], opt_backup )
+                      data['site'], opt_backup, opt_relscript )
 
 
     pushitem = PushItem(username, data['task'], options=options)
