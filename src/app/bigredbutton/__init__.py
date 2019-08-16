@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 #from sqlalchemy.orm import sessionmaker
-from os import sys, path
+from os import sys, path, environ
 import logging
 from logging.handlers import RotatingFileHandler
 
@@ -20,6 +20,8 @@ sys.path.append(app_bigredbutton_dir)
 sys.path.append(app_bigredbutton_dir + '/models')
 sys.path.append(scripts_dir + '/saltlibs')
 sys.path.append(dev_saltlibs)
+
+environ['GIT_PYTHON_GIT_EXECUTABLE'] = '/usr/bin/git'
 
 app.secret_key = app.config['SECRET_KEY']
 
