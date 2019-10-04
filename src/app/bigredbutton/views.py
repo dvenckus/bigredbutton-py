@@ -254,6 +254,15 @@ def push():
   return json.dumps({'response': retn, 'content': content }), HttpCode, {'ContentType':'application/json'}
 
 
+# @app.route('/relscripts')
+# def release_scripts():
+#   content = Releases.get()
+#   # if not isinstance(content, str):
+#   #   content = content.decode('utf-8')
+#   return json.dumps({'response': True, 'content': content }), 200, {'ContentType':'application/json'}
+
+
+
 # ------------------ TOOLS handlers ----------------------------------
 
 # Merge

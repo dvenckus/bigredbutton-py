@@ -5,15 +5,16 @@ $(document).ready(function() {
   
   // Pre-Production ----------------------------------------
 
-  $('#tasks-preprod').click(function(){
-    if ( $(this).val() == 'relscript' ) {
+  $('#tasks-preprod').click(function () {
+    if ($(this).val() == 'relscript') {
       $('form#deploy-preprod .control-group.releases').show();
+      //getReleaseScripts();
     } else {
       $('form#deploy-preprod .control-group.releases').hide();
     }
   });
 
-  function clearFormPreProd() {
+  function clearFormPreProd () {
     $('#subdomains-preprod').val(0);
     $('#sites-preprod').val(0);
     $('#tasks-preprod').val(0);
@@ -22,12 +23,32 @@ $(document).ready(function() {
     $('#chk-backup-database-preprod').prop('checked', false);
   };
 
-  $('#clearFormPreProd').click(function() {
+  $('#clearFormPreProd').click(function () {
     clearFormPreProd();
   });
 
   
   clearFormPreProd();
+
+  // function getReleaseScripts() {
+
+  //   var href = $('#releases-preprod').attr('data-href');
+
+  //   $.ajax({
+  //     type: "GET",
+  //     cache: true,
+  //     async: true,
+  //     url: href,
+  //     dataType: 'json',
+  //     success: function (data, textStatus, jqXHR) {
+  //       // updates the queue display with the current items
+  //       if ((textStatus == 'success') && (data.response == true)) {
+  //         // console.log('updatePreProdPage: ' + data.content)
+  //         $('#releases-preprod').html(data.content);
+  //       }
+  //     }
+  //   });
+  // };
 
 
   window.getQueue = function() {

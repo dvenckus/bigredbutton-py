@@ -8,6 +8,10 @@ import os
 DEBUG = True
 FLASK_DEBUG = True
 
+#PYTHONUNBUFFERED = True
+#CACHE_TYPE = None
+TEMPLATES_AUTO_RELOAD = True
+
 
 TIMEZONE = 'America/Chicago'
 
@@ -18,7 +22,8 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 PID_DIR = '/var/run/bigredbutton'
 LOG_DIR = '/var/log/bigredbutton'
 SCRIPTS_DIR = '/var/www/scripts'
-VH_CONFIG_REPO = '/srv/salt/repos/veritashealth/veritas-health-config/develop'
+VH_CONFIG_MASTER_REPO = '/srv/salt/repos/veritashealth/veritas-health-config/master'
+VH_CONFIG_DEV_REPO = '/srv/salt/repos/veritashealth/veritas-health-config/develop'
 VERITAS_PROFILE_REPO = '/srv/salt/repos/veritashealth/veritas-profile-d7/develop'
 SALT_SCRIPTS_DIR = '/srv/salt/base/assets/scripts'
 
@@ -31,7 +36,7 @@ DEV_SALTLIBS = DEV_SCRIPTS_DIR + '/master/saltlibs'
 DEVLIBS = DEV_SCRIPTS_DIR + '/local/devlibs'
 DEVSCRIPTS = DEV_SCRIPTS_DIR + '/local'
 
-RELEASE_SCRIPTS_DIR = VH_CONFIG_REPO + '/releases'
+RELEASE_SCRIPTS_DIR = VH_CONFIG_DEV_REPO + '/releases'
 DEV_RELEASE_SCRIPTS_DIR = DEV_VH_CONFIG_REPO + '/releases'
 
 # salt scripts
