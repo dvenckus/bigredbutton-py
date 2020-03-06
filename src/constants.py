@@ -130,6 +130,7 @@ MAX_TASK_HISTORY = 100
 TASK_BULKLOAD = 'bulkload'
 TASK_DEPLOY = 'deploy'
 TASK_SYNC = 'sync'
+TASK_MSYNC = 'msync'
 TASK_CACHE = 'cache'
 TASK_VARNISH = 'varnish'
 TASK_MERGE = 'merge'

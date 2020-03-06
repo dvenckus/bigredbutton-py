@@ -16,6 +16,7 @@ class TasksList(object):
       'pepperoni': { 'name': "Pepperoni", 'do': '', 'attributes': '' },
       'push': { 'name': "Push", 'do': constants.TASK_DEPLOY, 'attributes': 'class="task"' },
       'sync': { 'name': "Sync (database + files)", 'do': constants.TASK_SYNC, 'attributes': 'class="task"' },
+      'msync': { 'name': "Sync Migration Source Database", 'do': constants.TASK_SYNC, 'attributes': 'class="task"' },
       'cache': { 'name': "Cache Clear", 'do': constants.TASK_CACHE, 'attributes': 'class="task"' },
       'varnish': { 'name': "Varnish Clear", 'do': constants.TASK_VARNISH, 'attributes': 'class="task"' },
       'merge': { 'name': 'Merge Repositories', 'do': constants.TASK_MERGE, 'attributes': 'class="task"' },
@@ -28,7 +29,7 @@ class TasksList(object):
       'unrb': { 'name': 'Undo Rollback', 'do': constants.TASK_ROLLBACK_UNDO,  'attributes': 'class="task"' }
     },
     'list_order': {
-      'pre-prod': ['0', 'push', 'sync', 'cache', 'relscript', '-', 'rollback', 'unrb'],
+      'pre-prod': ['0', 'push', 'sync', 'msync', 'cache', 'relscript', '-', 'rollback', 'unrb'],
       'production': ['0', 'push', 'cache', 'varnish',  'relscript', '-', 'rollback', 'unrb']
     }
   }
