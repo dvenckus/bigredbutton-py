@@ -16,7 +16,7 @@ class TasksList(object):
       'pepperoni': { 'name': "Pepperoni", 'do': '', 'attributes': '' },
       'push': { 'name': "Push", 'do': constants.TASK_DEPLOY, 'attributes': 'class="task"' },
       'sync': { 'name': "Sync (database + files)", 'do': constants.TASK_SYNC, 'attributes': 'class="task"' },
-      'msync': { 'name': "Sync Migration Source Database", 'do': constants.TASK_SYNC, 'attributes': 'class="task"' },
+      'msync': { 'name': "Sync Migration Source Database", 'do': constants.TASK_MSYNC, 'attributes': 'class="task"' },
       'cache': { 'name': "Cache Clear", 'do': constants.TASK_CACHE, 'attributes': 'class="task"' },
       'varnish': { 'name': "Varnish Clear", 'do': constants.TASK_VARNISH, 'attributes': 'class="task"' },
       'merge': { 'name': 'Merge Repositories', 'do': constants.TASK_MERGE, 'attributes': 'class="task"' },

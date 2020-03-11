@@ -172,7 +172,7 @@ class SaltTask(object):
         self.doSiteSync,
         'tgt=' + self.taskOptions['subdomain'],
         'site=' + self.taskOptions['site'],
-        'mode=all',
+        'mode=db',
         'dbkey=migrate',
         'username=' + self.taskItem.username
       ]
