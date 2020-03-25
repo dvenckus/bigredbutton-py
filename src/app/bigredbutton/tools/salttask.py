@@ -168,14 +168,24 @@ class SaltTask(object):
     elif constants.TASK_MSYNC == tasksList[self.taskItem.task]['do']:
       # migration sync
 
-      saltcmd = [
-        self.doSiteSync,
-        'tgt=' + self.taskOptions['subdomain'],
-        'site=' + self.taskOptions['site'],
-        'mode=db',
-        'dbkey=migrate',
-        'username=' + self.taskItem.username
-      ]
+      if self.taskOptions['site'] == 'vc':
+        saltcmd = [
+          self.doBulkLoad,
+          'tgt=' + self.taskOptions['subdomain'],
+          'mode=sync',
+          'sync_mode=db',
+          'dbkey=migrate',
+          'username=' + self.taskItem.username
+        ]
+      else:
+        saltcmd = [
+          self.doSiteSync,
+          'tgt=' + self.taskOptions['subdomain'],
+          'site=' + self.taskOptions['site'],
+          'mode=db',
+          'dbkey=migrate',
+          'username=' + self.taskItem.username
+        ]
 
       backup = self.taskOptions.get('backup_param', '')
       if backup != '': saltcmd.append(backup)  
