@@ -27,7 +27,7 @@ class SaltTask(object):
   doMerge = constants.SCRIPT_MERGE_REPOS
   doVersionUpdate = constants.SCRIPT_VERSION_UPDATE
   doReleaseScript = constants.SCRIPT_RELEASE_SCRIPT
-  doReleaseSite = constants.SCRIPT_RELEASE_SITE
+  doReleaseSite = constants.SCRIPT_SITE_RELEASE
 
 
   taskItem = None
@@ -141,6 +141,7 @@ class SaltTask(object):
 
 
     if constants.TASK_SYNC == tasksList[self.taskItem.task]['do']:
+      # normal sync
 
       # Forum Migration -- only 1 forum site now, no need for bulk_load
       # if self.taskOptions['site'] == 'vf':
@@ -159,6 +160,32 @@ class SaltTask(object):
         'mode=all',
         'username=' + self.taskItem.username
       ]
+
+      backup = self.taskOptions.get('backup_param', '')
+      if backup != '': saltcmd.append(backup)  
+
+
+    elif constants.TASK_MSYNC == tasksList[self.taskItem.task]['do']:
+      # migration sync
+
+      if self.taskOptions['site'] == 'vc':
+        saltcmd = [
+          self.doBulkLoad,
+          'tgt=' + self.taskOptions['subdomain'],
+          'mode=sync',
+          'sync_mode=db',
+          'dbkey=migrate',
+          'username=' + self.taskItem.username
+        ]
+      else:
+        saltcmd = [
+          self.doSiteSync,
+          'tgt=' + self.taskOptions['subdomain'],
+          'site=' + self.taskOptions['site'],
+          'mode=db',
+          'dbkey=migrate',
+          'username=' + self.taskItem.username
+        ]
 
       backup = self.taskOptions.get('backup_param', '')
       if backup != '': saltcmd.append(backup)  
