@@ -105,33 +105,8 @@ def main_page():
 @app.route('/login', methods=['POST'])
 def login_page():
     try:
-      if 'attempts' not in session: 
-        session['attempts'] = 0
-        session['username'] = ''
-        session['logged_in'] = False
-        session['permissions'] = []
 
-      input_username = request.form['username']
-      input_password = request.form['password']
-
-      userSession = Admin.validateUser(input_username, input_password)
-      
-      if userSession and userSession['valid']:
-        app.logger.info("user session is valid")
-        session['user'] = userSession['user'].toDict()
-        session['user']['role'] = userSession['user'].role.toDict()
-        session['permissions'] = userSession['permissions']
-        session['logged_in'] = True
-        session['attempts'] = 0
-        session['permanent'] = True
-        #app.logger.info("User: {}".format(str(session['user'])))
-
-      else:
-        app.logger.info("user session is not valid")
-        session['attempts'] += 1
-
-      #app.logger.info('input_username: {}'.format(input_username))
-      #app.logger.info('input_password: {}'.format(input_password))
+      init_session(request.form['username'], request.form['password'])
 
       return redirect("/")
       #render_template('test.html')
@@ -151,8 +126,38 @@ def logout():
   return redirect("/")
 
 
+def init_session(input_username='', input_password = ''):
+  '''
+  sets up the user session
+  returns True if session is valid
+  '''
+  if 'attempts' not in session: 
+    session['attempts'] = 0
+    session['username'] = ''
+    session['logged_in'] = False
+    session['permissions'] = []
 
-# QUEUE handlers
+  userSession = Admin.validateUser(input_username, input_password)
+  
+  if userSession and userSession['valid']:
+    app.logger.info("user session is valid")
+    session['user'] = userSession['user'].toDict()
+    session['user']['role'] = userSession['user'].role.toDict()
+    session['permissions'] = userSession['permissions']
+    session['logged_in'] = True
+    session['attempts'] = 0
+    session['permanent'] = True
+    #app.logger.info("User: {}".format(str(session['user'])))
+    return True
+  else:
+    app.logger.info("user session is not valid")
+    session['attempts'] += 1
+  
+  return False
+
+
+
+#----------------------- QUEUE handlers --------------------------
 @app.route('/queue')
 def queue_get():
   content = render_template('queue.incl.jinja', queue=BrbQueue.get())
@@ -168,22 +173,30 @@ def queue_add():
   content = ''
   retn = False
   HttpCode = 200
+  api_request = False
 
-  if not session.get('logged_in', False): return redirect("/")
+
+  if jsonData['username'] == 'api_request':
+    # open local request api session
+    init_session(jsonData['username'], jsonData['password'])
+    api_request = True
+   
+  if not session.get('logged_in', False) and not api_request: return redirect("/")
 
   app.logger.info("Queue Add: {}".format(jsonData))
 
   if Admin.checkPermission(session.get('user', None), 'PERMISSION_PRE_PRODUCTION', session['permissions']):
     if BrbQueue.add(session['user']['username'], jsonData):
-      queueContent = BrbQueue.get()
-      #app.logger.info("Queue Content: {}".format(queueContent))
-      content = render_template('queue.incl.jinja', queue=queueContent)
-      if not isinstance(content, str):
-        content = content.decode('utf-8')
+      if not api_request:
+        # api requests don't require return queue content other than confirmation of success
+        queueContent = BrbQueue.get()
+        #app.logger.info("Queue Content: {}".format(queueContent))
+        content = render_template('queue.incl.jinja', queue=queueContent)
+        if not isinstance(content, str):
+          content = content.decode('utf-8')
+        queue_update(content)
 
-      queue_update(content)
-
-      BrbQueue.runQueueManager(3)
+      BrbQueue.runQueueManager(delay=3)
       retn = True
   else:
     content = 'Not Authorized'

@@ -121,7 +121,8 @@ $(document).ready(function() {
     console.log('task: ' + task);
     console.log('dbbackup: ' + dbbackup);
 
-    var post_data = [];
+    var tasklist = [];
+    var postdata=[];
 
     for (var i=0; i < sitelist.length; i++) {
       var item = {
@@ -137,8 +138,9 @@ $(document).ready(function() {
         item.relscript = relscript;
       }
 
-      post_data.push(item);
+      tasklist.push(item);
     }
+    postdata['tasks'] = tasklist;
 
     var href = $(this).attr('data-href');
 
@@ -147,7 +149,7 @@ $(document).ready(function() {
       cache: false,
       url: href,
       contentType: 'application/json',
-      data: JSON.stringify(post_data),
+      data: JSON.stringify(postdata),
       dataType: 'json',
       success: function(data, textStatus, jqXHR) {
         //if ((textStatus == 'success') && (data.response == true)) {
