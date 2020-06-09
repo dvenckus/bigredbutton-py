@@ -30,8 +30,32 @@ class BrbQueue(object):
       app.logger.error("BrbQueue::get()")
       app.logger.error(str(e))
 
-
     return tasks
+
+
+  @staticmethod
+  def get_task(site, subdomain, task):
+    ''' 
+    retrieve a task based on site, subdomain, task, if it exists in the queue
+    '''
+    task = None
+    try:
+      #app.logger.info("TaskItem id="+str(id))
+      if not site or not subdomain or not task:
+        return task
+
+      task = db.session.query(TaskItem).filter_by(site=site, subdomain=subdomain, task=task).first()
+
+    except exc.SQLAlchemyError as e:
+      app.logger.error("BrbQueue::get()")
+      app.logger.error(str(e))
+    except Exception as e:
+      app.logger.error("BrbQueue::get()")
+      app.logger.error(str(e))
+
+
+    return task
+
 
 
   @staticmethod
@@ -41,31 +65,37 @@ class BrbQueue(object):
     doCommit = False
 
     try:
-      for item in data:
-        # app.logger.info("BrbQueue::add(): item {}".format(item))
+      tasklist = data['tasks']
+      if len(tasklist):
+        for item in tasklist:
+          # app.logger.info("BrbQueue::add(): item {}".format(item))
 
-        subdomain = SubdomainsList.getSubdomain(item['site'], item['subdomain'], 'pre-prod')
-        opt_backup = ''
-        opt_relscript = ''
-        
-        # create a json-compatible string to pass to the TaskItem object
-        # double braces in format() indicate use of a literal
-        try:
-          opt_backup = ', "dbbackup": {}'.format(item['dbbackup'])
-        except KeyError:
+          if username == 'api_request' and get_task(item['site'], item['subdomain'], item['task']):
+            # task already exists in queue, do not add it again from salt reactor trigger
+            continue
+
+          subdomain = SubdomainsList.getSubdomain(item['site'], item['subdomain'], 'pre-prod')
           opt_backup = ''
-
-        try:
-          opt_relscript = ', "script": "{}"'.format(item['relscript'])
-        except KeyError:
           opt_relscript = ''
+          
+          # create a json-compatible string to pass to the TaskItem object
+          # double braces in format() indicate use of a literal
+          try:
+            opt_backup = ', "dbbackup": {}'.format(item['dbbackup'])
+          except KeyError:
+            opt_backup = ''
+
+          try:
+            opt_relscript = ', "script": "{}"'.format(item['relscript'])
+          except KeyError:
+            opt_relscript = ''
 
 
-        options = '{{ "subdomain": "{}", "site": "{}"{}{} }}'.format(subdomain, item['site'], opt_backup, opt_relscript)
-                      
-        # app.logger.info("BrbQueue::add(): options " + options)
-        task = TaskItem(username, str(item['task']), options=options)
-        db.session.add(task)
+          options = '{{ "subdomain": "{}", "site": "{}"{}{} }}'.format(subdomain, item['site'], opt_backup, opt_relscript)
+                        
+          # app.logger.info("BrbQueue::add(): options " + options)
+          task = TaskItem(username, str(item['task']), options=options)
+          db.session.add(task)
 
       # after for loop, commit all new items
       db.session.commit()
