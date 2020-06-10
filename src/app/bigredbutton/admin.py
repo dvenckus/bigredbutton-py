@@ -30,7 +30,7 @@ class Admin(object):
       userSession = { 'valid': False }
 
       if input_username == '' or input_password == '':
-        app.logger.info('Missing Login Input: {}, {}'.format(input_username, input_password))
+        app.logger.info(f"Missing Login Input: {input_username}, {input_password}")
         return userSession
 
       # retrieve the user record
@@ -38,10 +38,10 @@ class Admin(object):
 
       password_enc = sha256_crypt.encrypt(input_username)
 
-      app.logger.info("user found: {}".format(str(user)))
-      app.logger.info("match passwords...")
-      app.logger.info("  user entered:  {}".format(password_enc))
-      app.logger.info("  user existing: {}".format(user.password))              
+      # app.logger.info(f"user found: {str(user)}")
+      # app.logger.info("match passwords...")
+      # app.logger.info(f"  user entered:  {str(password_enc)}")
+      # app.logger.info(f"  user existing: {str(user.password)}")           
 
       if user.password and sha256_crypt.verify(input_password, str(user.password)):
         app.logger.info('User Password is valid')
@@ -217,7 +217,7 @@ class Admin(object):
 
       role_id = int(data['role_id']) if data['role_id'] != '' else 0
 
-      app.logger.info("RoleId: {}".format(role_id))
+      app.logger.info(f"RoleId: {role_id}")
 
       permission_list = []
       input_permission_list = [ int(x) for x in data['role_permissions'] ]
@@ -235,7 +235,7 @@ class Admin(object):
 
         db.session.flush()
         db.session.refresh(new_role)
-        app.logger.info("New Role: {}".format(str(new_role)))
+        app.logger.info(f"New Role: {new_role}")
         role_id = new_role.id
 
         new_permission_list = []
@@ -244,7 +244,7 @@ class Admin(object):
           new_permission = RolePermission(role_id=role_id, permission_id=permission_id)
           new_permission_list.append(new_permission)
 
-        app.logger.info("Role Permissions [selected]: {}".format(str(input_permission_list)))
+        app.logger.info(f"Role Permissions [selected]: {str(input_permission_list)}")
           
         db.session.add_all(new_permission_list)
           
@@ -261,9 +261,9 @@ class Admin(object):
         # get existing role permissions
         existing_permissions_list = Admin.getRolePermissions(role_id=role_id, id_list=True)
 
-        app.logger.info("Role: {}".format(str(role)))
-        app.logger.info("Role Permissions [original]: {}".format(str(existing_permissions_list)))
-        app.logger.info("Role Permissions [selected]: {}".format(str(input_permission_list)))
+        app.logger.info(f"Role: {str(role)}")
+        app.logger.info(f"Role Permissions [original]: {str(existing_permissions_list)}")
+        app.logger.info(f"Role Permissions [selected]: {str(input_permission_list)}")
         
 
         add_list = []
@@ -275,8 +275,8 @@ class Admin(object):
         else:
           app.logger.info("rolePermissions match")
 
-        app.logger.info("Adding new permissions: {}".format(str(add_list)))
-        app.logger.info("Deleting unselected permissions: {}".format(str(delete_list)))
+        app.logger.info(f"Adding new permissions: {str(add_list)}")
+        app.logger.info(f"Deleting unselected permissions: {str(delete_list)}")
 
         if add_list:
           new_permission_list = []
@@ -300,7 +300,7 @@ class Admin(object):
 
       ## debug only ##
       permission_list = Admin.getRolePermissions(role_id=role_id, id_list=True)
-      app.logger.info("Updated RolePermissions list: {}".format(str(permission_list)))
+      app.logger.info(f"Updated RolePermissions list: {str(permission_list)}")
 
       return True
 

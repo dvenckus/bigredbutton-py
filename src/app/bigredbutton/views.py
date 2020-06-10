@@ -179,14 +179,24 @@ def queue_add():
   if jsonData['username'] == 'api_request':
     # open local request api session
     init_session(jsonData['username'], jsonData['password'])
+    app.logger.info("User Session Created: {}".format(session.get('logged_in', False)))
+    jsonData['password'] = 'xxxxxxx'   # blank password
     api_request = True
    
-  if not session.get('logged_in', False) and not api_request: return redirect("/")
+  if not session.get('logged_in', False):
+    if api_request: 
+      content = 'Not Authorized'
+      HttpCode = 444
+      return json.dumps({'response': retn, 'content': content }), HttpCode, {'ContentType':'application/json'}
+    else:
+      return redirect("/")
 
   app.logger.info("Queue Add: {}".format(jsonData))
 
-  if Admin.checkPermission(session.get('user', None), 'PERMISSION_PRE_PRODUCTION', session['permissions']):
-    if BrbQueue.add(session['user']['username'], jsonData):
+  user = session.get('user', None)
+
+  if Admin.checkPermission(user, 'PERMISSION_PRE_PRODUCTION', session['permissions']):
+    if BrbQueue.add(user.get('username', ''), jsonData):
       if not api_request:
         # api requests don't require return queue content other than confirmation of success
         queueContent = BrbQueue.get()

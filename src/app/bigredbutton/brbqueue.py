@@ -53,7 +53,6 @@ class BrbQueue(object):
       app.logger.error("BrbQueue::get()")
       app.logger.error(str(e))
 
-
     return task
 
 
@@ -70,9 +69,10 @@ class BrbQueue(object):
         for item in tasklist:
           # app.logger.info("BrbQueue::add(): item {}".format(item))
 
-          if username == 'api_request' and get_task(item['site'], item['subdomain'], item['task']):
+          if username == 'api_request' and BrbQueue.get_task(item['site'], item['subdomain'], item['task']):
             # task already exists in queue, do not add it again from salt reactor trigger
             continue
+        
 
           subdomain = SubdomainsList.getSubdomain(item['site'], item['subdomain'], 'pre-prod')
           opt_backup = ''
