@@ -176,7 +176,7 @@ def queue_add():
   api_request = False
 
 
-  if jsonData['username'] == 'api_request':
+  if 'username' in jsonData and jsonData['username'] == 'api_request':
     # open local request api session
     init_session(jsonData['username'], jsonData['password'])
     app.logger.info("User Session Created: {}".format(session.get('logged_in', False)))

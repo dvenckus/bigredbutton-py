@@ -122,7 +122,7 @@ $(document).ready(function() {
     console.log('dbbackup: ' + dbbackup);
 
     var tasklist = [];
-    var postdata=[];
+    var postdata={};
 
     for (var i=0; i < sitelist.length; i++) {
       var item = {
