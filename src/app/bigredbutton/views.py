@@ -175,6 +175,7 @@ def queue_add():
   HttpCode = 200
   api_request = False
 
+  app.logger.info("Views::queue_add {}".format(jsonData))
 
   if 'username' in jsonData and jsonData['username'] == 'api_request':
     # open local request api session
@@ -190,8 +191,6 @@ def queue_add():
       return json.dumps({'response': retn, 'content': content }), HttpCode, {'ContentType':'application/json'}
     else:
       return redirect("/")
-
-  app.logger.info("Queue Add: {}".format(jsonData))
 
   user = session.get('user', None)
 

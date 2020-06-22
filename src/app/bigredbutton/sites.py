@@ -11,7 +11,7 @@ class SitesList(object):
     'list': {
       '0': { 'name': mdash + " Select Site " + mdash },
       'all': { 'name': "ALL [ah, ph, sh, sp, vh, vf]" },
-      'vc': { 'name': "All Veritas-Core [ah, ph, sh, sp, vh]"},
+      'vc': { 'name': "All Veritas-Core [ah, ph, sh, sp]"},
       'health': { 'name': "All Healthsites [ah, ph, sh, sp]" },
       '-': { 'name': mdash, 'attributes': 'role="separator" class="divider"' },
       'ah': { 'name': "Arthritis-health", 'attributes': 'class="site health"' },

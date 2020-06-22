@@ -25,6 +25,7 @@ class SaltTask(object):
   doRollback = constants.SCRIPT_ROLLBACK
   doBulkLoad = constants.SCRIPT_BULK_LOAD
   doMerge = constants.SCRIPT_MERGE_REPOS
+  doMigrate = constants.SCRIPT_MIGRATE
   doVersionUpdate = constants.SCRIPT_VERSION_UPDATE
   doReleaseScript = constants.SCRIPT_RELEASE_SCRIPT
   doReleaseSite = constants.SCRIPT_SITE_RELEASE
@@ -52,6 +53,14 @@ class SaltTask(object):
     try:
       if self.taskOptions['dbbackup'] == True:
         self.taskOptions['backup_param'] = 'backup'
+    except KeyError:
+      ignoreThis = True
+
+    # define the string-version of the dbreset setting
+    self.taskOptions['dbreset_param'] = ''
+    try:
+      if self.taskOptions['dbreset'] == True:
+        self.taskOptions['dbreset'] = 'dbreset'
     except KeyError:
       ignoreThis = True
 
@@ -190,6 +199,18 @@ class SaltTask(object):
       backup = self.taskOptions.get('backup_param', '')
       if backup != '': saltcmd.append(backup)  
 
+    elif constants.TASK_MIGRATE == tasksList[self.taskItem.task]['do']:
+      # migration sync
+
+      if self.taskOptions['subdomain'] in ['eve8']:
+        saltcmd = [
+          self.doMigrate,
+          'tgt=' + self.taskOptions['subdomain'],
+          'username=' + self.taskItem.username
+        ]
+      else:
+        saltcmd = []
+
     elif constants.TASK_DEPLOY == tasksList[self.taskItem.task]['do']:
       saltcmd = [
         self.doSiteDeploy,
@@ -199,6 +220,9 @@ class SaltTask(object):
       ]
       backup = self.taskOptions.get('backup_param', '')
       if backup != '': saltcmd.append(backup)  
+
+      dbreset = self.taskOptions.get('dbreset_param', '')
+      if dbreset != '': saltcmd.append(dbreset)  
 
     elif constants.TASK_CACHE == tasksList[self.taskItem.task]['do']:
       saltcmd = [
