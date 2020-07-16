@@ -5,15 +5,6 @@ $(document).ready(function() {
   
   // Production ----------------------------------------
 
-  $('#tasks-prod').click(function(){
-    if ( $(this).val() == 'relscript' ) {
-      $('form#deploy-production .control-group.releases').show();
-    } else {
-      $('form#deploy-production .control-group.releases').hide();
-    }
-  });
-
-
     
   function clearFormProd() {
     $('#subdomains-prod').val(0);
@@ -40,17 +31,13 @@ $(document).ready(function() {
     var site = $('#sites-prod').val();
     var task = $('#tasks-prod').val();
     var dbbackup = $('#chk-backup-database-prod').prop('checked') ? 1 : 0;
-    var relscript = $('#releases-prod').val();
 
     if (site == '-' || site == '0' ||
         task == '-' || task == '0') {
       alert('Invalid selection');
       return false;
     }
-    if ((task == 'relscript') && (relscript == '0')) {
-      alert('Invalid selection');
-      return false;
-    } 
+
 
     window.pushBusy = true;
 
@@ -65,9 +52,6 @@ $(document).ready(function() {
               };
     if ((task == 'push') || (task == 'sync')) {
       item.dbbackup = dbbackup;
-    }
-    if (task == 'relscript') {
-      item.relscript = relscript;
     }
 
     $.ajax({

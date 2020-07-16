@@ -18,7 +18,6 @@ from repositories import Repositories
 from branches import Branches
 from taskhistory import TaskHistory 
 from utils import Utils
-from releases import Releases
 from pushlog import PushLog
 
 import json
@@ -84,7 +83,6 @@ def main_page():
 
     return render_template('main.html',  sites=SitesList.get(),
                                         tasks=TasksList.get(),
-                                        releases=Releases.get(),
                                         subdomains=SubdomainsList.get(),
                                         repositories=Repositories.get(),
                                         branches=Branches.get(),
@@ -274,14 +272,6 @@ def push():
     HttpCode = 444
 
   return json.dumps({'response': retn, 'content': content }), HttpCode, {'ContentType':'application/json'}
-
-
-# @app.route('/relscripts')
-# def release_scripts():
-#   content = Releases.get()
-#   # if not isinstance(content, str):
-#   #   content = content.decode('utf-8')
-#   return json.dumps({'response': True, 'content': content }), 200, {'ContentType':'application/json'}
 
 
 
