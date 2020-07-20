@@ -33,7 +33,7 @@ class User(Base):
 
 
     def __repr__(self):
-        return "<User(id='%d', username='%s', password='%s', realname='%s', role_id='%d', role='%s', updated='%s', updated_by='%d')>" % (
+        return "<User(id='%d', username='%s', password='xxxxxxx', realname='%s', role_id='%d', role='%s', updated='%s', updated_by='%d')>" % (
                       self.id, self.username, self.password, self.realname, self.role_id, str(self.role), self.updated, self.updated_by)
 
     def toDict(self):

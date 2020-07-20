@@ -5,15 +5,6 @@ $(document).ready(function() {
   
   // Pre-Production ----------------------------------------
 
-  $('#tasks-preprod').click(function () {
-    if ($(this).val() == 'relscript') {
-      $('form#deploy-preprod .control-group.releases').show();
-      //getReleaseScripts();
-    } else {
-      $('form#deploy-preprod .control-group.releases').hide();
-    }
-  });
-
   function clearFormPreProd () {
     $('#subdomains-preprod').val(0);
     $('#sites-preprod').val(0);
@@ -29,27 +20,6 @@ $(document).ready(function() {
 
   
   clearFormPreProd();
-
-  // function getReleaseScripts() {
-
-  //   var href = $('#releases-preprod').attr('data-href');
-
-  //   $.ajax({
-  //     type: "GET",
-  //     cache: true,
-  //     async: true,
-  //     url: href,
-  //     dataType: 'json',
-  //     success: function (data, textStatus, jqXHR) {
-  //       // updates the queue display with the current items
-  //       if ((textStatus == 'success') && (data.response == true)) {
-  //         // console.log('updatePreProdPage: ' + data.content)
-  //         $('#releases-preprod').html(data.content);
-  //       }
-  //     }
-  //   });
-  // };
-
 
   window.getQueue = function() {
     if (window.queueBusy == true) { return; }
@@ -82,18 +52,12 @@ $(document).ready(function() {
     var subdomain = $('#subdomains-preprod').val();
     var site = $('#sites-preprod').val();
     var task = $('#tasks-preprod').val();
-    var relscript = $('#releases-preprod').val();
 
     if (window.queueBusy) return false;
 
     if (subdomain == '-' || subdomain == '0' ||
         site == '-' || site == '0' ||
         task == '-' || task == '0') {
-      alert('Invalid selection');
-      return false;
-    }
-
-    if ((task == 'relscript') && (relscript == '0')) {
       alert('Invalid selection');
       return false;
     }
@@ -122,7 +86,7 @@ $(document).ready(function() {
     console.log('dbbackup: ' + dbbackup);
 
     var tasklist = [];
-    var postdata=[];
+    var postdata={};
 
     for (var i=0; i < sitelist.length; i++) {
       var item = {
@@ -134,9 +98,6 @@ $(document).ready(function() {
       if ((task == 'push') || (task == 'sync')) {
         item.dbbackup = dbbackup;
       } 
-      if (task == 'relscript') {
-        item.relscript = relscript;
-      }
 
       tasklist.push(item);
     }
@@ -162,8 +123,6 @@ $(document).ready(function() {
     window.queueBusy = false;
     return false;
   });
-
-
 
 
   $('#queue').on('click', 'tr a.cancel', function() {

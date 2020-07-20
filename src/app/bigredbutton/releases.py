@@ -31,8 +31,8 @@ class Releases(object):
     repo = git.Repo(constants.VH_CONFIG_DEV_REPO)
     last_tag = repo.git.describe('--tags', '--candidates=1')
     last_tag = last_tag[0:7]
-    app.logger.info("Repo: {}".format(constants.VH_CONFIG_DEV_REPO))
-    app.logger.info("Lastag: {}".format(last_tag))
+    #app.logger.info("Repo: {}".format(constants.VH_CONFIG_DEV_REPO))
+    #app.logger.info("Lastag: {}".format(last_tag))
 
     chdir(constants.RELEASE_SCRIPTS_DIR)
     #chdir(constants.DEV_RELEASE_SCRIPTS_DIR)
