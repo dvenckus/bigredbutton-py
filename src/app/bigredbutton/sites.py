@@ -10,9 +10,9 @@ class SitesList(object):
   list = {
     'list': {
       '0': { 'name': mdash + " Select Site " + mdash },
-      'all': { 'name': "ALL [ah, ph, sh, sp, vh]" },
-      'vc': { 'name': "All D8 Veritas-Core [ah, ph, sh, sp, vh]"},
+      'all': { 'name': "ALL D7 Sites [ah, ph, sh, sp, vh]" },
       'health': { 'name': "All D7 Healthsites [ah, ph, sh, sp]" },
+      'vc': { 'name': "All D8 Veritas-Core Sites [ah, ph, sh, sp, vh]"},
       '-': { 'name': mdash, 'attributes': 'role="separator" class="divider"' },
       'ah': { 'name': "Arthritis-health", 'attributes': 'class="site health"' },
       'ph': { 'name': "Pain-health", 'attributes': 'class="site health"' },
