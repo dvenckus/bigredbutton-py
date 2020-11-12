@@ -56,15 +56,6 @@ class SaltTask(object):
     except KeyError:
       ignoreThis = True
 
-    # define the string-version of the dbreset setting
-    # self.taskOptions['dbreset_param'] = ''
-    # try:
-    #   if self.taskOptions['dbreset']:
-    #     self.taskOptions['dbreset'] = 'dbreset'
-    # except KeyError:
-    #   ignoreThis = True
-
-
     subdomain = ''
     try:
       subdomain = self.taskOptions['subdomain']
@@ -111,9 +102,6 @@ class SaltTask(object):
 
       output, errormsg = self.do()
 
-      # No need to do this as its handled directly by the saltscripts now
-      #self.pushLog.send(output)
-
       if len(errormsg):
         self.pushLog.send('An Error occurred ' + str(errormsg))
 
@@ -150,18 +138,7 @@ class SaltTask(object):
 
 
     if constants.TASK_SYNC == tasksList[self.taskItem.task]['do']:
-      # normal sync
-
-      # Forum Migration -- only 1 forum site now, no need for bulk_load
-      # if self.taskOptions['site'] == 'vf':
-      #   saltcmd = [
-      #     self.doBulkLoad,
-      #     'tgt=' + self.taskOptions['subdomain'],
-      #     'mode=sync',
-      #     'username=' + self.taskItem.username
-      #   ]
-      # else:
-        #print("self: In DO, tasksList sync " + str(self.taskItem) )
+      
       saltcmd = [
         self.doSiteSync,
         'tgt=' + self.taskOptions['subdomain'],
@@ -297,16 +274,6 @@ class SaltTask(object):
       saltcmd_str = ''
 
       try:
-        # if socket.gethostname() == constants.SALT_MASTER_LOCAL:
-        #   from saltdev import SaltDev
-        #   saltcmd_str = ' '.join(saltcmd)
-        #   errors = 0
-        #   # relay the commands to the salt_master
-        #   output, errors = SaltDev.run_remote(constants.SALT_MASTER, saltcmd_str, errors)
-        #   if errors:
-        #     errormsg = "Error [SaltTask::do()] SaltDev.run_remote()"
-        # else:
-
         # this is the salt master, issue commandsd to subprocess
         saltcmd[:0] = ['/usr/bin/sudo']
         saltcmd_str = ', '.join(saltcmd)
@@ -321,5 +288,4 @@ class SaltTask(object):
     else:
       output = errormsg = "Task not found ({})".format(tasksList[self.taskItem.task])
 
-    #print('SaltTask End of Do')
     return (output, errormsg)
