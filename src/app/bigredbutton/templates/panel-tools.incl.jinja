@@ -7,7 +7,9 @@
 
               <div class="accordion tools-accordian" id="accordion">
 
-                {% if constants['PERMISSION_MERGE_REPOS'] in session.get('permissions', []) %}
+                {# turn off merge 
+                 #if constants['PERMISSION_MERGE_REPOS'] in session.get('permissions', []) #}
+                {% if False %}
                 <div class="card">
                   <div class="card-header" id="headingMerge">
                     <h5 class="mb-0">
@@ -24,7 +26,9 @@
                 </div>
                 {% endif %}
 
-                {% if constants['PERMISSION_VERSION_UPDATE'] in session.get('permissions', []) %}
+                {# turn off version update
+                 # if constants['PERMISSION_VERSION_UPDATE'] in session.get('permissions', []) #}
+                {% if False %}
                 <div class="card">
                   <div class="card-header" id="headingVersion">
                     <h5 class="mb-0">
