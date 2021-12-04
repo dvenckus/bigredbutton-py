@@ -24,7 +24,9 @@
                 </div>
                 {% endif %}
 
-                {% if constants['PERMISSION_VERSION_UPDATE'] in session.get('permissions', []) %}
+                {# turn off version update
+                 # if constants['PERMISSION_VERSION_UPDATE'] in session.get('permissions', []) #}
+                {% if False %}
                 <div class="card">
                   <div class="card-header" id="headingVersion">
                     <h5 class="mb-0">

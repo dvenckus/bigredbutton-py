@@ -18,7 +18,7 @@ $(document).ready(function() {
   function clearFormToolsMerge() {
     $('#mergeRepo').val(0);
     $('#mergeBranch').val(0);
-    $('#mergeTest').prop('checked', false);
+    $('#mergeTest').prop('checked', true);
   };
 
 
@@ -74,7 +74,7 @@ $(document).ready(function() {
   function clearFormToolsVersion() {
     $('#versionRepo').val(0);
     $('#versionIncrementMinor').prop('checked', true);
-    $('#versionTest').prop('checked', false);
+    $('#versionTest').prop('checked', true);
   };
 
   $('#cancelVersionUpdate').click(function() {
