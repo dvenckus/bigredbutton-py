@@ -7,9 +7,7 @@
 
               <div class="accordion tools-accordian" id="accordion">
 
-                {# turn off merge 
-                 #if constants['PERMISSION_MERGE_REPOS'] in session.get('permissions', []) #}
-                {% if False %}
+                {% if constants['PERMISSION_MERGE_REPOS'] in session.get('permissions', []) %}
                 <div class="card">
                   <div class="card-header" id="headingMerge">
                     <h5 class="mb-0">
