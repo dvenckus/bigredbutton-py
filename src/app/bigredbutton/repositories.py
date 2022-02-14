@@ -14,7 +14,7 @@ class Repositories(object):
       'h+p': { 'name': "Healthsites + Profile", 'attributes': 'class="repo"' },
       'pr': { 'name': "Profile", 'attributes': 'class="repo"' },
       'ah': { 'name': "Arthritis-health", 'attributes': 'class="repo"' },
-      'ph': { 'name': "Pain-health", 'attributes': 'class="repo"' },
+      # 'ph': { 'name': "Pain-health", 'attributes': 'class="repo"' },
       'sh': { 'name': "Spine-health", 'attributes': 'class="repo"' },
       'sp': { 'name': "Sports-health", 'attributes': 'class="repo"' },
       'vh': { 'name': "Veritashealth", 'attributes': 'class="repo"'},

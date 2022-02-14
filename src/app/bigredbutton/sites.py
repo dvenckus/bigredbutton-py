@@ -12,17 +12,15 @@ class SitesList(object):
       '0': { 'name': mdash + " Select Site " + mdash },
       'all': { 'name': "ALL D7 Sites [ah, sh, sp, vh]" },
       'health': { 'name': "All D7 Healthsites [ah, sh, sp]" },
-      # 'vc': { 'name': "All D8 Veritas-Core Sites [ah, sh, sp, vh]"},
       '-': { 'name': mdash, 'attributes': 'role="separator" class="divider"' },
       'ah': { 'name': "Arthritis-health", 'attributes': 'class="site health"' },
-      'ph': { 'name': "Pain-health", 'attributes': 'class="site health"' },
       'sh': { 'name': "Spine-health", 'attributes': 'class="site health"' },
       'sp': { 'name': "Sports-health", 'attributes': 'class="site health"' },
       'vh': { 'name': "Veritas Health", 'attributes': 'class="site"'}
     },
     'list_order': {
-      'pre-prod': ['0', 'all', 'health', '-', 'ah', 'sh', 'sp', 'vh', 'ph'],
-      'production': ['0', 'ah', 'sh', 'sp', 'vh', 'ph']
+      'pre-prod': ['0', 'all', 'health', '-', 'ah', 'sh', 'sp', 'vh'],
+      'production': ['0', 'ah', 'sh', 'sp', 'vh']
     }
   }
 
