@@ -14,15 +14,13 @@ class Repositories(object):
       'h+p': { 'name': "Healthsites + Profile", 'attributes': 'class="repo"' },
       'pr': { 'name': "Profile", 'attributes': 'class="repo"' },
       'ah': { 'name': "Arthritis-health", 'attributes': 'class="repo"' },
-      'ph': { 'name': "Pain-health", 'attributes': 'class="repo"' },
       'sh': { 'name': "Spine-health", 'attributes': 'class="repo"' },
       'sp': { 'name': "Sports-health", 'attributes': 'class="repo"' },
       'vh': { 'name': "Veritashealth", 'attributes': 'class="repo"'},
-      'vc': { 'name': 'Veritas Core', 'attributes': 'class="repo"' },
       'vcfg': { 'name': 'Veritas Health Config', 'attributes': 'class="repo"' },
       'brb': { 'name': 'BigRedButton', 'attributes': 'class="repo"' }
     },
-    'list_order': ['0', 'all', 'h+p', 'pr', 'ah', 'ph', 'sh', 'sp', 'vh', 'vc', 'vcfg', 'brb']
+    'list_order': ['0', 'all', 'h+p', 'pr', 'ah', 'sh', 'sp', 'vh', 'vcfg', 'brb']
   }
 
   @staticmethod
